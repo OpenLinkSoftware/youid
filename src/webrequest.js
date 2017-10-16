@@ -78,4 +78,13 @@ if (Browser.isChromeAPI)
   });
 
 
+  Browser.api.runtime.onMessageExternal.addListener(
+    function(request, sender, sendResponse) {
+      if (request.getWebId) {
+        var v = setting.getValue("ext.youid.pref.id");
+        sendResponse({webid: v});
+      }
+    });
+
+
 }
