@@ -24,7 +24,7 @@ function recvMessage(event)
                  if (response.webid) {
                    var msg = '{"webid":"'+response.webid+'"}';
                    event.source.postMessage("youid_rc:"+msg, event.origin);
-                   window.postMessage('youid_rc:'+msg, "*");
+//                   window.postMessage('youid_rc:'+msg, "*");
                  }
 
               });
