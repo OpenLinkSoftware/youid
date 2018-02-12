@@ -59,7 +59,7 @@ $(function(){
 
 function closeOptions()
 {
-    if (Browser.isChromeAPI && Browser.isFirefoxWebExt) {
+    if (Browser.isFirefoxWebExt) {
       Browser.api.tabs.getCurrent(function(tab) {
         Browser.api.tabs.remove(tab.id);
       });

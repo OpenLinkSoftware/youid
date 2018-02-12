@@ -16,18 +16,30 @@ function recvMessage(event)
 
 
   if (ev_data && ev_data.getWebId) {
-
-    Browser.api.runtime.sendMessage({ getWebId: true},
+    if (Browser.isChromeWebExt) {
+       Browser.api.runtime.sendMessage({ getWebId: true},
               function (response) {
 //                 console.log(JSON.stringify(response, undefined, 2));
 
                  if (response.webid) {
                    var msg = '{"webid":"'+response.webid+'"}';
                    event.source.postMessage("youid_rc:"+msg, event.origin);
-//                   window.postMessage('youid_rc:'+msg, "*");
                  }
 
               });
+    } else {
+      Browser.api.runtime.sendMessage({ getWebId: true})
+           .then(function (response) 
+                 {
+//                 console.log(JSON.stringify(response, undefined, 2));
+
+                   if (response.webid) {
+                     var msg = '{"webid":"'+response.webid+'"}';
+                     event.source.postMessage("youid_rc:"+msg, event.origin);
+                   }
+                 });
+    }
+
   }
 }
 
