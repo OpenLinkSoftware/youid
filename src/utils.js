@@ -60,6 +60,24 @@ YouID_Loader = function (info_dlg, row) {
        OPTIONAL { ?webid ldp:inbox ?inbox } \
        OPTIONAL { ?webid foaf:knows ?knows } \
     }';
+
+  this.verify_pubkey = '\
+  PREFIX foaf:<http://xmlns.com/foaf/0.1/> \
+  PREFIX schema: <http://schema.org/> \
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+  PREFIX owl:  <http://www.w3.org/2002/07/owl#> \
+  PREFIX cert: <http://www.w3.org/ns/auth/cert#> \
+  PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> \
+  PREFIX acl: <http://www.w3.org/ns/auth/acl#> \
+  PREFIX pim: <http://www.w3.org/ns/pim/space#> \
+  PREFIX ldp: <http://www.w3.org/ns/ldp#> \
+  SELECT * WHERE \
+    { \
+       {{?url foaf:primaryTopic ?webid .} UNION \
+        {?url schema:mainEntity ?webid .} \
+       }\
+       OPTIONAL { ?webid cert:key ?pubkey} \
+    }';
 };
 
 YouID_Loader.prototype = {
@@ -118,12 +136,36 @@ YouID_Loader.prototype = {
                  if (err)
                    self.info_dlg("Could not extract profile data\n"+(err?err:""));
                  else
-                   self.info_dlg("Could not extract profile data.\n"+
-                                 "At least one of the following is missing from the profile\n"+
-                                 "document associated with the input WebID:"+
-                                 "{webid-profile-doc-url} foaf:primaryTopic ?webid \n"+
-                                 " OR \n"+
-                                 "{webid-profile-doc-url} schema:mainEntity ?webid .");
+                   {
+                     store.execute(self.verify_pubkey, function(err, res) {
+                       var verify_pkey = {pubkey:null, url:null, webid:null};
+                       
+                       for(var i=0; i < res.length; i++) {
+                         if (res[i].url && String(res[i].url.value).lastIndexOf(baseURI, 0)!=0)
+                           continue;
+                         if (res[i].pubkey)
+                           verify_pkey.pubkey = res[i].pubkey.value
+                         if (res[i].url)
+                           verify_pkey.url = res[i].url.value
+                         if (res[i].webid)
+                           verify_pkey.webid = res[i].webid.value
+                       }
+
+                       if (!verify_pkey.pubkey && verify_pkey.url && verify_pkey.webid)
+                         self.info_dlg("Could not extract profile data.\n"+
+                                       "The next item is missing from the profile\n"+
+                                       "document associated with the input WebID:\n"+
+                                       "?webid cert:key ?pubkey .\n");
+                       else
+                         self.info_dlg("Could not extract profile data.\n"+
+                                       "At least one of the following is missing from the profile\n"+
+                                       "document associated with the input WebID:\n"+
+                                       "{webid-profile-doc-url} foaf:primaryTopic ?webid \n"+
+                                       " OR \n"+
+                                       "{webid-profile-doc-url} schema:mainEntity ?webid .");
+
+                     });
+                   }
                  return;
                }
 
