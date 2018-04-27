@@ -19,7 +19,6 @@
  */
 
 
-if (Browser.isChromeAPI) 
 {
   var setting = new Settings();
 
@@ -43,7 +42,7 @@ if (Browser.isChromeAPI)
 
           if (pref_youid && pref_youid.id && pref_youid.id.length > 0) {
             details.requestHeaders.push({name:"On-Behalf-Of", value:pref_youid.id});
-            details.requestHeaders.push({name:"User", value:pref_youid.id});
+//            details.requestHeaders.push({name:"User", value:pref_youid.id});
           }
 
           if (hdr_list.length > 0) {

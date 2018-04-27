@@ -26,100 +26,143 @@ YouId_View = function(is_popup) {
 YouId_View.prototype = {
   create_youid_item: function (youid, sel)
   {
-    var cls = sel ? ' class="youid_item youid_checked"' : ' class="youid_item"';
+    function mk_row_str(_name_href, _name, _str)
+    {
+      return `<tr class="dtext">
+                <td valign="top" class="dtext_col1">
+                  <a href="${_name_href}" class="uri">${_name}</a>
+                </td>
+                <td>
+                  ${_str}
+                </td>
+               </tr> `;
+    }
+
+    function mk_row_href(_name_href, _name, _href)
+    {
+      return mk_row_str(_name_href, 
+                        _name, 
+                        `<a href="${href}" class="uri">${_href}</a>`);
+    }
+
+
+
+    var cls = sel ? ' class="youid_item youid_checked"' 
+                  : ' class="youid_item"';
     var checked = sel ? ' checked="checked"':' ';
     var mdata = encodeURI(JSON.stringify(youid, undefined, 2));
-    var uri = youid.id ? '<a href="'+youid.id+'" class="uri">'+youid.id+'</a>' : '';
-    var pubkey_uri = youid.pubkey?'<a href="'+youid.pubkey+'" class="uri">'+youid.pubkey+'</a>' : '';
+    var uri = youid.id ? `<a href="${youid.id}" class="uri">${youid.id}</a>` : '';
 
     var det = "";
 
-    if (youid.alg) {
-       var href = youid.alg?'<a href="'+youid.alg+'" class="uri">'+youid.alg+'</a>' : '';
-       det += '<tr class="dtext"><td valign="top"><a href="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" class="uri">Algorithm</a></td><td>'+href+'</td></tr> ';
+    if (youid.pubkey) {
+      det += mk_row_href('http://www.w3.org/ns/auth/cert#key',
+                         'PubKey',
+                         youid.pubkey);
     }
-    if (youid.exp)
-       det += '<tr class="dtext"><td valign="top"><a href="http://www.w3.org/ns/auth/cert#exponent" class="uri">Exponent</a></td><td>'+youid.exp+'</td></tr> ';
-    if (youid.mod)
-       det += '<tr class="dtext"><td valign="top"><a href="http://www.w3.org/ns/auth/cert#modulus" class="uri">Modulus</a></td><td>'+youid.mod+'</td></tr> ';
+    if (youid.alg) {
+      det += mk_row_href('http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+                         'Algorithm',
+                         youid.alg);
+    }
+    if (youid.exp) {
+      det += mk_row_str('http://www.w3.org/ns/auth/cert#exponent',
+                        'Exponent',
+                        youid.exp);
+    }
+    if (youid.mod) {
+      det += mk_row_str('http://www.w3.org/ns/auth/cert#modulus',
+                        'Modulus',
+                        youid.mod);
+    }
     if (youid.delegate) {
-       var href = youid.delegate?'<a href="'+youid.delegate+'" class="uri">'+youid.delegate+'</a>' : '';
-       det += '<tr class="dtext"><td valign="top"><a href="http://www.openlinksw.com/schemas/cert#hasIdentityDelegate" class="uri">Delegate</a></td><td>'+href+'</td></tr> ';
+      det += mk_row_href('http://www.openlinksw.com/schemas/cert#hasIdentityDelegate',
+                         'Delegate',
+                         youid.delegate);
     }
     if (youid.pim) {
-       var href = youid.pim?'<a href="'+youid.pim+'" class="uri">'+youid.pim+'</a>' : '';
-       det += '<tr class="dtext"><td><a href="http://www.w3.org/ns/pim/space#storage" class="uri">Storage</a></td><td>'+href+'</td></tr> ';
+      det += mk_row_href('http://www.w3.org/ns/pim/space#storage',
+                         'Storage',
+                         youid.pim);
     }
     if (youid.inbox) {
-       var href = youid.inbox?'<a href="'+youid.inbox+'" class="uri">'+youid.inbox+'</a>' : '';
-       det += '<tr class="dtext"><td valign="top"><a href="http://www.w3.org/ns/ldp#inbox" class="uri">Inbox</a></td><td>'+href+'</td></tr> ';
+      det += mk_row_href('http://www.w3.org/ns/ldp#inbox',
+                         'Inbox',
+                         youid.inbox);
     }
-/***
-  if (youid.acl && youid.acl.length>0) {
-     var val = ""
-     for(var i=0; i< youid.acl.length; i++) {
-       var href = youid.acl[i]?'<a href="'+youid.acl[i]+'" class="uri">'+youid.acl[i]+'</a>' : '';
-       val += '<div>'+href+'</div>';
-     }
-     det += '<tr class="dtext"><td>ACL</td><td>'+val+'</td></tr> ';
-  }
-***/
+
     if (youid.behalfOf && youid.behalfOf.length>0) {
       var val = ""
       for(var i=0; i< youid.behalfOf.length; i++) {
-        var href = youid.behalfOf[i]?'<a href="'+youid.behalfOf[i]+'" class="uri">'+youid.behalfOf[i]+'</a>' : '';
-        val += '<div>'+href+'</div>';
+        var href = youid.behalfOf[i] ? `<a href="${youid.behalfOf[i]}" class="uri">${youid.behalfOf[i]}</a>` 
+                                     : '';
+        val += `<div>${href}</div>`;
       }
-      det += '<tr class="dtext"><td valign="top"><a href="http://www.openlinksw.com/schemas/cert#onBehalfOf" class="uri">OnBehalfOf</a></td><td>'+val+'</td></tr> ';
+      det += mk_row_str('http://www.openlinksw.com/schemas/cert#onBehalfOf',
+                        'OnBehalfOf',
+                        val);
     }
 
     if (youid.foaf_knows && youid.foaf_knows.length>0) {
       var val = ""
       for(var i=0; i< youid.foaf_knows.length; i++) {
-        var href = youid.foaf_knows[i]?'<a href="'+youid.foaf_knows[i]+'" class="uri">'+youid.foaf_knows[i]+'</a>' : '';
-        val += '<div>'+href+'</div>';
+        var href = youid.foaf_knows[i] ? `<a href="${youid.foaf_knows[i]}" class="uri">${youid.foaf_knows[i]}</a>` 
+                                       : '';
+        val += `<div>${href}</div>`;
       }
-      det += '<tr class="dtext"><td valign="top"><a href="http://xmlns.com/foaf/0.1/knows" class="uri">Knows</a></td><td>'+val+'</td></tr> ';
+      det += mk_row_str('http://xmlns.com/foaf/0.1/knows',
+                        'Knows',
+                        val);
     }
 
     if (youid.acl && youid.acl.length>0) {
       var val = ""
       for(var i=0; i< youid.acl.length; i++) {
-        var href = youid.acl[i]?'<a href="'+youid.acl[i]+'" class="uri">'+youid.acl[i]+'</a>' : '';
-        val += '<div>'+href+'</div>';
+        var href = youid.acl[i] ? `<a href="${youid.acl[i]}" class="uri">${youid.acl[i]}</a>` 
+                                : '';
+        val += `<div>${href}</div>`;
       }
-      det += '<tr class="dtext"><td valign="top"><a href="http://www.w3.org/ns/auth/acl#delegates" class="uri">Acl</a></td><td>'+val+'</td></tr> ';
+      det += mk_row_str('http://www.w3.org/ns/auth/acl#delegates',
+                        'Delegates',
+                        val);
     }
 
-    var item = '\
-     <table '+cls+' id="data" mdata="'+mdata+'" > \
-       <tr> \
-         <td style="width:20px"><input id="chk" class="youid_chk" type="checkbox"'+checked+'></td> \
-         <td class="ltext">'+youid.name+'</td> \
-       </tr> \
-       <tr> \
-         <td> <input type="image" class="refresh_youid" src="lib/css/img/refresh.png" width="21" height="21" title="Refresh YouID details"> \
-         </td> \
-         <td class="itext">'+uri+'</td> \
-       </tr> \
-       <tr> \
-         <td> <input type="image" class="remove_youid" src="lib/css/img/trash.png" width="21" height="21" title="Drop YouID item from list"> \
-         </td> \
-         <td class="dtext"> \
-           <input type="image" class="det_btn" src="lib/css/img/plus.png" width="12" height="12" title="Show details"> \
-           Details \
-         </td> \
-       </tr> \
-       <tr class="det_data" style="display:none"> \
-         <td></td> \
-         <td> \
-           <table class="dettable" > \
-             <tr class="dtext"><td valign="top" style="width:70px"><a href="http://www.w3.org/ns/auth/cert#key" class="uri">PubKey</a></td><td >'+pubkey_uri+'</td> \
-             </tr> '+det+' \
-           </table> \
-         </td> \
-       </tr> \
-     </table>';
+    var item = `
+     <table ${cls} id="data" mdata="${mdata}" > 
+       <tr> 
+         <td style="width:20px">
+           <input id="chk" class="youid_chk" type="checkbox" ${checked}>
+         </td> 
+         <td class="ltext">${youid.name}
+         </td> 
+       </tr> 
+       <tr> 
+         <td> 
+           <input type="image" class="refresh_youid" src="lib/css/img/refresh.png" width="21" height="21" title="Refresh YouID details"> 
+         </td> 
+         <td class="itext">
+           ${uri}
+         </td> 
+       </tr> 
+       <tr> 
+         <td> 
+           <input type="image" class="remove_youid" src="lib/css/img/trash.png" width="21" height="21" title="Drop YouID item from list"> 
+         </td> 
+         <td class="dtext"> 
+           <input type="image" class="det_btn" src="lib/css/img/plus.png" width="12" height="12" title="Show details"> 
+           Details 
+         </td> 
+       </tr> 
+       <tr class="det_data" style="display:none"> 
+         <td>
+         </td> 
+         <td> 
+           <table class="dettable" > 
+            ${det} 
+           </table> 
+         </td> 
+       </tr> 
+     </table>`;
     return item;
   },
 
@@ -325,8 +368,14 @@ YouId_View.prototype = {
     $("#verify-msg").prop("textContent","");
     $('#verify-tbl-place').children().remove();
 
-    var loader = new YouID_Loader(this.showInfo, row);
-    loader.verify_ID(uri, function (success, youid, msg, verify_data, row){ self.showVerifyDlg(success, youid, msg, verify_data, row)});
+    var loader = new YouID_Loader();
+    loader.verify_ID(uri)
+     .then((ret) => { 
+       self.showVerifyDlg(ret.success, ret.youid, ret.msg, ret.verify_data, row)
+     })
+     .catch(err => {
+       self.showInfo(err.message);
+     });
   },
 
 
