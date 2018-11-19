@@ -42,7 +42,7 @@ YouId_View.prototype = {
     {
       return mk_row_str(_name_href, 
                         _name, 
-                        `<a href="${href}" class="uri">${_href}</a>`);
+                        `<a href="${_href}" class="uri">${_href}</a>`);
     }
 
 
