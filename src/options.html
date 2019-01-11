@@ -20,71 +20,50 @@
 -->
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>YouID</title>
-    <link type="text/css" href="lib/css/smoothness/jquery-ui.min.css" rel="stylesheet" />
-    <link type="text/css" href="lib/css/smoothness/theme.css" rel="stylesheet" />
     <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
+    <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
 
     <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
-    <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap.js"></script>
     <script type="text/javascript" src="lib/rdfstore_min.js"></script>
     <script type="text/javascript" src="lib/purify.min.js"></script>
+    <script type="text/javascript" src="lib/forge.bundle.js"></script>
+    <script type="text/javascript" src="lib/oidc-web.min.js"></script>
     <script type="text/javascript" src="browser.js"></script>
     <script type="text/javascript" src="settings.js"></script>
+    <script type="text/javascript" src="OidcWebid.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="certificate.js"></script>
     <script type="text/javascript" src="youid_view.js"></script>
     <script type="text/javascript" src="options.js"></script>
-    <script type="text/javascript" src="utils.js"></script>
 
     <link rel="stylesheet" href="options.css" />
 
     <style type="text/css">
-	body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
-        .popup { font-size: 12px; }
+	body { 
+	  margin: 50px;
+	}
     </style>
-
   </head>
 
   <body>
 
-
-      <div class="popup" id="alert-dlg" title="Info">
-        <p id="alert-msg1">
-        <p id="alert-msg2">
-        </p>
-      </div>
-
-      <div class="popup" id="add-dlg" title="Add YouID">
-        <p/>
-        <table style="font-size: 14px;">
-
-         <tr id="uri-link">
-          <td> WebID&nbsp;URI: </td>
-          <td> <input id="uri" style="WIDTH: 480px"> </td>
-         </tr>
-
-        </table>
-      </div>
-
-      <div class="popup" id="verify-dlg" title="Verifying WebID">
-        <p/>
-         <div id="verify_progress">
-          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
-         </div>
-        <p id="verify-msg"></p>
-        <p/>
-        <div id="verify-tbl-place"></div>
-      </div>
-
-
     <!-- Tabs -->
-    <div id="tabs" style="WIDTH: 700px">
-      <ul>
-	<li><a href="#tabs-1">YouID&nbsp;List</a></li>
-	<li><a href="#tabs-2">Header&nbsp;Settings</a></li>
-	<li><a href="#tabs-3">About</a></li>
-      </ul>
+     <div style="WIDTH: 700px;">      
+      <div id="header">
+        <ul id="tabs">
+          <li><a href="#webid"  >YouID&nbsp;List</a></li>
+          <li><a href="#certificate" >Certificate</a></li>
+          <li><a href="#headers">Header&nbsp;Settings</a></li>
+          <li><a href="#about"  >About</a></li>
+        </ul>
+      </div>
 
-        <div id="tabs-1">
+      <div class="content" style="padding: 10px; border: lightgray; border-style: solid; border-width: thin;">
+
+        <div id="webid_items" style="font-size: 13px;">
           <table>
            <tr>
              <table id="youid_tbl" class="footable">
@@ -92,19 +71,171 @@
                </tbody>
              </table>
              <table class="footable">
-               <tr><td><a href="#add_youid">Add&nbspWebID </a></td></tr>
-<!--
-               <tr >
-                 <button style="margin:8px; margin-top:2px;" id="youid_add" class="youid_add">Add</button>
+               <tr>
+                 <td><a href="#add_youid">Add&nbspWebID </a></td>
                </tr>
--->
              </table>
            </tr>
           </table>
         </div>
 
+        <div id="certificate_items" >
+<!-- ========================================================================= -->
+        <div id="gen-cert-dlg" >
+        <form class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_profile" class="col-md-4 control-label">Profile Document URL:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_profile" value="">
+              <button id="btn-fetch-profile" type="button" class="btn">
+                <img class="hidden" id="fetch_wait" src="images/throbber.gif" width="16" />
+                Fetch Profile 
+              </button>
+            </div>
+          </div>
+          <hr/>
 
-        <div id="tabs-2">
+          <div class="form-group row">
+            <label for="c_name" class="col-md-4 control-label">Name:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_name" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_email" class="col-md-4 control-label">Email:</label>
+            <div class="col-md-8">
+              <input type="email" class="form-control" id="c_email" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_org" class="col-md-4 control-label">Organization:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_org" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_org_unit" class="col-md-4 control-label">Org. Unit:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_org_unit" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_city" class="col-md-4 control-label">Locality:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_city" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_state" class="col-md-4 control-label">State:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_state" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_country" class="col-md-4 control-label">Country:</label>
+            <div class="col-md-2">
+              <input type="text" class="form-control" id="c_country" />
+            </div>
+          </div>
+        </form>
+
+        <hr/>
+        <form class="form-horizontal">
+
+          <div class="form-group row">
+            <label for="c_idp" class="col-md-4 control-label">Profile:</label>
+            <div class="col-md-8">
+              <select name="profile" class="form-control" id="c_idp">
+                <option value="manual" selected>Manual Upload</option>
+                <option value="opl_dav">MyOpenLink (WebDAV)</option>
+<!--
+                <option value="opl_ldp">MyOpenLink (LDP)</option>
+-->
+                <option value="solid_oidc">Solid WebID-OIDC</option>
+                <option value="ldp_tls">LDP WebID-TLS</option>
+              </select>
+              <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
+            </div>
+          </div>
+          <section id="c_webdav" class="hidden"> 
+              <div class="form-group row">
+                <label for="c_dav_path" class="col-md-4 control-label">DAV&nbsp;Base&nbsp;Path:</label>
+                <div class="col-md-8">
+                  <input readonly type="text" class="form-control" id="c_dav_path" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_dav_uid" class="col-md-4 control-label">DAV&nbsp;User:</label>
+                <div class="col-md-8">
+                  <input type="text" class="form-control" id="c_dav_uid" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_dav_pwd" class="col-md-4 control-label">DAV&nbsp;Pwd:</label>
+                <div class="col-md-8">
+                  <input type="password" class="form-control" id="c_dav_pwd" />
+                </div>
+              </div>
+          </section>
+          <section id="c_solid_oidc" class="hidden"> 
+              <div class="form-group row">
+                <label class="col-md-4 control-label"></label>
+                <div class="col-md-4">
+                  <button id="btn-solid-oidc-login" type="button" class="btn">Login</button>
+                  <a id="c_oidc_webid" href="" title="" class="hidden"> <img id="uid-icon" src="images/uid.png" style="width:28px"> </a>
+                </div>
+              </div>
+          </section>
+          <hr/>
+          <div class="form-group row hidden" id="r_webid">
+            <label for="c_webid" class="col-md-4 control-label">WebId:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_webid" value="">
+            </div>
+          </div>
+          <div class="form-group row" id="r_cert_name">
+            <label for="c_cert_name" class="col-md-4 control-label">Certificate&nbsp;Name:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_cert_name" value="">
+            </div>
+          </div>
+          <div class="form-group row" id="r_cert_path">
+            <label for="c_cert_path" class="col-md-4 control-label">Certificate&nbsp;Store&nbsp;Path:</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="c_cert_path" value="">
+            </div>
+          </div>
+
+
+          <div class="form-group row">
+            <label for="c_pwd" class="col-md-4 control-label">Password&nbsp;for&nbsp;PKCS12&nbsp;Store:</label>
+            <div class="col-md-4">
+              <input type="password" class="form-control" id="c_pwd" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_pwd1" class="col-md-4 control-label">Confirm&nbsp;Password:</label>
+            <div class="col-md-4">
+              <input type="password" class="form-control" id="c_pwd1" value="">
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-md-4"></div>
+            <div class="col-md-2">
+            <button id="btn-gen-cert" type="button" class="btn btn-primary">Generate</button>
+            </div>
+          </div>
+        </form>
+        <p/>
+        <p/>
+        <p/>
+        </div>
+
+<!-- ========================================================================= -->
+        </div>
+
+        <div id="headers_items" style="font-size: 13px;">
           <table>
            <tr>
              <table id="hdr_tbl" class="footable">
@@ -126,11 +257,9 @@
              </table>
            </tr>
           </table>
-
         </div>
 
-
-	<div id="tabs-3">
+        <div id="about_items">
             <IMG alt="" src="images/icon48.png">
             <h3>YouID</h3>
             <p id="ext_ver">Version 0.0.0</p>
@@ -141,11 +270,142 @@
             <p>Home Page: <a href="http://youid.openlinksw.com" target="_blank">http://youid.openlinksw.com</a></p>
             <p>Copyright 2015-2018 <a href="http://www.openlinksw.com" target="_blank">OpenLink Software</a></p>
         </div>
-    </div>
+
+      </div>
+      </div>
+      
+    <p/>
     <p/>
 
     <input id="OK_btn" value=" OK " type="button">
     <input id="Cancel_btn" value=" Cancel " type="button">
+
+
+
+<!-- Modal -->
+<div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Info</h4>
+      </div>
+      <div class="modal-body">
+        <section>
+          <p id="alert-msg1"></p>
+          <p id="alert-msg2"></p>
+        </section>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button id="btn-yes" type="button" class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="verify-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Verifying WebID</h4>
+      </div>
+      <div class="modal-body">
+        <div id="verify_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
+        </div>
+        <p id="verify-msg"></p>
+        <p/>
+        <div id="verify-tbl-place" style="height:400px; overflow: auto;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add WebID</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+
+         <tr id="uri-link">
+          <td> WebID&nbsp;URI:&nbsp;</td>
+          <td> <input id="uri" style="WIDTH: 480px"> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="gen-cert-ready-dlg" tabindex="-1" role="dialog" aria-labelledby="certModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="width:600px" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Upload certificate to server</h4>
+      </div>
+      <div class="modal-body">
+        <div id="c_wait">
+         <img src="images/throbber.gif" width="16" /> Wait...
+        </div>
+        <section id="p12-cert">
+           <h5>PKCS12 Credentials Store</h5>
+           <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+           <br/>
+           <h5 id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</h5>
+           <h5 class="hidden" id="ready_msg">Please save PKCS12 Credentials Store on local disk and click Upload.</h5>
+        </section>
+        </p>
+        <section id="profile-card">
+          <textarea id="card-text" class="hidden" style="width: 570px; height: 300px; overflow:scroll; white-space:nowrap;">
+          </textarea>
+        </section>
+        </p>
+        <div id="u_wait" class="hidden">
+         <img src="images/throbber.gif" width="16" /> Wait...
+         <div id="u_msg"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
+        <button id="btn-update_cert" type="button" class="btn btn-primary hidden">Update Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
   </body>

@@ -20,20 +20,20 @@
 
 var gPref = null;
 var v_youid = null;
+var v_cert = null;
+var prevSelectedTab = null;
+var selectedTab = null;
 
 $(function(){
 	gPref = new Settings();
 
-	// Tabs
-
-
-        $("#alert-dlg").hide();
-        $("#add-dlg").hide();
-        $("#verify-dlg").hide();
-
         v_youid = new YouId_View(false);
+        v_cert = new Certificate();
 
-        $('a[href="#add_youid"]').click(function(e){v_youid.click_add_youid(e);});
+        $('a[href="#add_youid"]')
+          .click((e) => {
+             v_youid.click_add_youid(e);
+          });
 
 
         $('#hdr_add').click(hdr_add);
@@ -43,7 +43,25 @@ $(function(){
         });
 
 
-	$('#tabs').tabs();
+	// Tabs
+        $('#tabs a[href="#webid"').click(() => {
+          selectTab('#webid');
+          return false;
+        });
+        $('#tabs a[href="#certificate"').click(() => {
+          selectTab('#certificate');
+          v_cert.click_gen_cert();
+          return false;
+        });
+        $('#tabs a[href="#headers"').click(() => {
+          selectTab('#headers');
+          return false;
+        });
+        $('#tabs a[href="#about"').click(() => {
+          selectTab('#about');
+          return false;
+        });
+        selectTab('#webid');
 
         loadPref();
 
@@ -55,6 +73,32 @@ $(function(){
 
         $('#ext_ver').text('Version: '+ Browser.api.runtime.getManifest().version);
 });
+
+
+function selectTab(tab)
+{
+  prevSelectedTab = selectedTab;
+  selectedTab = tab;
+
+  function updateTab(tab, selTab)
+  {
+    var tab_data = $(tab+'_items');
+    var tab_id = $('#tabs a[href="'+tab+'"]');
+
+    if (selTab===tab) {
+      tab_data.show()
+      tab_id.addClass('selected');
+    } else {
+      tab_data.hide()
+      tab_id.removeClass('selected');
+    }
+  }
+
+  updateTab('#webid', selectedTab);
+  updateTab('#certificate', selectedTab);
+  updateTab('#headers', selectedTab);
+  updateTab('#about', selectedTab);
+}
 
 
 function closeOptions()
@@ -168,4 +212,23 @@ function save_hdr_list()
   gPref.setValue('ext.youid.pref.hdr_list', JSON.stringify(list, undefined, 2));
 }
 
+
+
+
+Browser.api.runtime.onMessage.addListener(async function(request, sender, sendResponse)
+{
+  try {
+    if (request.cmd === "store_updated" && request.key === "oidc.session")
+    {
+      v_cert.oidc_changed(); 
+    }
+    else
+    {
+      sendResponse({}); 
+    }
+  } catch(e) {
+    console.log("OSDS: onMsg="+e);
+  }
+
+});
 

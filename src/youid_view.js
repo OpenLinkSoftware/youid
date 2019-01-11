@@ -18,6 +18,8 @@
  *
  */
 
+
+
 YouId_View = function(is_popup) {
   this.is_popup = is_popup;
   this.gPref = new Settings();
@@ -188,7 +190,6 @@ YouId_View.prototype = {
         var sel = pref_youid && pref_youid.id === item.id;
         self.addYouIdItem(item, sel);
     });
-
   },
 
   addYouIdItem: function (youid, sel)
@@ -197,11 +198,13 @@ YouId_View.prototype = {
     var s = this.create_youid_item(youid, sel);
     $('.youid_list').append('<tr><td>'+DOMPurify.sanitize(s,{SAFE_FOR_JQUERY: true, ADD_ATTR: ['mdata']})+'</td></tr>');
 
-    $('.det_btn').not('.click-binded').click(function(e){ self.click_det(e)}).addClass('click-binded');
-    $('.youid_chk').not('.click-binded').click(function(e){ self.select_youid_item(e)}).addClass('click-binded');
-    $('.uri').not('.click-binded').click(function(e){ self.click_uri(e)}).addClass('click-binded');
-    $('.remove_youid').not('.click-binded').click(function(e){ self.click_remove_youid(e)}).addClass('click-binded');
-    $('.refresh_youid').not('.click-binded').click(function(e){ self.click_refresh_youid(e)}).addClass('click-binded');
+    var tr = $('.youid_list > tr:last-child');
+    
+    tr.find('.det_btn').click(function(e){ return self.click_det(e);})
+    tr.find('.youid_chk').click(function(e){ return self.select_youid_item(e);})
+    tr.find('.uri').click(function(e){ return self.click_uri(e);})
+    tr.find('.remove_youid').click(function(e){ return self.click_remove_youid(e);})
+    tr.find('.refresh_youid').click(function(e){ return self.click_refresh_youid(e);})
   },
 
   updateYouIdItem: function (row, youid)
@@ -220,11 +223,11 @@ YouId_View.prototype = {
     row.children("td:first").children().remove();
     row.children("td:first").append(s);
 
-    $('.det_btn').not('.click-binded').click(function(e){ self.click_det(e)}).addClass('click-binded');
-    $('.youid_chk').not('.click-binded').click(function(e){ self.select_youid_item(e)}).addClass('click-binded');
-    $('.uri').not('.click-binded').click(function(e){ self.click_uri(e)}).addClass('click-binded');
-    $('.remove_youid').not('.click-binded').click(function(e){ self.click_remove_youid(e)}).addClass('click-binded');
-    $('.refresh_youid').not('.click-binded').click(function(e){ self.click_refresh_youid(e)}).addClass('click-binded');
+    row.find('.det_btn').click(function(e){ return self.click_det(e);})
+    row.find('.youid_chk').click(function(e){ return self.select_youid_item(e);})
+    row.find('.uri').click(function(e){ return self.click_uri(e);})
+    row.find('.remove_youid').click(function(e){ return self.click_remove_youid(e);})
+    row.find('.refresh_youid').click(function(e){ return self.click_refresh_youid(e);})
   },
 
   click_det: function (e)
@@ -262,14 +265,15 @@ YouId_View.prototype = {
       var tbl = $(e.target).parents('table.youid_item');
       $(tbl).toggleClass("youid_checked", true);
 
-      if (this.is_popup) {
-        this.save_youid_data();
-        window.close();
-      }
     }
     else {
       var tbl = $(e.target).parents('table.youid_item');
       $(tbl).toggleClass("youid_checked", false);
+    }
+
+    if (this.is_popup) {
+      this.save_youid_data();
+      window.close();
     }
 
     return true;
@@ -280,6 +284,7 @@ YouId_View.prototype = {
     var href = $(e.target).attr("href");
     if (href)
       Browser.openTab(href);
+    return false;
   },
 
   click_remove_youid: function (e)
@@ -296,7 +301,7 @@ YouId_View.prototype = {
     }
 
     if (youid!=null) {
-       this.showYN("Do you want to drop YouID item ?",youid.name, function(){
+       Msg.showYN("Do you want to drop YouID item ?",youid.name, function(){
           $(row).remove();
           if (self.is_popup)
             self.save_youid_data();
@@ -320,7 +325,7 @@ YouId_View.prototype = {
     }
 
     if (youid && youid.id) {
-       this.showYN("Do you want to reload YouID item data ?",youid.name, function(){
+       Msg.showYN("Do you want to reload YouID item data ?",youid.name, function(){
          self.verify_youid_exec(youid.id, row);
        });
     }
@@ -331,22 +336,18 @@ YouId_View.prototype = {
   click_add_youid: function ()
   {
     var self = this;
-    $( "#add-dlg" ).dialog({
-        resizable: false,
-        width: 620,
-        height:170,
-        modal: true,
-        buttons: {
-          "OK": function() {
-            var uri = $('#uri').val().trim();
-            $("#add-dlg").dialog( "destroy" );
-            self.verify_youid_exec(uri);
-          },
-          Cancel: function() {
-            $("#add-dlg").dialog( "destroy" );
-          }
-        }
-    });
+
+    var btnOk = document.querySelector('#add-dlg #btn-ok');
+    btnOk.onclick = () =>
+       {
+         var uri = $('#add-dlg #uri').val().trim();
+         $('#add-dlg').modal('hide');
+         self.verify_youid_exec(uri);
+       };
+
+    var dlg = $('#add-dlg .modal-content');
+    dlg.width(620);
+    $('#add-dlg').modal('show');
 
     return false;
   },
@@ -355,26 +356,49 @@ YouId_View.prototype = {
   verify_youid_exec: function (uri, row)
   {
     var self = this;
-    $( "#verify-dlg" ).dialog({
-        resizable: false,
-        width: 630,
-        height:400,
-        modal: true,
-        close: function( event, ui ) {
-            $("#verify-dlg").dialog("destroy");
-        }
-    });
-    $("#verify_progress").show();
-    $("#verify-msg").prop("textContent","");
-    $('#verify-tbl-place').children().remove();
+    var _youid;
+    var _success = false;
+
+    $("#verify-dlg #verify_progress").show();
+    $("#verify-dlg #verify-msg").prop("textContent","");
+    $('#verify-dlg #verify-tbl-place').children().remove();
+    $("#verify-dlg #btn-ok").hide();
+
+    var btnOk = document.querySelector('#verify-dlg #btn-ok');
+    btnOk.onclick =  () =>
+       {
+         if (_success) {
+           if (row)
+             self.updateYouIdItem(row, _youid);
+           else
+             self.addYouIdItem(_youid, false);
+           if (self.is_popup)
+             self.save_youid_data();
+         }
+     
+         $('#verify-dlg').modal('hide');
+       };
+
+
+    var dlg = $('#verify-dlg .modal-content');
+    dlg.width(630);
+    $('#verify-dlg').modal('show');
+
 
     var loader = new YouID_Loader();
     loader.verify_ID(uri)
      .then((ret) => { 
-       self.showVerifyDlg(ret.success, ret.youid, ret.msg, ret.verify_data, row)
+        _youid = ret.youid;
+        _success = ret.success;
+        $("#verify-dlg #btn-ok").show();
+        $("#verify-dlg #verify_progress").hide();
+        $("#verify-dlg #verify-msg").prop("textContent",ret.msg);
+        $('#verify-dlg #verify-tbl-place').children().remove();
+        $('#verify-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret.verify_data));
      })
      .catch(err => {
-       self.showInfo(err.message);
+       $('#verify-dlg').modal('hide');
+       Msg.showInfo(err.message);
      });
   },
 
@@ -409,89 +433,5 @@ YouId_View.prototype = {
   },
 
 
-  showVerifyDlg: function (success, youid, msg, verify_data, row)
-  {
-    var self = this;
-    if (!$("#verify-dlg").dialog("isOpen")) {
-      $("#verify-dlg").dialog("destroy");
-      return;
-    }
-
-    $("#verify_progress").hide();
-    $("#verify-msg").prop("textContent",msg);
-    $('#verify-tbl-place').children().remove();
-    $('#verify-tbl-place').append(DOMPurify.sanitize(verify_data));
-
-    $("#verify-dlg").dialog( "option", "buttons",
-      [
-        {
-           text: "OK",
-          click: function() {
-            if (success) {
-              if (row)
-                self.updateYouIdItem(row, youid);
-              else
-                self.addYouIdItem(youid, false);
-              if (self.is_popup)
-                self.save_youid_data();
-            }
-            $("#verify-dlg").dialog( "destroy" );
-          }
-        },
-        {
-           text: "Cancel",
-          click: function() {
-            $("#verify-dlg").dialog( "destroy" );
-          }
-        }
-      ]
-    );
-  },
-
-
-  showYN: function (msg1, msg2, callback)
-  {
-    if (msg1)
-      $("#alert-msg1").prop("textContent",msg1);
-    if (msg2)
-      $("#alert-msg2").prop("textContent",msg2);
-    $("#alert-dlg").dialog({
-      resizable: false,
-      height:180,
-      width: 400,
-      modal: true,
-      close: function( event, ui ) {
-            $("#alert-dlg").dialog( "destroy" );
-        },
-      buttons: {
-        "No": function() {
-          $("#alert-dlg").dialog("destroy");
-        },
-        "Yes": function() {
-          if (callback)
-            callback();
-          $("#alert-dlg").dialog("destroy");
-        }
-      }
-    });
-  },
-
-
-  showInfo: function (msg)
-  {
-    $("#verify-dlg").dialog("destroy");
-
-    $("#alert-msg1").prop("textContent",msg);
-    $("#alert-dlg" ).dialog({
-      resizable: false,
-      width: 600,
-      height:400,
-      modal: true,
-      buttons: {
-        Cancel: function() {
-          $("#alert-dlg").dialog( "destroy" );
-        }
-      }
-    });
-  }
 }
+

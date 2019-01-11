@@ -19,12 +19,11 @@
 -->
     <head>
 	<meta charset="UTF-8">
-        <link type="text/css" href="lib/css/smoothness/jquery-ui.min.css" rel="stylesheet" />
-        <link type="text/css" href="lib/css/smoothness/theme.css" rel="stylesheet" />
         <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
+        <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
 
         <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
-        <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="lib/bootstrap.js"></script>
         <script type="text/javascript" src="lib/rdfstore_min.js"></script>
         <script type="text/javascript" src="lib/purify.min.js"></script>
 
@@ -40,36 +39,6 @@
 
     <body class="youid">
 
-      <div class="popup" id="alert-dlg" title="Info">
-        <p id="alert-msg1">
-        <p id="alert-msg2">
-        </p>
-      </div>
-
-      <div class="popup" id="add-dlg" title="Add YouID">
-        <p/>
-        <table style="font-size: 14px;">
-
-         <tr id="uri-link">
-          <td> WebID&nbsp;URI: </td>
-          <td> <input id="uri" style="WIDTH: 480px"> </td>
-         </tr>
-
-        </table>
-      </div>
-
-      <div class="popup" id="verify-dlg" title="Verifying WebID">
-        <p/>
-         <div id="verify_progress">
-          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
-         </div>
-        <p id="verify-msg"></p>
-        <p/>
-        <div id="verify-tbl-place"></div>
-      </div>
-
-
-
       <div id="pulldown" class="content_scroll">
        <table class="footable">
         <tbody class="youid_list" ></tbody>
@@ -77,7 +46,6 @@
        <table class="footable">
          <tr><td><a href="#add_youid">Add&nbspWebID </a></td></tr>
        </table>
-
       </div>
 
 
@@ -95,6 +63,89 @@
           <td><input type="image" id="prefs_btn" src="images/osds-icon-settings-24.png" width="14" height="14" title="Extension Settings"></td>
         </tr>
       </table>
+
+
+<!-- Modal -->
+<div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Info</h4>
+      </div>
+      <div class="modal-body">
+        <section>
+          <p id="alert-msg1"></p>
+          <p id="alert-msg2"></p>
+        </section>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button id="btn-yes" type="button" class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="verify-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Verifying WebID</h4>
+      </div>
+      <div class="modal-body">
+        <div id="verify_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
+        </div>
+        <p id="verify-msg"></p>
+        <p/>
+        <div id="verify-tbl-place" style="height:400px; overflow: auto;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add WebID</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+
+         <tr id="uri-link">
+          <td> WebID&nbsp;URI:&nbsp;</td>
+          <td> <input id="uri" style="WIDTH: 480px"> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
 
     </body>
 </html>

@@ -30,6 +30,7 @@ YouID_Loader = function () {
   PREFIX pim: <http://www.w3.org/ns/pim/space#> 
   PREFIX ldp: <http://www.w3.org/ns/ldp#> 
   PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
+  PREFIX as: <http://www.w3.org/ns/activitystreams#> 
   SELECT * WHERE 
     { 
        {{?url foaf:primaryTopic ?webid .} UNION 
@@ -52,6 +53,7 @@ YouID_Loader = function () {
        OPTIONAL { ?webid acl:delegates ?acl_delegates} 
        OPTIONAL { ?webid pim:storage ?pim_store } 
        OPTIONAL { ?webid ldp:inbox ?inbox } 
+       OPTIONAL { ?webid as:outbox ?outbox } 
        OPTIONAL { ?webid foaf:knows ?knows } 
        OPTIONAL {
         ?webid cert:key ?pubkey . 
@@ -122,14 +124,14 @@ YouID_Loader = function () {
 
 YouID_Loader.prototype = {
 
-  verify_ID : async function(uri) {
+  verify_ID : async function(uri, oidc_fetch) {
     var self = this;
     var baseURI = new URL(uri);
         baseURI.hash = '';
         baseURI = baseURI.toString();
 
     var get_url = uri + ((/\?/).test(uri) ? "&" : "?") + (new Date()).getTime();
-    var {data, content_type} = await (this.getProfile(get_url)
+    var {data, content_type} = await (this.getProfile(get_url, oidc_fetch)
             .catch(err => {
               throw new Error("Could not load data from: "+uri+"\nError: "+err);
             }));
@@ -193,7 +195,7 @@ YouID_Loader.prototype = {
     var youid = { id: null, name: null, alg: null, pubkey: null,
           mod: null, exp: null, delegate: null,
           acl: [], behalfOf: [], foaf_knows:[],
-          pim: null, inbox: null };
+          pim: null, inbox: null, outbox: null };
 
     var url, acl_delegates, behalfOf, foaf_knows;
     var schema_name, foaf_name, rdfs_name, skos_prefLabel, skos_altLabel;
@@ -219,6 +221,8 @@ YouID_Loader.prototype = {
         youid.pim = r.pim_store.value;
       if (r.inbox)
         youid.inbox = r.inbox.value;
+      if (r.outbox)
+        youid.outbox = r.outbox.value;
 
       if (r.url)
         url = r.url.value;
@@ -321,7 +325,8 @@ YouID_Loader.prototype = {
   },
 
 
-  getProfile : function(url) {
+  getProfile : function(url, oidc_fetch) {
+    var _fetch = oidc_fetch || fetch;
     return new Promise( (resolve, reject) => {
       var options = {
         method: 'GET',
@@ -331,7 +336,7 @@ YouID_Loader.prototype = {
         }
       }
 
-      fetch(url, options)
+      _fetch(url, options)
         .then(function(response) {
           if (!response.ok) {
             var err = 'HTTP ' + response.status + ' ' + response.statusText;
@@ -342,7 +347,10 @@ YouID_Loader.prototype = {
           response.text().then((data) => {
               resolve({data, content_type: header});
           });
-        });
+        })
+        .catch(err => { 
+          reject(err); 
+        }) ;
     })
   }, 
 
@@ -389,3 +397,72 @@ YouID_Loader.prototype = {
 
 
 }
+
+var Msg = {};
+
+Msg.showYN = function (msg1, msg2, callback)
+  {
+    if (msg1) 
+      document.querySelector('#alert-dlg #alert-msg1').textContent = msg1;
+    if (msg2)
+      document.querySelector('#alert-dlg #alert-msg2').textContent = msg2;
+
+    document.querySelector('#alert-dlg #btn-cancel').textContent = 'No';
+
+    var btnYes = document.querySelector('#alert-dlg #btn-yes');
+    btnYes.style.display = 'initial'
+    btnYes.onclick = () =>
+       {
+         if (callback) callback(); 
+     
+         $('#alert-dlg').modal('hide');
+       };
+
+    var dlg = $('#alert-dlg .modal-content');
+    dlg.width(400);
+    $('#alert-dlg').modal('show');
+  };
+
+
+Msg.showInfo = function (msg)
+  {
+//    $('#verify-dlg').modal('hide');
+
+    if (msg) 
+      document.querySelector('#alert-dlg #alert-msg1').textContent = msg;
+
+    document.querySelector('#alert-dlg #btn-cancel').textContent = 'Cancel';
+    var btnYes = document.querySelector('#alert-dlg #btn-yes');
+    btnYes.style.display = 'none'
+
+    var dlg = $('#alert-dlg .modal-content');
+    dlg.width(600);
+    $('#alert-dlg').modal('show');
+  };
+
+
+
+var DOM = {};
+
+DOM.qSel = (sel) => { return document.querySelector(sel); };
+DOM.iSel = (id) => { return document.getElementById(id); };
+DOM.qShow = (sel) => { DOM.qSel(sel).classList.remove('hidden'); };
+DOM.qHide = (sel) => { DOM.qSel(sel).classList.add('hidden'); };
+
+DOM.qGetValue = function (sel)
+  {
+    return DOM.qSel(sel).value;
+  };
+DOM.qSetValue = function (sel, val)
+  {
+    DOM.qSel(sel).value = val;
+  };
+
+DOM.iGetValue = function (sel)
+  {
+    return DOM.iSel(sel).value;
+  };
+DOM.iSetValue = function (sel, val)
+  {
+    DOM.iSel(sel).value = val;
+  };

@@ -25,10 +25,6 @@ var v_youid = null;
 
 $(document).ready(function()
 {
-  $("#alert-dlg").hide();
-  $("#add-dlg").hide();
-  $("#verify-dlg").hide();
-
   $('#prefs_btn').click(Prefs_exec);
 
   gPref = new Settings();

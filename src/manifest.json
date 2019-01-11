@@ -23,11 +23,17 @@
       "matches": ["file:///*/*","*://*/*"],
       "js": ["browser.js","content-script.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*/*"],
+      "js": ["browser.js", "oidc-webid-inject.js"],
+      "run_at": "document_start"
     }
   ],
   "options_page": "options.html",
 
   "permissions": [
+    "storage", 
     "webRequest", 
     "webRequestBlocking",
     "tabs", 
@@ -35,5 +41,8 @@
     "https://*/",
     "*://*/*", 
     "file:///*/*"
-  ]
+  ],
+
+  "content_security_policy": 
+    "script-src 'self' 'unsafe-eval' chrome-extension://lib; object-src 'self' chrome-extension://lib; style-src 'self' 'unsafe-inline' chrome-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' chrome-extension://lib ;"
 }
