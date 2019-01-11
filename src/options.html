@@ -386,22 +386,73 @@
            <h5 id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</h5>
            <h5 class="hidden" id="ready_msg">Please save PKCS12 Credentials Store on local disk and click Upload.</h5>
         </section>
-        </p>
+        <p/>
         <section id="profile-card">
           <textarea id="card-text" class="hidden" style="width: 570px; height: 300px; overflow:scroll; white-space:nowrap;">
           </textarea>
         </section>
-        </p>
+        <p/>
+        <section>
+          <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
+          <button id="btn-update_cert" type="button" class="btn btn-primary hidden">Update Profile</button>
+        </section>
+        <p/>
+        <hr/>
+
+        <div class="row" id="r-reg_delegate">
+          <div class="col-md-6">
+            <label for="reg_delegate">Register Delegate:</label>
+            <input id="reg_delegate" type="checkbox">
+          </div>
+        </div>
+
+        <form id="delegate-create" class="form-horizontal hidden">
+          <div class="form-group row">
+            <label for="delegate_uri" class="col-md-2 control-label">Delegate&nbsp;URI:</label>
+            <div class="col-md-10">
+              <input type="text" class="form-control" id="delegate_uri" value="">
+              <button id="btn-delegate_uri" type="button" class="btn">
+                <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
+                Fetch Profile 
+              </button>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-md-12">
+              <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
+              <textarea id="delegate-text" class="form-control hidden1" style="width: 570px; height: 150px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+              <button id="btn-update_delegate" type="button" class="btn btn-primary ">
+                Update Delegate Profile 
+              </button>
+
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-md-12">
+              <label for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</label>
+              <textarea id="delegator-text" class="form-control hidden1" style="width: 570px; height: 200px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+              <button id="btn-update_delegator" type="button" class="btn btn-primary ">
+                Update Delegator Profile 
+              </button>
+            </div>
+          </div>
+        </form>
+
         <div id="u_wait" class="hidden">
          <img src="images/throbber.gif" width="16" /> Wait...
          <div id="u_msg"></div>
         </div>
       </div>
+<!--
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
         <button id="btn-update_cert" type="button" class="btn btn-primary hidden">Update Profile</button>
       </div>
+-->
     </div>
   </div>
 </div>

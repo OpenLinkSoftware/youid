@@ -326,6 +326,24 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
       DOM.qHide('#gen-cert-ready-dlg #u_wait');
       DOM.qHide('#gen-cert-ready-dlg #card-text');
+      DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate')
+      DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = '';
+      DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = '';
+      DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value = '';
+      DOM.qSel('#gen-cert-ready-dlg #reg_delegate').checked = false;
+
+      DOM.qSel('#gen-cert-ready-dlg #btn-delegate_uri')
+         .onclick = async () => {
+           await self.fetchDelegate(gen, webid, certData);
+         };
+      DOM.qSel('#gen-cert-ready-dlg #reg_delegate')
+         .onchange = (e) => {
+           if (DOM.qSel('#gen-cert-ready-dlg #reg_delegate').checked)
+             DOM.qShow('#gen-cert-ready-dlg #delegate-create');
+           else
+             DOM.qHide('#gen-cert-ready-dlg #delegate-create');
+         };
+
 
       $('#gen-cert-ready-dlg').modal('show');
 
@@ -339,6 +357,7 @@ Certificate.prototype = {
         DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
         DOM.qHide('#gen-cert-ready-dlg #ready_msg');
         DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
+        DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate')
 
         if (gen.idp === 'manual') {
           DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
@@ -355,6 +374,16 @@ Certificate.prototype = {
              await self.uploadCert(gen, webid, certData);
            };
         }
+
+        DOM.qSel('#gen-cert-ready-dlg #btn-update_delegate')
+           .onclick = async () => {
+             await self.uploadDelegate(gen, webid, certData);
+           };
+        DOM.qSel('#gen-cert-ready-dlg #btn-update_delegator')
+           .onclick = async () => {
+             await self.uploadDelegator(gen, webid, certData);
+           };
+
 
       }, 500);
 
@@ -507,6 +536,145 @@ Certificate.prototype = {
         alert('Done');
         this.click_gen_cert();
       }
+    }
+  },
+
+  fetchDelegate: async function(gen, webid, certData)
+  {
+    var done_ok = false;
+    DOM.qShow('#gen-cert-ready-dlg #delegate_wait');
+    var uri = DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value;
+    try {
+      var rc = await (new YouID_Loader()).verify_ID(uri);
+      if (rc.success) {
+         var s;
+         
+         gen.delegate_uri = rc.youid.id;
+
+         s = '@prefix oplcert: <http://www.openlinksw.com/schemas/cert##> . \n\n';
+         // delegate  -> delegator
+         s += `INSERT { \n`;
+         s += `<${rc.youid.id}> \n`;
+         s += `            oplcert:onBehalfOf <${webid}> .\n`;
+         s += ` }\n`;
+
+         DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = s;
+
+        
+        
+         s = '@prefix acl: <http://www.w3.org/ns/auth/acl#> . \n'+
+                '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . \n'+
+                '@prefix cert: <http://www.w3.org/ns/auth/cert#> . \n\n';
+
+         s += `INSERT { \n`;
+         s += `<${webid}> \n`;
+         s += `      acl:delegates <${rc.youid.id}> . \n`;
+
+         s += `<${rc.youid.id}> \n`;
+         s += `   cert:key [ \n`;
+         s += `             a cert:RSAPublicKey;\n`;
+         s += `             cert:exponent  "${rc.youid.exp}"^^xsd:int;\n`;
+         s += `             cert:modulus   "${rc.youid.mod}^^xsd:hexBinary"\n`;
+         s += `            ] .\n`;
+         s += ` }\n`;
+
+         DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = s;
+
+      }
+    }
+    catch (e) {
+      alert(e);
+    } 
+    finally {
+      DOM.qHide('#gen-cert-ready-dlg #delegate_wait');
+    }
+  },
+
+
+  uploadDelegate: async function(gen, webid, certData)
+  {
+    if (!gen.delegate_uri) {
+      alert('Delegate profile must be fetched at first');
+      return;
+    }
+    var url = new URL(gen.delegate_uri);
+
+    if (url.protocol === 'http:')
+      url.protocol = 'https:';
+
+    url.hash = '';
+
+    var query = DOM.qSel('#gen-cert-ready-dlg #delegate-text').value;
+    if (query.length < 1) {
+      alert('Delegate query is empty');
+      return;
+    }
+    var _fetch = (gen.idp === 'solid_oidc')? this.gOidc.fetch : fetch;
+    
+    var options = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/sparql-update; charset=utf-8'
+        },
+        credentials: 'include', 
+        body: query
+      }
+
+    DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = 'Updating Delegate profile';
+    DOM.qShow('#gen-cert-ready-dlg #u_wait');
+    try {
+      var resp = await _fetch(url.href, options);
+      if (!resp.ok) {
+        alert('Could not update Delegate profile HTTP='+resp.status+'  '+resp.statusText)
+      } else {
+        alert('Delegate relations were uploaded');
+      }
+    } catch(e) {
+      alert('Could not update Delegate profile '+e);
+      console.log(e);
+    } finally {
+      DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = '';
+      DOM.qHide('#gen-cert-ready-dlg #u_wait');
+    }
+  },
+
+
+  uploadDelegator: async function(gen, webid, certData)
+  {
+    var url = new URL(webid);
+    url.hash = '';
+    
+    var query = DOM.qSel('#gen-cert-ready-dlg #delegator-text').value;
+    if (query.length < 1) {
+      alert('Delegator query is empty');
+      return;
+    }
+    var _fetch = (gen.idp === 'solid_oidc')? this.gOidc.fetch : fetch;
+    
+    var options = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/sparql-update; charset=utf-8'
+        },
+        credentials: 'include', 
+        body: query
+      }
+
+    DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = 'Updating Delegator profile';
+    DOM.qShow('#gen-cert-ready-dlg #u_wait');
+    try {
+      var resp = await _fetch(url.href, options);
+      if (!resp.ok) {
+        alert('Could not update Delegator profile HTTP='+resp.status+'  '+resp.statusText)
+      } else {
+        alert('Delegator relations were uploaded');
+      }
+    } catch(e) {
+      alert('Could not update Delegator profile '+e);
+      console.log(e);
+    } finally {
+      DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = '';
+      DOM.qHide('#gen-cert-ready-dlg #u_wait');
     }
   },
 
@@ -738,11 +906,9 @@ class Uploader {
   {
     this.files["addrbook.png"]          = new CardFileBinary('addrbook.png', 'image/png');
     this.files["lock.png"]              = new CardFileBinary('lock.png', 'image/png');
-/**/
     this.files["museo-500-webfont.eot"] = new CardFileBinary('museo-500-webfont.eot', 'application/vnd.ms-fontobject');
     this.files["museo-500-webfont.ttf"] = new CardFileBinary('museo-500-webfont.ttf', 'application/x-font-ttf');
     this.files["museo-500-webfont.woff"]= new CardFileBinary('museo-500-webfont.woff', 'application/octet-stream');
-/**/
     this.files["photo_130x145.jpg"]     = new CardFileBinary('photo_130x145.jpg', 'image/jpeg');
     this.files["youid_logo-35px.png"]   = new CardFileBinary('youid_logo-35px.png', 'image/png');
     this.files["style.css"]             = new CardFileBinary('style.css', 'text/css');
@@ -1198,11 +1364,11 @@ class Uploader_OPL_WebDav extends Uploader {
         return {ok:true, code:resp.status, err:null}
       } else {
         return {ok: false};
-     }
-   } catch(e) {
-     console.log(e);
-     return {ok: false};
-   }
+      }
+    } catch(e) {
+      console.log(e);
+      return {ok: false};
+    }
   }
 
 
