@@ -50,7 +50,7 @@ $(function(){
         });
         $('#tabs a[href="#certificate"').click(() => {
           selectTab('#certificate');
-          v_cert.click_gen_cert();
+          v_cert.click_gen_cert(v_youid.cur_webid);
           return false;
         });
         $('#tabs a[href="#headers"').click(() => {

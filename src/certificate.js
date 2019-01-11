@@ -27,9 +27,13 @@ Certificate = function() {
 
 Certificate.prototype = {
 
-  click_gen_cert: function ()
+  click_gen_cert: function (cur_webid)
   {
     var self = this;
+
+    if (cur_webid) {
+      DOM.iSel('c_profile').value = cur_webid;
+    }
 
     var dt = new Date();
     var YMD = dt.toISOString().substring(0, 10).replace(/-/g, '');

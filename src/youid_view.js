@@ -23,6 +23,7 @@
 YouId_View = function(is_popup) {
   this.is_popup = is_popup;
   this.gPref = new Settings();
+  this.cur_webid;
 }
 
 YouId_View.prototype = {
@@ -190,6 +191,9 @@ YouId_View.prototype = {
         var sel = pref_youid && pref_youid.id === item.id;
         self.addYouIdItem(item, sel);
     });
+
+    if (pref_youid && pref_youid.id)
+      this.cur_webid = pref_youid.id;
   },
 
   addYouIdItem: function (youid, sel)
@@ -264,6 +268,14 @@ YouId_View.prototype = {
 
       var tbl = $(e.target).parents('table.youid_item');
       $(tbl).toggleClass("youid_checked", true);
+
+      try {
+        var str = tbl.attr("mdata");
+        var youid = JSON.parse(decodeURI(str));
+        if (youid && youid.id)
+          this.cur_webid = youid.id;
+      } catch(e) {
+      }
 
     }
     else {
