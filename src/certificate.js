@@ -406,15 +406,17 @@ Certificate.prototype = {
       {
         var url = new URL(webid);
         var up = new Uploader_Solid_OIDC(this.gOidc, url.origin + '/');
-        var rc = await up.uploadFile(gen.cert_dir, gen.cert_name+'.p12', certData.pkcs12B64, 'application/x-pkcs12');
-        if (!rc.ok) {
-          alert('Could not upload file '+gen.cert_name+'.p12');
-          return;
-        }
+
         var query = this.genSolidInsertCert(webid, certData.cert);
-        rc = await up.updateProfileCard(webid, query);
+        var rc = await up.updateProfileCard(webid, query);
         if (!rc.ok) {
           alert('Could not update profile card');
+          return;
+        }
+
+        rc = await up.uploadFile(gen.cert_dir, gen.cert_name+'.p12', certData.pkcs12B64, 'application/x-pkcs12');
+        if (!rc.ok) {
+          alert('Could not upload file '+gen.cert_name+'.p12');
           return;
         }
       }
