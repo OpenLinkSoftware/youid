@@ -148,10 +148,13 @@
               <select name="profile" class="form-control" id="c_idp">
                 <option value="manual" selected>Manual Upload</option>
                 <option value="opl_dav">MyOpenLink (WebDAV)</option>
-<!--
+                <option value="opl_dav_https">MyOpenLink (WebDAV) https://</option>
                 <option value="opl_ldp">MyOpenLink (LDP)</option>
--->
+                <option value="opl_ldp_https">MyOpenLink (LDP) https://</option>
                 <option value="solid_oidc">Solid WebID-OIDC</option>
+<!--
+                <option value="ldp_tls_solid">Solid LDP WebID-TLS</option>
+-->
                 <option value="ldp_tls">LDP WebID-TLS</option>
               </select>
               <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
