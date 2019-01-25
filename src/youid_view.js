@@ -31,21 +31,27 @@ YouId_View.prototype = {
   {
     function mk_row_str(_name_href, _name, _str)
     {
-      return `<tr class="dtext">
-                <td valign="top" class="dtext_col1">
-                  <a href="${_name_href}" class="uri">${_name}</a>
-                </td>
-                <td>
-                  ${_str}
-                </td>
-               </tr> `;
+      if (_str)
+        return `<tr class="dtext">
+                  <td valign="top" class="dtext_col1">
+                    <a href="${_name_href}" class="uri">${_name}</a>
+                  </td>
+                  <td>
+                    ${_str}
+                  </td>
+                 </tr> `;
+      else
+        return '';
     }
 
     function mk_row_href(_name_href, _name, _href)
     {
-      return mk_row_str(_name_href, 
+      if (_href)
+        return mk_row_str(_name_href, 
                         _name, 
                         `<a href="${_href}" class="uri">${_href}</a>`);
+      else
+        return '';
     }
 
 
@@ -58,41 +64,27 @@ YouId_View.prototype = {
 
     var det = "";
 
-    if (youid.pubkey) {
-      det += mk_row_href('http://www.w3.org/ns/auth/cert#key',
+    det += mk_row_href('http://www.w3.org/ns/auth/cert#key',
                          'PubKey',
                          youid.pubkey);
-    }
-    if (youid.alg) {
-      det += mk_row_href('http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+    det += mk_row_href('http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
                          'Algorithm',
                          youid.alg);
-    }
-    if (youid.exp) {
-      det += mk_row_str('http://www.w3.org/ns/auth/cert#exponent',
+    det += mk_row_str('http://www.w3.org/ns/auth/cert#exponent',
                         'Exponent',
                         youid.exp);
-    }
-    if (youid.mod) {
-      det += mk_row_str('http://www.w3.org/ns/auth/cert#modulus',
+    det += mk_row_str('http://www.w3.org/ns/auth/cert#modulus',
                         'Modulus',
                         youid.mod);
-    }
-    if (youid.delegate) {
-      det += mk_row_href('http://www.openlinksw.com/schemas/cert#hasIdentityDelegate',
+    det += mk_row_href('http://www.openlinksw.com/schemas/cert#hasIdentityDelegate',
                          'Delegate',
                          youid.delegate);
-    }
-    if (youid.pim) {
-      det += mk_row_href('http://www.w3.org/ns/pim/space#storage',
+    det += mk_row_href('http://www.w3.org/ns/pim/space#storage',
                          'Storage',
                          youid.pim);
-    }
-    if (youid.inbox) {
-      det += mk_row_href('http://www.w3.org/ns/ldp#inbox',
+    det += mk_row_href('http://www.w3.org/ns/ldp#inbox',
                          'Inbox',
                          youid.inbox);
-    }
 
     if (youid.behalfOf && youid.behalfOf.length>0) {
       var val = ""
@@ -156,7 +148,7 @@ YouId_View.prototype = {
            Details 
          </td> 
        </tr> 
-       <tr class="det_data" style="display:none"> 
+       <tr class="det_data hidden"> 
          <td>
          </td> 
          <td> 
@@ -200,15 +192,17 @@ YouId_View.prototype = {
   {
     var self = this;
     var s = this.create_youid_item(youid, sel);
-    $('.youid_list').append('<tr><td>'+DOMPurify.sanitize(s,{SAFE_FOR_JQUERY: true, ADD_ATTR: ['mdata']})+'</td></tr>');
+    var tbody = DOM.qSel('#youid_tbl tbody');
+//    $('.youid_list').append('<tr><td>'+DOMPurify.sanitize(s,{SAFE_FOR_JQUERY: true, ADD_ATTR: ['mdata']})+'</td></tr>');
+    var r = tbody.insertRow(-1);
+    r.innerHTML = '<td>'+s+'</td>';
 
-    var tr = $('.youid_list > tr:last-child');
-    
-    tr.find('.det_btn').click(function(e){ return self.click_det(e);})
-    tr.find('.youid_chk').click(function(e){ return self.select_youid_item(e);})
-    tr.find('.uri').click(function(e){ return self.click_uri(e);})
-    tr.find('.remove_youid').click(function(e){ return self.click_remove_youid(e);})
-    tr.find('.refresh_youid').click(function(e){ return self.click_refresh_youid(e);})
+    r.querySelector('.det_btn').onclick = (e) => { self.click_det(e); };
+    r.querySelector('.youid_chk').onclick = (e) =>{ return self.select_youid_item(e); };
+    r.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
+    r.querySelector('.remove_youid').onclick = (e) => { return self.click_remove_youid(e);};
+    r.querySelector('.refresh_youid').onclick = (e) => { return self.click_refresh_youid(e);}
+
   },
 
   updateYouIdItem: function (row, youid)
@@ -224,50 +218,49 @@ YouId_View.prototype = {
 
     var sel = pref_youid && pref_youid.id === youid.id;
     var s = this.create_youid_item(youid, sel);
-    row.children("td:first").children().remove();
-    row.children("td:first").append(s);
 
-    row.find('.det_btn').click(function(e){ return self.click_det(e);})
-    row.find('.youid_chk').click(function(e){ return self.select_youid_item(e);})
-    row.find('.uri').click(function(e){ return self.click_uri(e);})
-    row.find('.remove_youid').click(function(e){ return self.click_remove_youid(e);})
-    row.find('.refresh_youid').click(function(e){ return self.click_refresh_youid(e);})
+    var td = row.querySelector('td');
+    td.innerHTML = s;
+
+    row.querySelector('.det_btn').onclick = (e) => { self.click_det(e); };
+    row.querySelector('.youid_chk').onclick = (e) =>{ return self.select_youid_item(e); };
+    row.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
+    row.querySelector('.remove_youid').onclick = (e) => { return self.click_remove_youid(e);};
+    row.querySelector('.refresh_youid').onclick = (e) => { return self.click_refresh_youid(e);}
   },
 
   click_det: function (e)
   {
-    var el = $(e.target);
+    var el = e.target;
+    var det_data = el.closest('table.youid_item').querySelector('tr.det_data');
+     
+    det_data.classList.toggle('hidden');
+    if (det_data.classList.contains('hidden'))
+      el.src = "lib/css/img/plus.png"
+    else
+      el.src = "lib/css/img/minus.png"
 
-    var det_data = el.parents('table.youid_item').find('tr.det_data');
-    var is_visible = det_data.is(":visible");
-    if (is_visible) {
-      det_data.hide();
-      el.attr("src","lib/css/img/plus.png");
-    }
-    else {
-      det_data.show();
-      el.attr("src","lib/css/img/minus.png");
-    }
     return false;
   },
 
 
-  select_youid_item: function (e)
+  select_youid_item: function (ev)
   {
-    var checked = $(e.target).is(':checked');
-    if (checked) {
-      var lst = $('.youid_chk');
+    var chk = ev.target;
 
-      for(var i=0; i < lst.length; i++) {
-        if (lst[i] !== e.target) {
+    if (chk.checked) {
+      var tbody = DOM.qSel('#youid_tbl tbody');
+      var lst = tbody.querySelectorAll('.youid_chk');
+      for (var i=0; i < lst.length; i++) {
+        if (lst[i] !== chk) {
           lst[i].checked = false;
-          var tbl = $(lst[i]).parents('table.youid_item');
-          $(tbl).toggleClass("youid_checked", false);
+          var tbl = lst[i].closest('table.youid_item');
+          tbl.classList.remove("youid_checked");
         }
       }
 
-      var tbl = $(e.target).parents('table.youid_item');
-      $(tbl).toggleClass("youid_checked", true);
+      var tbl = chk.closest('table.youid_item');
+      tbl.classList.add("youid_checked");
 
       try {
         var str = tbl.attr("mdata");
@@ -279,21 +272,14 @@ YouId_View.prototype = {
 
     }
     else {
-      var tbl = $(e.target).parents('table.youid_item');
-      $(tbl).toggleClass("youid_checked", false);
+      var tbl = chk.closest('table.youid_item');
+      tbl.classList.remove("youid_checked");
     }
-
-    if (this.is_popup) {
-      this.save_youid_data();
-      window.close();
-    }
-
-    return true;
   },
 
   click_uri: function (e)
   {
-    var href = $(e.target).attr("href");
+    var href = e.target.href;
     if (href)
       Browser.openTab(href);
     return false;
@@ -302,11 +288,11 @@ YouId_View.prototype = {
   click_remove_youid: function (e)
   {
     var self = this;
-    var data = $(e.target).parents('table:first');
-    var row = data.parents('tr:first');
+    var row = e.target.closest('table').closest('tr');
+    var data = row.querySelector('table');
     var youid = null;
     try {
-      var str = data.attr('mdata');
+      var str = data.attributes['mdata'].value;
       youid = JSON.parse(decodeURI(str));
     } catch(e) {
       console.log(e);
@@ -314,7 +300,7 @@ YouId_View.prototype = {
 
     if (youid!=null) {
        Msg.showYN("Do you want to drop YouID item ?",youid.name, function(){
-          $(row).remove();
+          row.remove();
           if (self.is_popup)
             self.save_youid_data();
        });
@@ -326,11 +312,11 @@ YouId_View.prototype = {
   click_refresh_youid: function (e)
   {
     var self = this;
-    var data = $(e.target).parents('table:first');
-    var row = data.parents('tr:first');
+    var row = e.target.closest('table').closest('tr');
+    var data = row.querySelector('table');
     var youid = null;
     try {
-      var str = data.attr('mdata');
+      var str = data.attributes['mdata'].value;
       youid = JSON.parse(decodeURI(str));
     } catch(e) {
       console.log(e);
@@ -349,7 +335,7 @@ YouId_View.prototype = {
   {
     var self = this;
 
-    var btnOk = document.querySelector('#add-dlg #btn-ok');
+    var btnOk = DOM.qSel('#add-dlg #btn-ok');
     btnOk.onclick = () =>
        {
          var uri = $('#add-dlg #uri').val().trim();
@@ -376,7 +362,7 @@ YouId_View.prototype = {
     $('#verify-dlg #verify-tbl-place').children().remove();
     $("#verify-dlg #btn-ok").hide();
 
-    var btnOk = document.querySelector('#verify-dlg #btn-ok');
+    var btnOk = DOM.qSel('#verify-dlg #btn-ok');
     btnOk.onclick =  () =>
        {
          if (_success) {
@@ -419,14 +405,17 @@ YouId_View.prototype = {
   {
     var pref_youid = "";
     var list = [];
-    var rows = $('.youid_list>tr');
-    for(var i=0; i < rows.length; i++) {
-      var r = $(rows[i]);
-      var checked = r.find('.youid_chk').is(':checked');
+
+    var tbody = DOM.qSel('#youid_tbl tbody');
+    var lst = tbody.querySelectorAll('table.youid_item');
+    
+    for (var i=0; i < lst.length; i++) {
+      var r = lst[i];
+      var checked = r.querySelector('.youid_chk').checked;
 
       var youid = null;
       try {
-        var str = r.find('table').attr("mdata");
+        var str = r.attributes["mdata"].value;
         youid = JSON.parse(decodeURI(str));
       } catch(e) {
         console.log(e);
@@ -437,8 +426,8 @@ YouId_View.prototype = {
          if (checked)
            pref_youid = youid;
       }
-    }
 
+    }
     this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
     this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
 

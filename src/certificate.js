@@ -478,7 +478,7 @@ Certificate.prototype = {
            r.querySelector('#chk').checked = true;
 
          r.querySelector('#chk').onclick = (ev) => {
-            var chk = ev.currentTarget;
+            var chk = ev.target;
             if (chk.checked) {
               console.log(ev);
               var lst = tbody.querySelectorAll('#chk');
@@ -489,7 +489,7 @@ Certificate.prototype = {
             }
           };
          r.querySelector('#det_btn').onclick = (ev) => {
-            var btn = ev.currentTarget;
+            var btn = ev.target;
             var item = btn.closest('table.certkeys_item');
             var tbl = item.querySelector('table.dettable');
             tbl.classList.toggle('hidden');
