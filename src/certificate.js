@@ -338,10 +338,26 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value = '';
     DOM.qSel('#gen-cert-ready-dlg #reg_delegate').checked = false;
 
+    gen.delegate_uri = null;
+    this.setDelegateText(gen);
+    this.setDelegatorText(gen);
+    DOM.qHide('#gen-cert-ready-dlg #delegate-create');
+
+
     DOM.qSel('#gen-cert-ready-dlg #btn-delegate_uri')
       .onclick = async () => {
-        await self.fetchDelegate(gen, webid, certData);
+        await self.fetchDelegate(gen, webid);
       };
+
+    DOM.qSel('#gen-cert-ready-dlg #btn-delegate_cert_key')
+      .onclick = async () => {
+        if (!gen.delegate_keys || gen.delegate_keys.length == 0) {
+           alert('Fetch Delegate profile at first.');
+           return; 
+        }
+        self.showCertKeys(gen);
+      };
+
     DOM.qSel('#gen-cert-ready-dlg #reg_delegate')
       .onchange = (e) => {
         if (DOM.qSel('#gen-cert-ready-dlg #reg_delegate').checked)
@@ -396,6 +412,113 @@ Certificate.prototype = {
     return false;
   },
 
+
+  showCertKeys: function(gen) {
+     var self = this;
+     var tbody = DOM.qSel('#cert-key-dlg #cert-key-tbl tbody');
+     var keys = gen.delegate_keys;
+
+     tbody.innerHTML = '';
+
+     function mk_subitem(name, val)
+     {
+       if (val) {
+         return '<tr class="dtext">'
+               +' <td class="dtext_col1" valign="top">'
+               + name
+               +' </td>'
+               +'<td>'+val+'</td>'
+               +'</tr>';
+       } else {
+         return '';
+       }
+     }
+
+     function mk_row(k)
+     {
+       if (!k)
+         return '';
+
+       var label = k.pkey + (k.key_label?' / '+k.key_label : '');
+
+       var s = '<td><table class="certkeys_item"><tbody>';
+
+       s+= `<tr><td style="width:20px">
+             <input type="checkbox" id="chk">
+            </td><td class="key_name">${label}</td></tr>`;
+
+       s+= `<tr><td></td><td class="dtext">
+              <input title="Show details" height="12" width="12" src="lib/css/img/plus.png" id="det_btn" type="image">
+              Details
+            </td></tr>`;
+
+       s += '<tr> <td></td> <td> <table class="dettable hidden"> <tbody>';
+
+       s += mk_subitem('Label', k.key_label);
+       s += mk_subitem('Title', k.key_title);
+       s += mk_subitem('Created', k.key_created);
+       s += mk_subitem('Modulus', k.mod);
+       s += mk_subitem('Exponent', k.exp);
+
+       s += '</tbody> </table> </td> </tr>';
+
+       s +=' </tbody> </table> </td>'
+
+       return s;
+     }
+
+     
+     for(var i=0; i < keys.length; i++) {
+       var s = mk_row(keys[i]);
+       if (s) {
+         var r = tbody.insertRow(-1);
+         r.innerHTML = s;
+
+         if (keys[i].mod === gen.delegate_key_mod)
+           r.querySelector('#chk').checked = true;
+
+         r.querySelector('#chk').onclick = (ev) => {
+            var chk = ev.currentTarget;
+            if (chk.checked) {
+              console.log(ev);
+              var lst = tbody.querySelectorAll('#chk');
+              for (var i=0; i < lst.length; i++) {
+                if (lst[i] !== chk)
+                  lst[i].checked = false;
+              }
+            }
+          };
+         r.querySelector('#det_btn').onclick = (ev) => {
+            var btn = ev.currentTarget;
+            var item = btn.closest('table.certkeys_item');
+            var tbl = item.querySelector('table.dettable');
+            tbl.classList.toggle('hidden');
+            if (tbl.classList.contains('hidden'))
+              btn.src = "lib/css/img/plus.png"
+            else
+              btn.src = "lib/css/img/minus.png"
+          };
+       }
+     }
+
+     $('#cert-key-dlg').modal('show');
+     DOM.qSel('#cert-key-dlg #btn-ok').onclick = () => {
+        
+        var lst = tbody.querySelectorAll('#chk');
+        for (var i=0; i < lst.length; i++) {
+          if (lst[i].checked) {
+            var k = keys[i];
+            gen.delegate_key_exp = k.exp;
+            gen.delegate_key_mod = k.mod;
+            gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
+            this.setDelegatorText(gen);
+            $('#cert-key-dlg').modal('hide');
+            break;
+          }
+        }
+       };
+
+  },
 
   uploadCert: async function (gen, webid, certData) {
     var done_ok = false;
@@ -537,7 +660,7 @@ Certificate.prototype = {
     }
   },
 
-  fetchDelegate: async function (gen, webid, certData) {
+  fetchDelegate: async function (gen, webid) {
     var done_ok = false;
     DOM.qShow('#gen-cert-ready-dlg #delegate_wait');
     var uri = DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value;
@@ -546,37 +669,30 @@ Certificate.prototype = {
       if (rc.success) {
         var s;
 
+        gen.delegate_profile = rc.profile;
         gen.delegate_uri = rc.youid.id;
+        
+        var rkeys = await (new YouID_Loader()).getCertKeys(gen.delegate_profile);
+        if (rkeys.err) {
+          alert('Could not get certificate Keys from profile');
+          gen.delegate_keys = [];
+        } else {
+          gen.delegate_keys = rkeys.keys;
+        }
 
-        s = '@prefix oplcert: <http://www.openlinksw.com/schemas/cert#> . \n\n';
-        // delegate  -> delegator
-        s += `INSERT { \n`;
-        s += `<${rc.youid.id}> \n`;
-        s += `            oplcert:onBehalfOf <${webid}> .\n`;
-        s += ` }\n`;
+        if (gen.delegate_keys.length===0) {
+          gen.delegate_keys.push({'pkey':'key', 'mod': rc.youid.mod, 'exp': rc.youid.exp});
+        }
 
-        DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = s;
+        var k = gen.delegate_keys[0];
+        gen.delegate_key_exp = k.exp;
+        gen.delegate_key_mod = k.mod;
+        gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
 
+        gen.delegator_webid = webid;
 
-
-        s = '@prefix acl: <http://www.w3.org/ns/auth/acl#> . \n' +
-          '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . \n' +
-          '@prefix cert: <http://www.w3.org/ns/auth/cert#> . \n\n';
-
-        s += `INSERT { \n`;
-        s += `<${webid}> \n`;
-        s += `      acl:delegates <${rc.youid.id}> . \n`;
-
-        s += `<${rc.youid.id}> \n`;
-        s += `   cert:key [ \n`;
-        s += `             a cert:RSAPublicKey;\n`;
-        s += `             cert:exponent  "${rc.youid.exp}"^^xsd:int;\n`;
-        s += `             cert:modulus   "${rc.youid.mod}^^xsd:hexBinary"\n`;
-        s += `            ] .\n`;
-        s += ` }\n`;
-
-        DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = s;
-
+        this.setDelegateText(gen);
+        this.setDelegatorText(gen);
       }
     }
     catch (e) {
@@ -586,6 +702,50 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #delegate_wait');
     }
   },
+
+  setDelegateText: function(gen) {
+    var s = '';
+    if (gen.delegate_uri && gen.delegator_webid) {
+        s = '@prefix oplcert: <http://www.openlinksw.com/schemas/cert#> . \n\n';
+        // delegate  -> delegator
+        s += `INSERT { \n`;
+        s += `<${gen.delegate_uri}> \n`;
+        s += `            oplcert:onBehalfOf <${gen.delegator_webid}> .\n`;
+        s += ` }\n`;
+    }
+
+    DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = s;
+  },
+
+  setDelegatorText: function(gen) {
+    var s = '';
+    if (gen.delegator_webid && gen.delegate_uri) {
+        s = '@prefix acl: <http://www.w3.org/ns/auth/acl#> . \n' +
+          '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . \n' +
+          '@prefix cert: <http://www.w3.org/ns/auth/cert#> . \n\n';
+
+        s += `INSERT { \n`;
+        s += `<${gen.delegator_webid}> \n`;
+        s += `      acl:delegates <${gen.delegate_uri}> . \n`;
+
+        s += `<${gen.delegate_uri}> \n`;
+        s += `   cert:key [ \n`;
+        s += `             a cert:RSAPublicKey;\n`;
+        s += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;\n`;
+        s += `             cert:modulus   "${gen.delegate_key_mod}^^xsd:hexBinary"\n`;
+        s += `            ] .\n`;
+        s += ` }\n`;
+    }
+
+    DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = s;
+
+    var btn = DOM.qSel('#gen-cert-ready-dlg #btn-delegate_cert_key');
+    if (gen.delegate_uri)
+      btn.childNodes[0].nodeValue = gen.delegate_key_label;
+    else
+      btn.childNodes[0].nodeValue = 'Certificate Key';
+  },
+
 
 
   uploadDelegate: async function (gen, webid, certData) {

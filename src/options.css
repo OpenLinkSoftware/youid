@@ -45,6 +45,15 @@
     table-layout: fixed;
 }
 
+.certkeys_item { 
+    /*font-weight: bold;*/
+    width:650px; 
+    table-layout: fixed;
+}
+.key_name { 
+    font-weight: bold;
+}
+
 
 .youid_checked { 
     background-color: aquamarine; 

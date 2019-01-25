@@ -139,7 +139,6 @@ YouID_Loader.prototype = {
     var store = await (this.load_data(baseURI, data, content_type)
             .catch(err => {
               throw new Error("Could not parse data from: "+uri+"\nError: "+err);
-              return;
             }));
 
     var ret;
@@ -192,6 +191,7 @@ YouID_Loader.prototype = {
 
     var results = ret.results;
 
+    var profile = {data, content_type, baseURI};
     var youid = { id: null, name: null, alg: null, pubkey: null,
           mod: null, exp: null, delegate: null,
           acl: [], behalfOf: [], foaf_knows:[],
@@ -321,7 +321,7 @@ YouID_Loader.prototype = {
 
     verify_data += `</tbody></table>`;
 
-    return await {success, youid, msg, verify_data};
+    return await {success, youid, msg, verify_data, profile};
   },
 
 
@@ -395,8 +395,70 @@ YouID_Loader.prototype = {
     })
   },
 
+  getCertKeys : async function(profile) {
+    var self = this;
+    var store;
+
+    try {
+      store = await this.load_data(profile.baseURI, profile.data, profile.content_type);
+    } catch(err) {
+      var msg = "Could not parse data from: "+profile.baseURI+"\nError: "+err;
+      return { "error": msg};
+    }
+
+    var q = `
+  PREFIX terms: <http://purl.org/dc/terms/> 
+  PREFIX rd: <http://www.w3.org/2000/01/rdf-schema#> 
+  PREFIX cert: <http://www.w3.org/ns/auth/cert#> 
+  SELECT * WHERE 
+    { 
+      {
+       ?webid cert:key ?pubkey .
+       ?pubkey a cert:RSAPublicKey ;
+              cert:modulus  ?cert_mod ;
+              cert:exponent ?cert_exp .
+      }
+       OPTIONAL { ?pubkey terms:created ?key_cr_dt . }
+       OPTIONAL { ?pubkey terms:title   ?key_cr_title . }
+       OPTIONAL { ?pubkey rd:label ?key_label . }
+    }`;
+
+    var rc;
+    try {
+      rc = await this.exec_query(store, q);
+    } catch(err) {
+      return { "error": err};
+    }
+    if (rc.err) {
+      return { "error": rc.err};
+    } 
+    else if (!rc.err && rc.results && rc.results.length > 0) 
+    {
+      var ret = [];
+      for (var i=0; i < rc.results.length; i++) {
+        var r = rc.results[i];
+        var pkey = (new URL(r.pubkey.value)).hash;
+        var v = {pkey, mod:r.cert_mod.value, exp:r.cert_exp.value};
+        if (r.key_cr_dt) 
+          v["key_created"] = r.key_cr_dt.value;
+        if (r.key_cr_title) 
+          v["key_title"] = r.key_cr_title.value;
+        if (r.key_label) 
+          v["key_label"] = r.key_label.value;
+
+        ret.push(v);
+      }
+      return {keys: ret};
+   }
+   else {
+      return { "error": 'No data'};
+   }
+  } ,
 
 }
+
+
+
 
 var Msg = {};
 
@@ -426,8 +488,6 @@ Msg.showYN = function (msg1, msg2, callback)
 
 Msg.showInfo = function (msg)
   {
-//    $('#verify-dlg').modal('hide');
-
     if (msg) 
       document.querySelector('#alert-dlg #alert-msg1').textContent = msg;
 

@@ -27,6 +27,7 @@
 
     <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="lib/bootstrap.js"></script>
+    <script type="text/javascript" src="lib/multimodal.js"></script>
     <script type="text/javascript" src="lib/rdfstore_min.js"></script>
     <script type="text/javascript" src="lib/purify.min.js"></script>
     <script type="text/javascript" src="lib/forge.bundle.js"></script>
@@ -55,7 +56,7 @@
       <div id="header">
         <ul id="tabs">
           <li><a href="#webid"  >YouID&nbsp;List</a></li>
-          <li><a href="#certificate" >Certificate</a></li>
+          <li><a href="#certificate" title="Credentials Document (pkcs#12 file) Generator">Credentials</a></li>
           <li><a href="#headers">Header&nbsp;Settings</a></li>
           <li><a href="#about"  >About</a></li>
         </ul>
@@ -286,7 +287,7 @@
 
 
 <!-- Modal -->
-<div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -312,7 +313,7 @@
 
 
 <!-- Modal -->
-<div class="modal" id="verify-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="verify-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -339,7 +340,7 @@
 
 
 <!-- Modal -->
-<div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -369,7 +370,34 @@
 
 
 <!-- Modal -->
-<div class="modal" id="gen-cert-ready-dlg" tabindex="-1" role="dialog" aria-labelledby="certModalLabel" aria-hidden="true">
+<div class="modal" id="cert-key-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" style="width:700px" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Choose Certificate Key</h5>
+      </div>
+      <div class="modal-body">
+        <div style="height:500px; overflow: auto;">
+          <table id="cert-key-tbl" class="footable">
+            <tbody id="keys_data">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="gen-cert-ready-dlg" tabindex="-1" role="dialog" aria-labelledby="certModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog" style="width:600px" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -422,8 +450,12 @@
           </div>
           <div class="form-group row">
             <div class="col-md-12">
+              <button id="btn-delegate_cert_key" style="text-align:left" class="btn col-md-12" type="button">Certificate Key<span class="caret pull-right" style="margin-top:10px"></span></button>
+            </div> 
+
+            <div class="col-md-12">
               <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
-              <textarea id="delegate-text" class="form-control hidden1" style="width: 570px; height: 150px; overflow:scroll; white-space:nowrap;">
+              <textarea id="delegate-text" class="form-control hidden1" style="width: 570px; height: 130px; overflow:scroll; white-space:nowrap;">
               </textarea>
               <button id="btn-update_delegate" type="button" class="btn btn-primary ">
                 Update Delegate Profile 
@@ -435,7 +467,7 @@
           <div class="form-group row">
             <div class="col-md-12">
               <label for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</label>
-              <textarea id="delegator-text" class="form-control hidden1" style="width: 570px; height: 200px; overflow:scroll; white-space:nowrap;">
+              <textarea id="delegator-text" class="form-control hidden1" style="width: 570px; height: 170px; overflow:scroll; white-space:nowrap;">
               </textarea>
               <button id="btn-update_delegator" type="button" class="btn btn-primary ">
                 Update Delegator Profile 
