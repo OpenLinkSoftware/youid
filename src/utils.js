@@ -437,7 +437,12 @@ YouID_Loader.prototype = {
       var ret = [];
       for (var i=0; i < rc.results.length; i++) {
         var r = rc.results[i];
-        var pkey = (new URL(r.pubkey.value)).hash;
+        var pkey = r.pubkey.value;
+        try {
+          pkey = r.pubkey.token==='blank' ? r.pubkey.value : (new URL(r.pubkey.value)).hash;
+        } catch(e) {
+        }
+
         var v = {pkey, mod:r.cert_mod.value, exp:r.cert_exp.value};
         if (r.key_cr_dt) 
           v["key_created"] = r.key_cr_dt.value;
