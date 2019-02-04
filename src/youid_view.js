@@ -275,6 +275,11 @@ YouId_View.prototype = {
       var tbl = chk.closest('table.youid_item');
       tbl.classList.remove("youid_checked");
     }
+
+    if (this.is_popup) {
+      this.save_youid_data();
+      window.close();
+    }
   },
 
   click_uri: function (e)
