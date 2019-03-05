@@ -732,7 +732,7 @@ Certificate.prototype = {
         s += `   cert:key [ \n`;
         s += `             a cert:RSAPublicKey;\n`;
         s += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;\n`;
-        s += `             cert:modulus   "${gen.delegate_key_mod}^^xsd:hexBinary"\n`;
+        s += `             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary\n`;
         s += `            ] .\n`;
         s += ` }\n`;
     }
