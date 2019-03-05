@@ -128,14 +128,34 @@
           </div>
           <div class="form-group row">
             <label for="c_state" class="col-md-4 control-label">State:</label>
+<!--
             <div class="col-md-8">
               <input type="text" class="form-control" id="c_state" />
             </div>
+-->
+            <div class="col-md-8">
+              <input list="c_states" class="form-control" id="c_state" />
+              <datalist id="c_states">
+              </datalist>
+<!--
+              <select class="form-control" id="c_state">
+                <option value="" ></option>
+              </select>
+-->
+            </div>
           </div>
           <div class="form-group row">
+<!--
             <label for="c_country" class="col-md-4 control-label">Country:</label>
             <div class="col-md-2">
               <input type="text" class="form-control" id="c_country" />
+            </div>
+-->
+            <label for="c_country" class="col-md-4 control-label">Country:</label>
+            <div class="col-md-8">
+              <select class="form-control" id="c_country">
+                <option value="" ></option>
+              </select>
             </div>
           </div>
         </form>
@@ -274,7 +294,7 @@
               an single HTTPS (TLS) connection without browser restart.
             </p>
             <p>Home Page: <a href="http://youid.openlinksw.com" target="_blank">http://youid.openlinksw.com</a></p>
-            <p>Copyright 2015-2018 <a href="http://www.openlinksw.com" target="_blank">OpenLink Software</a></p>
+            <p>Copyright 2015-2019 <a href="http://www.openlinksw.com" target="_blank">OpenLink Software</a></p>
         </div>
 
       </div>

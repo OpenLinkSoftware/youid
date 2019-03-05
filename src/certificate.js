@@ -27,23 +27,48 @@ Certificate = function () {
 
 Certificate.prototype = {
 
-  click_gen_cert: function (cur_webid) {
+  reset_gen_cert: function () {
+    var dt = new Date();
+    this.YMD = dt.toISOString().substring(0, 10).replace(/-/g, '');
+    this.HMS = dt.toISOString().substring(11, 19).replace(/:/g, '');
+
+    DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + this.YMD + '_' + this.HMS;
+    DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + this.YMD + '_' + this.HMS;
+  },
+
+  initCountries: function () {
+    var select = DOM.qSel('#c_country');
+    select.options.length = 0;
+    var el = document.createElement('option');
+    el.text = '';
+    el.value = '';
+    select.add(el);
+
+    for(var i=0; i< COUNTRIES.length; i++) {
+      var c = COUNTRIES[i];
+      var el = document.createElement('option');
+      el.text = c.cl;
+      el.value = c.ccode;
+      select.add(el);
+    }
+  },
+
+
+  click_gen_cert: async function (cur_webid) {
     var self = this;
 
     if (cur_webid) {
       DOM.iSel('c_profile').value = cur_webid;
     }
 
-    var dt = new Date();
-    var YMD = dt.toISOString().substring(0, 10).replace(/-/g, '');
-    var HMS = dt.toISOString().substring(11, 19).replace(/:/g, '');
+    self.reset_gen_cert();
 
-    DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + YMD + '_' + HMS;
-    DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + YMD + '_' + HMS;
+    self.initCountries();
 
     if (DOM.qSel('#c_idp option:checked').value === 'solid_oidc') {
       this.oidc_changed();
     }
+
 
     DOM.qSel('#gen-cert-dlg #btn-fetch-profile')
       .onclick = () => {
@@ -58,12 +83,69 @@ Certificate.prototype = {
             if (ret.success) {
               DOM.iSel('c_webid').value = ret.youid.id;
               DOM.iSel('c_name').value = ret.youid.name;
+              DOM.iSel('c_email').value = ret.youid.email;
             }
           })
           .catch(err => {
             DOM.qHide('#gen-cert-dlg #fetch_wait');
             alert(err.message);
           });
+      };
+
+/***
+    DOM.qSel('#gen-cert-dlg #c_country')
+      .onchange = (e) => {
+        var sel_country = DOM.qSel('#c_country option:checked').value;
+
+        var select = DOM.qSel('#c_state');
+        select.options.length = 0;
+        var el = document.createElement('option');
+        el.text = '';
+        el.value = '';
+        select.add(el);
+
+        var states = null;
+        for(var i=0; i< COUNTRIES.length; i++) {
+          var c = COUNTRIES[i];
+          if (c.ccode === sel_country) {
+            states = c.states;
+            break; 
+          }
+        }
+        if (states) {
+          for(var i=0; i < states.length; i++) {
+            var el = document.createElement('option');
+            el.text = states[i].sl;
+            el.value = states[i].scode;
+            select.add(el);
+          }
+        }
+      };
+***/
+    DOM.qSel('#gen-cert-dlg #c_country')
+      .onchange = (e) => {
+        var sel_country = DOM.qSel('#c_country option:checked').value;
+
+        DOM.qSel('#c_state').value = '';
+
+        var states_list = DOM.qSel('#c_states');
+        states_list.innerHTML = '';
+
+        var states = null;
+        for(var i=0; i< COUNTRIES.length; i++) {
+          var c = COUNTRIES[i];
+          if (c.ccode === sel_country) {
+            states = c.states;
+            break; 
+          }
+        }
+        if (states) {
+          for(var i=0; i < states.length; i++) {
+            var el = document.createElement('option');
+            el.value = states[i].sl;
+            states_list.appendChild(el);
+          }
+        }
       };
 
     DOM.qSel('#gen-cert-dlg #c_dav_uid')
@@ -96,7 +178,7 @@ Certificate.prototype = {
         }
         else if (sel === 'opl_dav' || sel === 'opl_dav_https') {
           if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
-            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + YMD + '_' + HMS;
+            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
@@ -107,7 +189,7 @@ Certificate.prototype = {
         }
         else if (sel === 'opl_ldp' || sel === 'opl_ldp_https') {
           if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
-            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + YMD + '_' + HMS;
+            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
@@ -124,7 +206,7 @@ Certificate.prototype = {
         }
         else if (sel === 'ldp_tls' || sel === 'ldp_tls_solid') {
           if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
-            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + YMD + '_' + HMS;
+            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_webid');
           DOM.qShow('#gen-cert-dlg #r_cert_name');
@@ -148,12 +230,12 @@ Certificate.prototype = {
         gen.idp = DOM.qSel('#c_idp option:checked').value;
         gen.cert_name = DOM.qSel('#gen-cert-dlg #c_cert_name').value;
         if (gen.cert_name.length < 1) {
-          gen.cert_name = 'cert_' + YMD + '_' + HMS;
+          gen.cert_name = 'cert_' + self.YMD + '_' + self.HMS;
         }
 
         gen.cert_dir = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
         if (gen.cert_dir.length < 1) {
-          gen.cert_dir = 'YouID/IDcard_' + YMD + '_' + HMS;
+          gen.cert_dir = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
         }
 
         if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {
@@ -298,7 +380,7 @@ Certificate.prototype = {
     var certOrgUnit = DOM.qSel('#gen-cert-dlg #c_org_unit').value;
     var certCity = DOM.qSel('#gen-cert-dlg #c_city').value;
     var certState = DOM.qSel('#gen-cert-dlg #c_state').value;
-    var certCountry = DOM.qSel('#gen-cert-dlg #c_country').value;
+    var certCountry = DOM.qSel('#gen-cert-dlg #c_country option:checked').value;
     var certPwd = DOM.qSel('#gen-cert-dlg #c_pwd').value;
     var certPwd1 = DOM.qSel('#gen-cert-dlg #c_pwd1').value;
 
@@ -341,6 +423,7 @@ Certificate.prototype = {
     gen.delegate_uri = null;
     this.setDelegateText(gen);
     this.setDelegatorText(gen);
+    DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = false;
     DOM.qHide('#gen-cert-ready-dlg #delegate-create');
 
 
@@ -368,6 +451,9 @@ Certificate.prototype = {
 
 
     $('#gen-cert-ready-dlg').modal('show');
+    $('#gen-cert-ready-dlg').on('hidden.bs.modal', (e) =>{
+       self.reset_gen_cert();
+    })
 
     setTimeout(function () {
       certData = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, certPwd);
@@ -653,9 +739,10 @@ Certificate.prototype = {
     finally {
       DOM.qHide('#gen-cert-ready-dlg #u_wait');
       if (done_ok) {
-        $('#gen-cert-ready-dlg').modal('hide');
-        alert('Done');
-        this.click_gen_cert();
+        setTimeout(function () {
+          DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = true;
+          alert('Done. Profile Document was uploaded.');
+        }, 500);
       }
     }
   },
@@ -2004,3 +2091,35 @@ class CardFileData extends CardFileTpl {
   }
 
 }
+
+
+class LocalTextFile {
+  constructor(fname, type) {
+    this.fname = fname;
+    this.type = type;
+    this.text = null;
+    this.loaded = false;
+  }
+
+  async load() {
+    if (this.loaded)
+      return true;
+
+    try {
+      var resp = await fetch(this.fname);
+      if (resp.ok) {
+        this.text = await resp.text();
+        this.loaded = true;
+        return true;
+      }
+      else {
+        return false;
+      }
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+}
+
+
