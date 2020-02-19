@@ -92,36 +92,6 @@ Certificate.prototype = {
           });
       };
 
-/***
-    DOM.qSel('#gen-cert-dlg #c_country')
-      .onchange = (e) => {
-        var sel_country = DOM.qSel('#c_country option:checked').value;
-
-        var select = DOM.qSel('#c_state');
-        select.options.length = 0;
-        var el = document.createElement('option');
-        el.text = '';
-        el.value = '';
-        select.add(el);
-
-        var states = null;
-        for(var i=0; i< COUNTRIES.length; i++) {
-          var c = COUNTRIES[i];
-          if (c.ccode === sel_country) {
-            states = c.states;
-            break; 
-          }
-        }
-        if (states) {
-          for(var i=0; i < states.length; i++) {
-            var el = document.createElement('option');
-            el.text = states[i].sl;
-            el.value = states[i].scode;
-            select.add(el);
-          }
-        }
-      };
-***/
     DOM.qSel('#gen-cert-dlg #c_country')
       .onchange = (e) => {
         var sel_country = DOM.qSel('#c_country option:checked').value;
@@ -759,7 +729,7 @@ Certificate.prototype = {
         gen.delegate_profile = rc.profile;
         gen.delegate_uri = rc.youid.id;
         
-        var rkeys = await (new YouID_Loader()).getCertKeys(gen.delegate_profile);
+        var rkeys = await (new YouID_Loader()).getCertKeys(gen.delegate_profile, gen.delegate_uri);
         if (rkeys.err) {
           alert('Could not get certificate Keys from profile');
           gen.delegate_keys = [];

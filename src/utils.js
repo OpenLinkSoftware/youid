@@ -413,7 +413,7 @@ YouID_Loader.prototype = {
     })
   },
 
-  getCertKeys : async function(profile) {
+  getCertKeys : async function(profile, webid) {
     var self = this;
     var store;
 
@@ -435,7 +435,7 @@ YouID_Loader.prototype = {
   SELECT * WHERE 
     { 
       {
-       ?webid cert:key ?pubkey .
+       <${webid}> cert:key ?pubkey .
        ?pubkey a cert:RSAPublicKey ;
               cert:modulus  ?cert_mod ;
               cert:exponent ?cert_exp .
