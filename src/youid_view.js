@@ -54,8 +54,6 @@ YouId_View.prototype = {
         return '';
     }
 
-
-
     var cls = sel ? ' class="youid_item youid_checked"' 
                   : ' class="youid_item"';
     var checked = sel ? ' checked="checked"':' ';
@@ -382,11 +380,9 @@ YouId_View.prototype = {
          $('#verify-dlg').modal('hide');
        };
 
-
     var dlg = $('#verify-dlg .modal-content');
     dlg.width(630);
     $('#verify-dlg').modal('show');
-
 
     var loader = new YouID_Loader();
     loader.verify_ID(uri)
@@ -435,7 +431,6 @@ YouId_View.prototype = {
     }
     this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
     this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
-
   },
 
 

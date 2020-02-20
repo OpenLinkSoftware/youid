@@ -35,7 +35,6 @@ $(document).ready(function()
   $('a[href="#add_youid"]').click(function(e){v_youid.click_add_youid(e);});
 
   load_popup();
-
 });
 
 

@@ -42,8 +42,21 @@
 
           if (pref_youid && pref_youid.id && pref_youid.id.length > 0) {
             details.requestHeaders.push({name:"On-Behalf-Of", value:pref_youid.id});
-            details.requestHeaders.push({name:"Access-Control-Allow-Headers", value:"On-Behalf-Of"});
           }
+
+          var header_acah = null;
+          for (var h of details.requestHeaders) {
+            if (h.name && h.name.match(/Access-Control-Allow-Headers/i)) {
+              header_acah = h;
+              break;
+            }
+          }
+
+          if (header_acah && header_acah.value.trim().length > 0)
+            header_acah.value += ', On-Behalf-Of'
+          else
+            details.requestHeaders.push({name:"Access-Control-Allow-Headers", value:"On-Behalf-Of"});
+           
 
           if (hdr_list.length > 0) {
             for(var i=0; i < hdr_list.length; i++) {
