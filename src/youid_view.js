@@ -1,7 +1,7 @@
 /*
  *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2018 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
  *
  */
 
+var ttl_nano_pattern = /(## (Nanotation|Turtle) +Start ##)((.|\n|\r)*?)(## (Nanotation|Turtle) +(End|Stop) ##)(.*)/gmi;
+var jsonld_nano_pattern = /(## JSON-LD +Start ##)((.|\n|\r)*?)((## JSON-LD +(End|Stop) ##))(.*)/gmi;
+var rdf_nano_pattern = /(## RDF(\/|-)XML +Start ##)((.|\n|\r)*?)((## RDF(\/|-)XML +(End|Stop) ##))(.*)/gmi;
 
 
 YouId_View = function(is_popup) {
@@ -340,17 +343,31 @@ YouId_View.prototype = {
     var self = this;
 
     var btnOk = DOM.qSel('#add-dlg #btn-ok');
-    btnOk.onclick = () =>
+    btnOk.onclick = async () =>
        {
          var uri = $('#add-dlg #uri').val().trim();
          if (uri.endsWith("html") || uri.endsWith("htm"))
            {
-             var iframe = DOM.iSel('card');
-             iframe.src = uri;
-             iframe.onload = () => {
-               $('#add-dlg').modal('hide');
-               window.frames.target.postMessage('youid_sniff:{"sniff":true, "popup":'+self.is_popup+'}','*')
-             };
+             var data;
+             try {
+               var rc = await fetch(uri, {credentials: 'include'});
+               if (!rc.ok) {
+                 $('#add-dlg').modal('hide');
+                 Msg.showInfo("Could not load URL "+uri);
+                 return;
+               }
+               data = await rc.text();
+
+               var parser = new DOMParser();
+               var doc = parser.parseFromString(data, 'text/html');
+               var idata = self.sniff_data(doc, uri);
+               self.verify1_youid_exec(idata);
+
+             } catch(e) {
+                 $('#add-dlg').modal('hide');
+                 Msg.showInfo("Error:"+e+" for load URL "+uri);
+                 return;
+             }
            }
          else
            {
@@ -547,21 +564,190 @@ YouId_View.prototype = {
        $('#verify1-dlg').modal('hide');
        Msg.showInfo(err.message);
     }
+  },
 
-  
+  sniff_data: function (doc, uri)
+  {
+    var idata = {ttl:[], ldjson:[], rdfxml:[]}
+
+    var url = new URL(uri);
+    url.hash = '';
+    idata.baseURI = url.toString();
+    
+    var all = doc.getElementsByTagName('script');
+    for(var i=0; i < all.length; i++) 
+       if (all[i].hasAttribute('type')) 
+         {
+           var atype = all[i].getAttribute('type');
+           if (atype == "application/ld+json") 
+             {
+               var htmlText = all[i].innerHTML;
+
+               htmlText = htmlText.replace("//<![CDATA[", "").replace("//]]>", "");
+               htmlText = htmlText.replace("<![CDATA[", "").replace("]]>", "");
+               if (htmlText.length > 0)
+                 idata.ldjson.push(htmlText);
+             }
+           else if(atype == "text/turtle")
+             {
+               var htmlText = all[i].innerHTML;
+
+               htmlText = htmlText.replace("//<![CDATA[", "").replace("//]]>", "");
+               htmlText = htmlText.replace("<![CDATA[", "").replace("]]>", "");
+               if (htmlText.length > 0)
+                 idata.ttl.push(htmlText);
+             } 
+           else if(atype == "application/rdf+xml")
+             {
+               var htmlText = all[i].innerHTML;
+
+               htmlText = htmlText.replace("//<![CDATA[", "").replace("//]]>", "");
+               htmlText = htmlText.replace("<![CDATA[", "").replace("]]>", "");
+               if (htmlText.length > 0)
+                 idata.rdfxml.push(htmlText);
+             } 
+         }
+    
+    var txt = document.body.innerText;
+    if (txt) {
+        function isWhitespace(c) {
+            var cc = c.charCodeAt(0);
+            if (( cc >= 0x0009 && cc <= 0x000D ) ||
+                ( cc == 0x0020 ) ||
+                ( cc == 0x0085 ) ||
+                ( cc == 0x00A0 )) {
+                return true;
+            }
+            return false;
+        }
+
+
+        //drop commetns
+        var eoln = /(?:\r\n)|(?:\n)|(?:\r)/g;
+        var s_split = txt.split(eoln);
+        var s_doc = "";
+        var p1 = /## +([Nn]anotation|[Tt]urtle) +(Start|End|Stop) *##/;
+        var p2 = /^ *#/;
+        var p3 = /## +(JSON-LD) +(Start|End|Stop) *##/;
+        var p4 = /## +(RDF(\/|-)XML) +(Start|End|Stop) *##/;
+
+        s_split.forEach(function (item, i, arr) {
+            if (item.length > 0 && (!p2.test(item) || p1.test(item) || p3.test(item) || p4.test(item)))
+                s_doc += item + "\n";
+        });
+
+        s_doc = this.fix_Nano_data(s_doc);
+        //try get Turtle Nano
+        while (true) {
+            var ndata = ttl_nano_pattern.exec(s_doc);
+            if (ndata == null)
+                break;
+
+            var str = ndata[3];
+            if (str.length > 0)
+               idata.ttl.push(str);
+        }
+
+        //try get Turtle Nano in CurlyBraces { ... }
+        var j = 0;
+        var inCurly = 0;
+        var str = "";
+        while (j < s_doc.length) {
+            var ch = s_doc[j++];
+            if (ch == '"') {
+                var rc = s_doc.indexOf(ch, j);
+                if (rc == -1)
+                    break;
+                if (inCurly > 0)
+                    str += s_doc.substring(j - 1, rc + 1);
+                j = rc + 1;
+            }
+            else if (ch == '{') {
+                inCurly++;
+            }
+            else if (ch == '}') {
+                inCurly--;
+                idata.ttl.push(str);
+                str = "";
+            }
+            else if (inCurly > 0) {
+                str += ch;
+            }
+        }
+
+        //try get JSON-LD Nano
+        while (true) {
+            var ndata = jsonld_nano_pattern.exec(s_doc);
+            if (ndata == null)
+                break;
+
+            var str = ndata[2];
+            if (str.length > 0) {
+                var add = false;
+                for (var c = 0; c < str.length; c++) {
+                    add = str[c] === "{" ? true : false;
+                    if (add)
+                        break;
+                    if (!isWhitespace(str[c]))
+                        break;
+                }
+
+                if (add)
+                    idata.ldjson.push(str);
+            }
+        }
+
+        //try get RDF/XML Nano
+        while (true) {
+            var ndata = rdf_nano_pattern.exec(s_doc);
+            if (ndata == null)
+                break;
+
+            var str = ndata[3];
+            if (str.length > 0) {
+                idata.rdfxml.push(str);
+            }
+        }
+    }
+
+    return idata;
   },
 
 
+  fix_Nano_data: function (str) 
+  {
+        str = str.replace(/\xe2\x80\x9c/g, '"')       //replace smart quotes with sensible ones (opening)
+            .replace(/\xe2\x80\x9d/g, '"')       //replace smart quotes with sensible ones (closing)
+            .replace(/\xc3\xa2\xc2\x80\xc2\x9c/g, '"')  //smart->sensible quote replacement, wider encoding
+            .replace(/\xc3\xa2\xc2\x80\xc2\x9d/g, '"')  //smart->sensible quote replacement, wider encoding
+
+            .replace(/\u00a0/g, " ")   //&nbsp
+            .replace(/\u009d/g, " ")   //&nbsp
+            .replace(/\u0080/g, " ")   //&nbsp
+
+            .replace(/\u202F/g, " ")   // NARROW NO-BREAK SPACE
+            .replace(/\u2009/g, " ")   // thin space
+            .replace(/\u2007/g, " ")   // FIGURE SPACE
+
+            .replace(/\u200B/g, "")   //ZERO WIDTH SPACE
+            .replace(/\u200D/g, "")   // WORD-JOINER
+            .replace(/\u200C/g, "")   // ZERO WIDTH NON-JOINER
+            .replace(/\uFEFF/g, "")   // zero width no-break space Unicode code point
+
+            .replace(/\u201A/g, "'")
+            .replace(/\u2018/g, "'")
+            .replace(/\u2019/g, "'")
+            .replace(/\u2039/g, "'")
+            .replace(/\u203A/g, "'")
+            .replace(/\u201C/g, '"')
+            .replace(/\u201D/g, '"')
+            .replace(/\u201E/g, '"')
+            .replace(/\u00BB/g, '"')
+            .replace(/\u00AB/g, '"');
+
+        return str;
+    },
+
+
 }
-
-Browser.api.runtime.onMessage.addListener(function(request, sender, sendResponse)
-{
-  if (request.sendBack) {
-       var idata = request.idata;
-       console.log(idata);
-       sendResponse({});
-
-       new YouId_View(request.popup).verify1_youid_exec(idata);
-  }
-});
 
