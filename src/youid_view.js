@@ -361,6 +361,7 @@ YouId_View.prototype = {
                var parser = new DOMParser();
                var doc = parser.parseFromString(data, 'text/html');
                var idata = self.sniff_data(doc, uri);
+               $('#add-dlg').modal('hide');
                self.verify1_youid_exec(idata);
 
              } catch(e) {
