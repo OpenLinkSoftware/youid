@@ -87,8 +87,8 @@ Certificate.prototype = {
           if (url_lower.endsWith(".html") || url_lower.endsWith(".htm"))
             {
               DOM.qShow('#gen-cert-dlg #fetch_wait');
-              var rc = await fetch(url, {credentials: 'include'});
-              if (!rc.ok) {
+              var status = await fetch(url, {credentials: 'include'});
+              if (!status.ok) {
                 DOM.qHide('#gen-cert-dlg #fetch_wait');
                 Msg.showInfo("Could not load URL "+url);
                 return;
@@ -105,13 +105,13 @@ Certificate.prototype = {
             {
               var data;
               DOM.qShow('#gen-cert-dlg #fetch_wait');
-              var rc = await fetch(url, {credentials: 'include'});
-              if (!rc.ok) {
+              var status = await fetch(url, {credentials: 'include'});
+              if (!status.ok) {
                 DOM.qHide('#gen-cert-dlg #fetch_wait');
                 Msg.showInfo("Could not load URL "+url);
                 return;
               }
-              data = await rc.text();
+              data = await status.text();
               
               idata = sniff_text_data(data, uri);
 
@@ -134,10 +134,12 @@ Certificate.prototype = {
                   }
                   return null;
                 } catch(e) {
+                  alert(e);
                   return null;
                 }
               }
 
+              rc = null;
               for(var i=0; i<idata.ldjson.length; i++) {
                 var rc = await get_data(idata.ldjson[i], 'application/ld+json', '');
                 if (rc && rc.success)
