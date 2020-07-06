@@ -71,25 +71,92 @@ Certificate.prototype = {
 
 
     DOM.qSel('#gen-cert-dlg #btn-fetch-profile')
-      .onclick = () => {
-        var uri = DOM.iSel('c_profile').value;
+      .onclick = async () => {
+        var uri = DOM.iSel('c_profile').value.trim();
         if (uri.length == 0)
           return;
 
-        DOM.qShow('#gen-cert-dlg #fetch_wait');
-        (new YouID_Loader()).verify_ID(uri)
-          .then((ret) => {
-            DOM.qHide('#gen-cert-dlg #fetch_wait');
-            if (ret.success) {
-              DOM.iSel('c_webid').value = ret.youid.id;
-              DOM.iSel('c_name').value = ret.youid.name;
-              DOM.iSel('c_email').value = ret.youid.email;
+        var url = new URL(uri);
+        url.hash = '';
+        url = url.toString();
+        if (url.toLowerCase().endsWith("html") || url.toLowerCase().endsWith("htm"))
+          {
+            try {
+              var rc = await fetch(url, {credentials: 'include'});
+              if (!rc.ok) {
+                Msg.showInfo("Could not load URL "+url);
+                return;
+              }
+
+              var data = await rc.text();
+              var parser = new DOMParser();
+              var doc = parser.parseFromString(data, 'text/html');
+              var idata = sniff_data(doc, uri);
+              
+              DOM.qHide('#gen-cert-dlg #fetch_wait');
+
+              async function get_data(data, content_type, baseURI)
+              {
+                try {
+                  var loader = new YouID_Loader();
+                  var rc = await loader.parse_data(data, content_type, baseURI);
+                  return rc;
+                } catch(e) {
+                  return {"success":false};
+                }
+              }
+
+              var rc;
+
+              for(var i=0; i<idata.ldjson.length; i++) {
+                var rc = await get_data(idata.ldjson[i], 'application/ld+json', '');
+                if (rc.success)
+                  break;
+              }
+              if (!rc || (rc && !rc.success))
+                for(var i=0; i<idata.ttl.length; i++) {
+                  var rc = await get_data(idata.ttl[i], 'text/turtle', '');
+                  if (rc.success)
+                    break;
+                }
+              if (!rc || (rc && !rc.success))
+                for(var i=0; i<idata.rdfxml.length; i++) {
+                  var rc = await get_data(idata.rdfxml[i], 'application/rdf+xml', '');
+                  if (rc.success)
+                    break;
+                }
+
+              if (rc.success) {
+                DOM.iSel('c_webid').value = rc.youid.id;
+                DOM.iSel('c_name').value = rc.youid.name;
+                DOM.iSel('c_email').value = rc.youid.email;
+              }
+
+            } catch(e) {
+               DOM.qHide('#gen-cert-dlg #fetch_wait');
+               Msg.showInfo("Error:"+e+" for load URL "+uri);
+               return;
             }
-          })
-          .catch(err => {
-            DOM.qHide('#gen-cert-dlg #fetch_wait');
-            alert(err.message);
-          });
+          }
+        else
+          {
+            DOM.qShow('#gen-cert-dlg #fetch_wait');
+              (new YouID_Loader()).verify_ID(uri)
+                .then((ret) => {
+                  DOM.qHide('#gen-cert-dlg #fetch_wait');
+                  if (ret.success) {
+                    DOM.iSel('c_webid').value = ret.youid.id;
+                    DOM.iSel('c_name').value = ret.youid.name;
+                    DOM.iSel('c_email').value = ret.youid.email;
+                  }
+                })
+                .catch(err => {
+                  DOM.qHide('#gen-cert-dlg #fetch_wait');
+                  Msg.showInfo(err.message);
+                });
+           }
+
+
       };
 
     DOM.qSel('#gen-cert-dlg #c_country')
