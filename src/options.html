@@ -55,7 +55,7 @@
   <body>
 
     <!-- Tabs -->
-     <div style="WIDTH: 700px;">      
+     <div style="WIDTH: 1200px;">      
       <div id="header">
         <ul id="tabs">
           <li><a href="#webid"  >WebID&nbsp;List</a></li>
@@ -87,8 +87,8 @@
         <div id="gen-cert-dlg" >
         <form class="form-horizontal">
           <div class="form-group row">
-            <label for="c_profile" class="col-md-4 control-label">Profile Document URL:</label>
-            <div class="col-md-8">
+            <label for="c_profile" class="col-md-3 control-label">Profile Document URL:</label>
+            <div class="col-md-9">
               <input type="text" class="form-control" id="c_profile" value="">
               <button id="btn-fetch-profile" type="button" class="btn">
                 <img class="hidden" id="fetch_wait" src="images/throbber.gif" width="16" />
@@ -99,48 +99,48 @@
           <hr/>
 
           <div class="form-group row">
-            <label for="c_name" class="col-md-4 control-label">Name:</label>
-            <div class="col-md-8">
+            <label for="c_name" class="col-md-3 control-label">Name:</label>
+            <div class="col-md-6">
               <input type="text" class="form-control" id="c_name" value="">
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_email" class="col-md-4 control-label">Email:</label>
-            <div class="col-md-8">
+            <label for="c_email" class="col-md-3 control-label">Email:</label>
+            <div class="col-md-6">
               <input type="email" class="form-control" id="c_email" />
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_org" class="col-md-4 control-label">Organization:</label>
-            <div class="col-md-8">
+            <label for="c_org" class="col-md-3 control-label">Organization:</label>
+            <div class="col-md-6">
               <input type="text" class="form-control" id="c_org" />
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_org_unit" class="col-md-4 control-label">Org. Unit:</label>
-            <div class="col-md-8">
+            <label for="c_org_unit" class="col-md-3 control-label">Org. Unit:</label>
+            <div class="col-md-6">
               <input type="text" class="form-control" id="c_org_unit" />
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_country" class="col-md-4 control-label">Country:</label>
-            <div class="col-md-8">
+            <label for="c_country" class="col-md-3 control-label">Country:</label>
+            <div class="col-md-6">
               <select class="form-control" id="c_country">
                 <option value="" ></option>
               </select>
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_state" class="col-md-4 control-label">State:</label>
-            <div class="col-md-8">
+            <label for="c_state" class="col-md-3 control-label">State:</label>
+            <div class="col-md-6">
               <input list="c_states" class="form-control" id="c_state" />
               <datalist id="c_states">
               </datalist>
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_city" class="col-md-4 control-label">Locality:</label>
-            <div class="col-md-8">
+            <label for="c_city" class="col-md-3 control-label">Locality:</label>
+            <div class="col-md-6">
               <input type="text" class="form-control" id="c_city" />
             </div>
           </div>
@@ -150,8 +150,8 @@
         <form class="form-horizontal">
 
           <div class="form-group row">
-            <label for="c_idp" class="col-md-4 control-label">WebID-Profile Storage Providers:</label>
-            <div class="col-md-8">
+            <label for="c_idp" class="col-md-3 control-label">WebID-Profile Storage Providers:</label>
+            <div class="col-md-6">
               <select name="profile" class="form-control" id="c_idp">
                 <option value="manual" selected>Manual</option>
                 <option value="opl_dav">MyOpenLink (WebDAV)</option>
@@ -169,28 +169,28 @@
           </div>
           <section id="c_webdav" class="hidden"> 
               <div class="form-group row">
-                <label for="c_dav_path" class="col-md-4 control-label">DAV&nbsp;Base&nbsp;Path:</label>
-                <div class="col-md-8">
+                <label for="c_dav_path" class="col-md-3 control-label">DAV&nbsp;Base&nbsp;Path:</label>
+                <div class="col-md-9">
                   <input readonly type="text" class="form-control" id="c_dav_path" />
                 </div>
               </div>
               <div class="form-group row">
-                <label for="c_dav_uid" class="col-md-4 control-label">DAV&nbsp;User:</label>
-                <div class="col-md-8">
+                <label for="c_dav_uid" class="col-md-3 control-label">DAV&nbsp;User:</label>
+                <div class="col-md-6">
                   <input type="text" class="form-control" id="c_dav_uid" />
                 </div>
               </div>
               <div class="form-group row">
-                <label for="c_dav_pwd" class="col-md-4 control-label">DAV&nbsp;Pwd:</label>
-                <div class="col-md-8">
+                <label for="c_dav_pwd" class="col-md-3 control-label">DAV&nbsp;Pwd:</label>
+                <div class="col-md-6">
                   <input type="password" class="form-control" id="c_dav_pwd" />
                 </div>
               </div>
           </section>
           <section id="c_solid_oidc" class="hidden"> 
               <div class="form-group row">
-                <label class="col-md-4 control-label"></label>
-                <div class="col-md-4">
+                <label class="col-md-3 control-label"></label>
+                <div class="col-md-3">
                   <button id="btn-solid-oidc-login" type="button" class="btn">Login</button>
                   <a id="c_oidc_webid" href="" title="" class="hidden"> <img id="uid-icon" src="images/uid.png" style="width:28px"> </a>
                 </div>
@@ -198,34 +198,34 @@
           </section>
           <hr/>
           <div class="form-group row hidden" id="r_webid">
-            <label for="c_webid" class="col-md-4 control-label">WebId:</label>
-            <div class="col-md-8">
+            <label for="c_webid" class="col-md-3 control-label">WebId:</label>
+            <div class="col-md-9">
               <input type="text" class="form-control" id="c_webid" value="">
             </div>
           </div>
           <div class="form-group row" id="r_cert_name">
-            <label for="c_cert_name" class="col-md-4 control-label">Certificate&nbsp;Name:</label>
-            <div class="col-md-8">
+            <label for="c_cert_name" class="col-md-3 control-label">Certificate&nbsp;Name:</label>
+            <div class="col-md-9">
               <input type="text" class="form-control" id="c_cert_name" value="">
             </div>
           </div>
           <div class="form-group row" id="r_cert_path">
-            <label for="c_cert_path" class="col-md-4 control-label">Certificate&nbsp;Store&nbsp;Path:</label>
-            <div class="col-md-8">
+            <label for="c_cert_path" class="col-md-3 control-label">Certificate&nbsp;Store&nbsp;Path:</label>
+            <div class="col-md-9">
               <input type="text" class="form-control" id="c_cert_path" value="">
             </div>
           </div>
 
 
           <div class="form-group row">
-            <label for="c_pwd" class="col-md-4 control-label">Password&nbsp;for&nbsp;PKCS12&nbsp;Store:</label>
-            <div class="col-md-4">
+            <label for="c_pwd" class="col-md-3 control-label">Password&nbsp;for&nbsp;PKCS12&nbsp;Store:</label>
+            <div class="col-md-3">
               <input type="password" class="form-control" id="c_pwd" value="">
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_pwd1" class="col-md-4 control-label">Confirm&nbsp;Password:</label>
-            <div class="col-md-4">
+            <label for="c_pwd1" class="col-md-3 control-label">Confirm&nbsp;Password:</label>
+            <div class="col-md-3">
               <input type="password" class="form-control" id="c_pwd1" value="">
             </div>
           </div>
