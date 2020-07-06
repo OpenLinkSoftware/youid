@@ -346,14 +346,17 @@ YouId_View.prototype = {
     btnOk.onclick = async () =>
        {
          var uri = $('#add-dlg #uri').val().trim();
-         if (uri.endsWith("html") || uri.endsWith("htm"))
+         var url = new URL(uri);
+         url.hash = '';
+         url = url.toString();
+         if (url.endsWith("html") || url.endsWith("htm"))
            {
              var data;
              try {
-               var rc = await fetch(uri, {credentials: 'include'});
+               var rc = await fetch(url, {credentials: 'include'});
                if (!rc.ok) {
                  $('#add-dlg').modal('hide');
-                 Msg.showInfo("Could not load URL "+uri);
+                 Msg.showInfo("Could not load URL "+url);
                  return;
                }
                data = await rc.text();
@@ -361,6 +364,7 @@ YouId_View.prototype = {
                var parser = new DOMParser();
                var doc = parser.parseFromString(data, 'text/html');
                var idata = self.sniff_data(doc, uri);
+               console.log("idata = "+JSON.stringify(idata));
                $('#add-dlg').modal('hide');
                self.verify1_youid_exec(idata);
 
@@ -499,7 +503,9 @@ YouId_View.prototype = {
       try {
          var data = idata.ttl[i];
          var loader = new YouID_Loader();
+         console.log("Try parse ttl["+i+"]");
          var rc = await loader.parse_data(data, 'text/turtle', "");
+         console.log("res "+rc.success+" | "+JSON.stringify(rc.youid));
          if (rc.success)
            ret.push(rc);
       } catch (e) { console.log(e); }
@@ -508,7 +514,9 @@ YouId_View.prototype = {
       try {
          var data = idata.ldjson[i];
          var loader = new YouID_Loader();
+         console.log("Try parse ldjson["+i+"]");
          var rc = await loader.parse_data(data, 'application/ld+json', "");
+         console.log("res "+rc.success+" | "+JSON.stringify(rc.youid));
          if (rc.success)
            ret.push(rc);
       } catch (e) { console.log(e); }
@@ -517,7 +525,9 @@ YouId_View.prototype = {
       try {
          var data = idata.rdfxml[i];
          var loader = new YouID_Loader();
+         console.log("Try parse rdfxml["+i+"]");
          var rc = await loader.parse_data(data, 'application/rdf+xml', idata.baseURI);
+         console.log("res "+rc.success+" | "+JSON.stringify(rc.youid));
          if (rc.success)
            ret.push(rc);
       } catch (e) { console.log(e); }
