@@ -30,7 +30,7 @@ $(function(){
         v_youid = new YouId_View(false);
         v_cert = new Certificate();
 
-        $('a[href="#add_youid"]')
+        $('#add_youid')
           .click((e) => {
              v_youid.click_add_youid(e);
           });
@@ -72,6 +72,15 @@ $(function(){
 
 
         $('#ext_ver').text('Version: '+ Browser.api.runtime.getManifest().version);
+        var url = new URL(location.href);
+
+        if (url.hash == '#certificate') {
+          selectTab('#certificate');
+          v_cert.click_gen_cert(v_youid.cur_webid);
+        } else if (url.hash == '#add_youid') {
+          selectTab('#webid');
+          v_youid.click_add_youid();
+        }
 });
 
 

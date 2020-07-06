@@ -334,6 +334,7 @@ YouId_View.prototype = {
     return true;
   },
 
+
   click_add_youid: function ()
   {
     var self = this;
@@ -342,8 +343,20 @@ YouId_View.prototype = {
     btnOk.onclick = () =>
        {
          var uri = $('#add-dlg #uri').val().trim();
-         $('#add-dlg').modal('hide');
-         self.verify_youid_exec(uri);
+         if (uri.endsWith("html") || uri.endsWith("htm"))
+           {
+             var iframe = DOM.iSel('card');
+             iframe.src = uri;
+             iframe.onload = () => {
+               $('#add-dlg').modal('hide');
+               window.frames.target.postMessage('youid_sniff:{"sniff":true, "popup":'+self.is_popup+'}','*')
+             };
+           }
+         else
+           {
+             $('#add-dlg').modal('hide');
+             self.verify_youid_exec(uri);
+           }
        };
 
     var dlg = $('#add-dlg .modal-content');
@@ -351,6 +364,38 @@ YouId_View.prototype = {
     $('#add-dlg').modal('show');
 
     return false;
+  },
+
+
+  save_youid_data: function ()
+  {
+    var pref_youid = "";
+    var list = [];
+
+    var tbody = DOM.qSel('#youid_tbl tbody');
+    var lst = tbody.querySelectorAll('table.youid_item');
+    
+    for (var i=0; i < lst.length; i++) {
+      var r = lst[i];
+      var checked = r.querySelector('.youid_chk').checked;
+
+      var youid = null;
+      try {
+        var str = r.attributes["mdata"].value;
+        youid = JSON.parse(decodeURI(str));
+      } catch(e) {
+        console.log(e);
+      }
+
+      if (youid) {
+         list.push(youid);
+         if (checked)
+           pref_youid = youid;
+      }
+
+    }
+    this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
+    this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
   },
 
 
@@ -402,37 +447,121 @@ YouId_View.prototype = {
   },
 
 
-  save_youid_data: function ()
+  verify1_youid_exec: async function (idata)
   {
-    var pref_youid = "";
-    var list = [];
+    var self = this;
+    var _webid;
+    var _success = false;
 
-    var tbody = DOM.qSel('#youid_tbl tbody');
-    var lst = tbody.querySelectorAll('table.youid_item');
-    
-    for (var i=0; i < lst.length; i++) {
-      var r = lst[i];
-      var checked = r.querySelector('.youid_chk').checked;
+    $("#verify1-dlg #verify_progress").show();
+    $("#verify1-dlg #verify-msg").prop("textContent","");
+    $('#verify1-dlg #verify-tbl-place').children().remove();
+    $("#verify1-dlg #btn-ok").hide();
+    $("#verify1-dlg #verify-webid-lst").hide();
 
-      var youid = null;
+    var btnOk = DOM.qSel('#verify1-dlg #btn-ok');
+    btnOk.onclick =  () =>
+       {
+         if (_success) {
+           self.addYouIdItem(_webid, false);
+           if (self.is_popup)
+             self.save_youid_data();
+         }
+     
+         $('#verify1-dlg').modal('hide');
+       };
+
+    var dlg = $('#verify1-dlg .modal-content');
+    dlg.width(630);
+    $('#verify1-dlg').modal('show');
+
+    var ret = [];
+
+    for(var i=0; i<idata.ttl.length; i++) {
       try {
-        var str = r.attributes["mdata"].value;
-        youid = JSON.parse(decodeURI(str));
-      } catch(e) {
-        console.log(e);
-      }
-
-      if (youid) {
-         list.push(youid);
-         if (checked)
-           pref_youid = youid;
-      }
-
+         var data = idata.ttl[i];
+         var loader = new YouID_Loader();
+         var rc = await loader.parse_data(data, 'text/turtle', "");
+         if (rc.success)
+           ret.push(rc);
+      } catch (e) { console.log(e); }
     }
-    this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
-    this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
+    for(var i=0; i<idata.ldjson.length; i++) {
+      try {
+         var data = idata.ldjson[i];
+         var loader = new YouID_Loader();
+         var rc = await loader.parse_data(data, 'application/ld+json', "");
+         if (rc.success)
+           ret.push(rc);
+      } catch (e) { console.log(e); }
+    }
+    for(var i=0; i<idata.rdfxml.length; i++) {
+      try {
+         var data = idata.rdfxml[i];
+         var loader = new YouID_Loader();
+         var rc = await loader.parse_data(data, 'application/rdf+xml', idata.baseURI);
+         if (rc.success)
+           ret.push(rc);
+      } catch (e) { console.log(e); }
+    }
+
+
+    try {
+       if (ret.length > 0) {
+          if (ret.length > 1) {
+            var lst = DOM.qSel('#verify1-dlg #c_webid_lst');
+            lst.options.length = 0;
+            for(var i=0; i < ret.length; i++) {
+              var el = document.createElement('option');
+              el.text = ret[i].youid.id;
+              el.value = i;
+              lst.add(el);
+            }
+            $("#verify1-dlg #verify-webid-lst").show();
+            
+            lst.onchange = (e) => {
+               var sel = parseInt(DOM.qSel('#verify1-dlg #c_webid_lst option:checked').value);
+               $("#verify1-dlg #verify-msg").prop("textContent",ret[sel].msg);
+               $('#verify1-dlg #verify-tbl-place').children().remove();
+               $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret[sel].verify_data));
+               _webid = ret[sel].youid;
+               _success = ret[0].success;
+            }
+
+          } else {
+            _webid = ret[0].youid;
+            _success = ret[0].success;
+          }
+
+          $("#verify1-dlg #btn-ok").show();
+          $("#verify1-dlg #verify_progress").hide();
+          $("#verify1-dlg #verify-msg").prop("textContent",ret[0].msg);
+          $('#verify1-dlg #verify-tbl-place').children().remove();
+          $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret[0].verify_data));
+       } else {
+         $('#verify1-dlg').modal('hide');
+         Msg.showInfo("Could not found any valid WebId relations");
+       }
+
+    } catch(err) {
+       $('#verify1-dlg').modal('hide');
+       Msg.showInfo(err.message);
+    }
+
+  
   },
 
 
 }
+
+Browser.api.runtime.onMessage.addListener(function(request, sender, sendResponse)
+{
+  if (request.sendBack) {
+       var idata = request.idata;
+       console.log(idata);
+       sendResponse({});
+
+       new YouId_View(request.popup).verify1_youid_exec(idata);
+  }
+});
 

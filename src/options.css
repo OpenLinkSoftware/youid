@@ -18,6 +18,12 @@
  *
  */
 
+div.grid_buttons {
+  display: grid;
+  grid-template-rows: 1fr; /* 1fr*/
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 10px;
+}
 
 .bold_text {
   font-weight: bold;
@@ -60,7 +66,7 @@
 }
 
 table.verify-tbl {
-  width:580px;
+  width:600px;
   table-layout: fixed;
   font-size: 12px;
   word-wrap:break-word;

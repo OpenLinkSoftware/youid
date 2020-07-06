@@ -25,6 +25,7 @@
         <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
         <script type="text/javascript" src="lib/bootstrap.js"></script>
         <script type="text/javascript" src="lib/rdfstore_min.js"></script>
+        <script type="text/javascript" src="lib/rdflib.js"></script>
         <script type="text/javascript" src="lib/purify.min.js"></script>
 
         <script type="text/javascript" src="browser.js"></script>
@@ -36,13 +37,15 @@
         <link rel="stylesheet" href="popup.css" />
 
     </head>
-
+    
     <body class="youid">
 
       <div id="pulldown" class="content_scroll">
-       <table class="footable">
-         <tr><td><a href="#add_youid">Add&nbspWebID </a></td></tr>
-       </table>
+       <div class="grid_buttons">
+       <button id="add_youid" type="button" class="btn">Add&nbspWebID</button>
+       <button id="btn-gen-cert" type="button" class="btn">Certificate&nbspGeneration</button>
+       </div>
+       <br>
        <table id="youid_tbl" class="footable">
         <tbody class="youid_list" ></tbody>
        </table>
@@ -119,6 +122,42 @@
 
 
 <!-- Modal -->
+<div class="modal" id="verify1-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Verifying WebID</h4>
+      </div>
+      <div class="modal-body">
+        <div id="verify_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
+        </div>
+        <p id="verify-msg"></p>
+        <form id="verify-webid-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_webid_lst" class="col-md-1 control-label">WebId:</label>
+            <div class="col-md-11">
+              <select name="profile" class="form-control" id="c_webid_lst">
+              </select>
+              <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
+            </div>
+          </div>
+        </form>
+        <div id="verify-tbl-place" style="height:400px; overflow: auto;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
 <div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -147,5 +186,6 @@
   </div>
 </div>
 
+  <iframe id="card"  style="border:none;" width="1" height="1" name="target"></iframe>
     </body>
 </html>
