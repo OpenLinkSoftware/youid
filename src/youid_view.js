@@ -27,6 +27,7 @@ YouId_View = function(is_popup) {
   this.is_popup = is_popup;
   this.gPref = new Settings();
   this.cur_webid;
+  this.webid_list = [];
 }
 
 YouId_View.prototype = {
@@ -180,9 +181,11 @@ YouId_View.prototype = {
         list = JSON.parse(v);
     } catch(e){}
 
+    self.webid_list = [];
     $.each(list, function (i, item) {
         var sel = pref_youid && pref_youid.id === item.id;
         self.addYouIdItem(item, sel);
+        self.webid_list.push(item.id);
     });
 
     if (pref_youid && pref_youid.id)
@@ -192,6 +195,12 @@ YouId_View.prototype = {
   addYouIdItem: function (youid, sel)
   {
     var self = this;
+    for(var i=0; i < self.webid_list.length; i++) {
+      if (youid.id === self.webid_list[i]) {
+        alert("WebID: "+youid.id+" existed already in the list.");
+        return;
+      }
+    }
     var s = this.create_youid_item(youid, sel);
     var tbody = DOM.qSel('#youid_tbl tbody');
 //    $('.youid_list').append('<tr><td>'+DOMPurify.sanitize(s,{SAFE_FOR_JQUERY: true, ADD_ATTR: ['mdata']})+'</td></tr>');
@@ -307,6 +316,12 @@ YouId_View.prototype = {
     if (youid!=null) {
        Msg.showYN("Do you want to drop YouID item ?",youid.name, function(){
           row.remove();
+          for(var i=0; i < self.webid_list.length; i++) {
+            if (youid.id === self.webid_list[i]) {
+              self.webid_list.splice(i,1);
+              break;
+            }
+          }
           if (self.is_popup)
             self.save_youid_data();
        });
@@ -330,7 +345,7 @@ YouId_View.prototype = {
 
     if (youid && youid.id) {
        Msg.showYN("Do you want to reload YouID item data ?",youid.name, function(){
-         self.verify_youid_exec(youid.id, row);
+         self.verify1_youid_exec(null, youid.id, row);
        });
     }
 
@@ -349,7 +364,8 @@ YouId_View.prototype = {
          var url = new URL(uri);
          url.hash = '';
          url = url.toString();
-         if (url.toLowerCase().endsWith("html") || url.toLowerCase().endsWith("htm"))
+         var url_lower = url.toLowerCase();
+         if (url_lower.endsWith(".html") || url_lower.endsWith(".htm"))
            {
              var data;
              try {
@@ -360,14 +376,32 @@ YouId_View.prototype = {
                  return;
                }
                data = await rc.text();
-               //?? console.log("Data fetched LEN="+data.length);
                var parser = new DOMParser();
                var doc = parser.parseFromString(data, 'text/html');
-               //?? console.log("created DOC="+doc);
-               var idata = sniff_data(doc, uri);
-               //?? console.log("idata = "+JSON.stringify(idata));
+               var idata = sniff_doc_data(doc, uri);
                $('#add-dlg').modal('hide');
-               self.verify1_youid_exec(idata);
+               self.verify1_youid_exec(idata, null, null);
+
+             } catch(e) {
+                $('#add-dlg').modal('hide');
+                Msg.showInfo("Error:"+e+" for load URL "+uri);
+                return;
+             }
+           }
+         else if (url_lower.endsWith(".txt"))
+           {
+             var data;
+             try {
+               var rc = await fetch(url, {credentials: 'include'});
+               if (!rc.ok) {
+                 $('#add-dlg').modal('hide');
+                 Msg.showInfo("Could not load URL "+url);
+                 return;
+               }
+               data = await rc.text();
+               var idata = sniff_text_data(data, uri);
+               $('#add-dlg').modal('hide');
+               self.verify1_youid_exec(idata, null, null);
 
              } catch(e) {
                 $('#add-dlg').modal('hide');
@@ -378,7 +412,7 @@ YouId_View.prototype = {
          else
            {
              $('#add-dlg').modal('hide');
-             self.verify_youid_exec(uri);
+             self.verify1_youid_exec(null, uri, null);
            }
        };
 
@@ -422,55 +456,8 @@ YouId_View.prototype = {
   },
 
 
-  verify_youid_exec: function (uri, row)
-  {
-    var self = this;
-    var _youid;
-    var _success = false;
 
-    $("#verify-dlg #verify_progress").show();
-    $("#verify-dlg #verify-msg").prop("textContent","");
-    $('#verify-dlg #verify-tbl-place').children().remove();
-    $("#verify-dlg #btn-ok").hide();
-
-    var btnOk = DOM.qSel('#verify-dlg #btn-ok');
-    btnOk.onclick =  () =>
-       {
-         if (_success) {
-           if (row)
-             self.updateYouIdItem(row, _youid);
-           else
-             self.addYouIdItem(_youid, false);
-           if (self.is_popup)
-             self.save_youid_data();
-         }
-     
-         $('#verify-dlg').modal('hide');
-       };
-
-    var dlg = $('#verify-dlg .modal-content');
-    dlg.width(630);
-    $('#verify-dlg').modal('show');
-
-    var loader = new YouID_Loader();
-    loader.verify_ID(uri)
-     .then((ret) => { 
-        _youid = ret.youid;
-        _success = ret.success;
-        $("#verify-dlg #btn-ok").show();
-        $("#verify-dlg #verify_progress").hide();
-        $("#verify-dlg #verify-msg").prop("textContent",ret.msg);
-        $('#verify-dlg #verify-tbl-place').children().remove();
-        $('#verify-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret.verify_data));
-     })
-     .catch(err => {
-       $('#verify-dlg').modal('hide');
-       Msg.showInfo(err.message);
-     });
-  },
-
-
-  verify1_youid_exec: async function (idata)
+  verify1_youid_exec: async function (idata, uri, row)
   {
     var self = this;
     var _webid;
@@ -481,12 +468,16 @@ YouId_View.prototype = {
     $('#verify1-dlg #verify-tbl-place').children().remove();
     $("#verify1-dlg #btn-ok").hide();
     $("#verify1-dlg #verify-webid-lst").hide();
+    $("#verify1-dlg #verify-pkey-lst").hide();
 
     var btnOk = DOM.qSel('#verify1-dlg #btn-ok');
     btnOk.onclick =  () =>
        {
          if (_success) {
-           self.addYouIdItem(_webid, false);
+           if (row)
+             self.updateYouIdItem(row, _webid);
+           else
+             self.addYouIdItem(_webid, false);
            if (self.is_popup)
              self.save_youid_data();
          }
@@ -498,83 +489,135 @@ YouId_View.prototype = {
     dlg.width(630);
     $('#verify1-dlg').modal('show');
 
-    var ret = [];
+    var lst = [];
 
-    function add_id(rc, lst)
+    function add_id(rc, out_lst)
     {
-      for(var i=0; i < lst.length; i++) {
-        if (rc.youid.id === lst[i].youid.id)
-          return;
+      for(var webid in rc) {
+        var found = false;
+        var val = rc[webid];
+        for(var i=0; i < out_lst.length; i++) {
+          if (webid === out_lst[i].webid) {
+            found = true;
+            break;
+          }
+        }
+        if (!found && val.success && val.keys.length > 0)
+          out_lst.push(val);
       }
-      lst.push(rc);
     }
 
-    for(var i=0; i<idata.ttl.length; i++) {
+    if (idata) {
+      for(var i=0; i<idata.ttl.length; i++) {
+        try {
+           var data = idata.ttl[i];
+           var loader = new YouID_Loader();
+           var rc = await loader.parse_data(data, 'text/turtle', "");
+           add_id(rc, lst);
+        } catch (e) { console.log(e); }
+      }
+      for(var i=0; i<idata.ldjson.length; i++) {
+        try {
+           var data = idata.ldjson[i];
+           var loader = new YouID_Loader();
+           var rc = await loader.parse_data(data, 'application/ld+json', "");
+           add_id(rc, lst);
+        } catch (e) { console.log(e); }
+      }
+      for(var i=0; i<idata.rdfxml.length; i++) {
+        try {
+           var data = idata.rdfxml[i];
+           var loader = new YouID_Loader();
+           var rc = await loader.parse_data(data, 'application/rdf+xml', idata.baseURI);
+           add_id(rc, lst);
+        } catch (e) { console.log(e); }
+      }
+    } else {
       try {
-         var data = idata.ttl[i];
-         var loader = new YouID_Loader();
-         //?? console.log("Try parse ttl["+i+"]");
-         var rc = await loader.parse_data(data, 'text/turtle', "");
-         //?? console.log("res "+rc.success+" | "+JSON.stringify(rc.youid));
-         if (rc.success) 
-           add_id(rc, ret);
-      } catch (e) { console.log(e); }
-    }
-    for(var i=0; i<idata.ldjson.length; i++) {
-      try {
-         var data = idata.ldjson[i];
-         var loader = new YouID_Loader();
-         //?? console.log("Try parse ldjson["+i+"]");
-         var rc = await loader.parse_data(data, 'application/ld+json', "");
-         //?? console.log("res "+rc.success+" | "+JSON.stringify(rc.youid));
-         if (rc.success)
-           add_id(rc, ret);
-      } catch (e) { console.log(e); }
-    }
-    for(var i=0; i<idata.rdfxml.length; i++) {
-      try {
-         var data = idata.rdfxml[i];
-         var loader = new YouID_Loader();
-         //?? console.log("Try parse rdfxml["+i+"]");
-         var rc = await loader.parse_data(data, 'application/rdf+xml', idata.baseURI);
-         //?? console.log("res "+rc.success+" | "+JSON.stringify(rc.youid));
-         if (rc.success)
-           add_id(rc, ret);
+        var loader = new YouID_Loader();
+        var rc = await loader.verify_ID_1(uri)
+        add_id(rc, lst);
       } catch (e) { console.log(e); }
     }
 
 
     try {
-       if (ret.length > 0) {
-          if (ret.length > 1) {
-            var lst = DOM.qSel('#verify1-dlg #c_webid_lst');
-            lst.options.length = 0;
-            for(var i=0; i < ret.length; i++) {
+       if (lst.length > 0) {
+
+          _webid = lst[0];
+          _success = lst[0].success;
+
+          function update_pkey_list (webid)
+          {
+            if (webid.keys.length > 1) {
+              $("#verify1-dlg #verify-pkey-lst").show();
+              var pkey_lst = DOM.qSel('#verify1-dlg #c_pkey_lst');
+              pkey_lst.options.length = 0;
+              for(var i=0; i < webid.keys.length; i++) {
+                var el = document.createElement('option');
+                el.text = webid.keys[i].pkey;
+                el.value = i;
+                pkey_lst.add(el);
+              }
+            } else {
+              $("#verify1-dlg #verify-pkey-lst").hide();
+            }
+            
+            if (webid.keys.length > 0) {
+              webid.pubkey = webid.keys[0].pubkey_uri;
+              webid.alg = webid.keys[0].alg;
+              webid.mod = webid.keys[0].mod;
+              webid.exp = webid.keys[0].exp;
+            }
+          }
+
+
+          update_pkey_list(_webid);
+          
+          var pkey_lst = DOM.qSel('#verify1-dlg #c_pkey_lst');
+          pkey_lst.onchange = (e) => {
+             var sel = parseInt(DOM.qSel('#verify1-dlg #c_pkey_lst option:checked').value);
+             var pk = _webid.keys[sel];
+             DOM.qSel('#verify1-dlg #pkey_uri').textContent = pk.pubkey_uri;
+             DOM.qSel('#verify1-dlg #pkey_alg').textContent = pk.alg;
+             DOM.qSel('#verify1-dlg #pkey_mod').textContent = pk.mod;
+             DOM.qSel('#verify1-dlg #pkey_exp').textContent = pk.exp;
+             _webid.pubkey = pk.pubkey_uri;
+             _webid.alg = pk.alg;
+             _webid.mod = pk.mod;
+             _webid.exp = pk.exp;
+          }
+          
+          if (lst.length > 1) {
+            var webid_lst = DOM.qSel('#verify1-dlg #c_webid_lst');
+            webid_lst.options.length = 0;
+            for(var i=0; i < lst.length; i++) {
               var el = document.createElement('option');
-              el.text = ret[i].youid.id;
+              el.text = lst[i].id;
               el.value = i;
-              lst.add(el);
+              webid_lst.add(el);
             }
             $("#verify1-dlg #verify-webid-lst").show();
             
-            lst.onchange = (e) => {
+            webid_lst.onchange = (e) => {
                var sel = parseInt(DOM.qSel('#verify1-dlg #c_webid_lst option:checked').value);
-               $("#verify1-dlg #verify-msg").prop("textContent",ret[sel].msg);
+               $("#verify1-dlg #verify-msg").prop("textContent",lst[sel].msg);
                $('#verify1-dlg #verify-tbl-place').children().remove();
-               $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret[sel].verify_data));
-               _webid = ret[sel].youid;
-               _success = ret[sel].success;
+               var html = new YouID_Loader().genHTML_view(lst[sel]);
+               $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(html));
+               _webid = lst[sel];
+               _success = lst[sel].success;
+               update_pkey_list(_webid);
             }
-          } 
 
-          _webid = ret[0].youid;
-          _success = ret[0].success;
+          } 
 
           $("#verify1-dlg #btn-ok").show();
           $("#verify1-dlg #verify_progress").hide();
-          $("#verify1-dlg #verify-msg").prop("textContent",ret[0].msg);
+          $("#verify1-dlg #verify-msg").prop("textContent",lst[0].msg);
           $('#verify1-dlg #verify-tbl-place').children().remove();
-          $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret[0].verify_data));
+          var html = new YouID_Loader().genHTML_view(lst[0]);
+          $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(html));
        } else {
          $('#verify1-dlg').modal('hide');
          Msg.showInfo("Could not found any valid WebId relations");

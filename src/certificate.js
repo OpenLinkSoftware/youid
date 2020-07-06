@@ -79,11 +79,17 @@ Certificate.prototype = {
         var url = new URL(uri);
         url.hash = '';
         url = url.toString();
-        if (url.toLowerCase().endsWith("html") || url.toLowerCase().endsWith("htm"))
-          {
-            try {
+        var url_lower = url.toLowerCase();
+        var rc, rc0;
+        var idata;
+
+        try {
+          if (url_lower.endsWith(".html") || url_lower.endsWith(".htm"))
+            {
+              DOM.qShow('#gen-cert-dlg #fetch_wait');
               var rc = await fetch(url, {credentials: 'include'});
               if (!rc.ok) {
+                DOM.qHide('#gen-cert-dlg #fetch_wait');
                 Msg.showInfo("Could not load URL "+url);
                 return;
               }
@@ -91,71 +97,98 @@ Certificate.prototype = {
               var data = await rc.text();
               var parser = new DOMParser();
               var doc = parser.parseFromString(data, 'text/html');
-              var idata = sniff_data(doc, uri);
+              idata = sniff_doc_data(doc, uri);
               
               DOM.qHide('#gen-cert-dlg #fetch_wait');
+            }
+          else if (url_lower.endsWith(".txt"))
+            {
+              var data;
+              DOM.qShow('#gen-cert-dlg #fetch_wait');
+              var rc = await fetch(url, {credentials: 'include'});
+              if (!rc.ok) {
+                DOM.qHide('#gen-cert-dlg #fetch_wait');
+                Msg.showInfo("Could not load URL "+url);
+                return;
+              }
+              data = await rc.text();
+              
+              idata = sniff_text_data(data, uri);
 
+              DOM.qHide('#gen-cert-dlg #fetch_wait');
+            }
+
+          if (idata) 
+            {
               async function get_data(data, content_type, baseURI)
               {
                 try {
                   var loader = new YouID_Loader();
-                  var rc = await loader.parse_data(data, content_type, baseURI);
-                  return rc;
+                  var ret = await loader.parse_data(data, content_type, baseURI);
+                  for(var webid in ret) {
+                    var data = ret[webid];
+                    if (data.success && !rc0)
+                      rc0 = data;
+                    if (data.success && data.id.startsWith(url))
+                      return data;
+                  }
+                  return null;
                 } catch(e) {
-                  return {"success":false};
+                  return null;
                 }
               }
-
-              var rc;
 
               for(var i=0; i<idata.ldjson.length; i++) {
                 var rc = await get_data(idata.ldjson[i], 'application/ld+json', '');
-                if (rc.success)
+                if (rc && rc.success)
                   break;
               }
-              if (!rc || (rc && !rc.success))
+              if (!rc)
                 for(var i=0; i<idata.ttl.length; i++) {
                   var rc = await get_data(idata.ttl[i], 'text/turtle', '');
-                  if (rc.success)
+                  if (rc && rc.success)
                     break;
                 }
-              if (!rc || (rc && !rc.success))
+              if (!rc)
                 for(var i=0; i<idata.rdfxml.length; i++) {
                   var rc = await get_data(idata.rdfxml[i], 'application/rdf+xml', '');
-                  if (rc.success)
+                  if (rc && rc.success)
                     break;
                 }
-
-              if (rc.success) {
-                DOM.iSel('c_webid').value = rc.youid.id;
-                DOM.iSel('c_name').value = rc.youid.name;
-                DOM.iSel('c_email').value = rc.youid.email;
+            }
+          else
+            {
+              DOM.qShow('#gen-cert-dlg #fetch_wait');
+              var loader = new YouID_Loader();
+              var ret = await loader.verify_ID_1(uri);
+                  
+              for(var webid in ret) {
+                var data = ret[webid];
+                if (data.success && !rc0)
+                  rc0 = data;
+                if (data.success && data.id.startsWith(url)) {
+                  rc = data;
+                  break;
+                }
               }
 
-            } catch(e) {
-               DOM.qHide('#gen-cert-dlg #fetch_wait');
-               Msg.showInfo("Error:"+e+" for load URL "+uri);
-               return;
-            }
-          }
-        else
-          {
-            DOM.qShow('#gen-cert-dlg #fetch_wait');
-              (new YouID_Loader()).verify_ID(uri)
-                .then((ret) => {
-                  DOM.qHide('#gen-cert-dlg #fetch_wait');
-                  if (ret.success) {
-                    DOM.iSel('c_webid').value = ret.youid.id;
-                    DOM.iSel('c_name').value = ret.youid.name;
-                    DOM.iSel('c_email').value = ret.youid.email;
-                  }
-                })
-                .catch(err => {
-                  DOM.qHide('#gen-cert-dlg #fetch_wait');
-                  Msg.showInfo(err.message);
-                });
-           }
+              DOM.qHide('#gen-cert-dlg #fetch_wait');
+            } 
 
+            if (!rc)
+              rc = rc0;
+
+            if (rc && rc.success) {
+               DOM.iSel('c_webid').value = rc.id ? rc.id : "";
+               DOM.iSel('c_name').value = rc.name ? rc.name: "";
+               DOM.iSel('c_email').value = rc.email ? rc.email : "";
+            }
+
+        } catch(e) {
+           DOM.qHide('#gen-cert-dlg #fetch_wait');
+           Msg.showInfo("Error:"+e+" for load URL "+uri);
+           return;
+        }
 
       };
 
@@ -382,9 +415,15 @@ Certificate.prototype = {
 
         try {
           var youid = new YouID_Loader();
-          var rc = await youid.verify_ID(this.gOidc.webid, this.gOidc.fetch);
-          if (rc.success) {
-            DOM.iSel('c_name').value = rc.youid.name;
+          var rc = await youid.verify_ID_1(this.gOidc.webid, this.gOidc.fetch);
+          if (rc) {
+            for(var webid in rc) {
+              var data = rc[webid];
+              if (data.success) {
+                DOM.iSel('c_name').value = data.name;
+                break;
+              }
+            }
           }
         } catch (e) {
           console.log(e);
@@ -807,34 +846,37 @@ Certificate.prototype = {
     DOM.qShow('#gen-cert-ready-dlg #delegate_wait');
     var uri = DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value;
     try {
-      var rc = await (new YouID_Loader()).verify_ID(uri);
-      if (rc.success) {
-        var s;
-
-        gen.delegate_profile = rc.profile;
-        gen.delegate_uri = rc.youid.id;
+      var rc = await (new YouID_Loader()).verify_ID_1(uri);
+      if (rc) {
+        for(var webid in rc) {
+          var data = rc[webid];
+          if (data.success && data.id.startsWith(uri)) {
+            var s;
         
-        var rkeys = await (new YouID_Loader()).getCertKeys(gen.delegate_profile, gen.delegate_uri);
-        if (rkeys.err) {
-          alert('Could not get certificate Keys from profile');
-          gen.delegate_keys = [];
-        } else {
-          gen.delegate_keys = rkeys.keys;
+            gen.delegate_uri = data.id;
+            var rkeys = data.keys;
+        
+            if (!rkeys || rkeys.length == 0) {
+              alert('Could not get certificate Keys from profile');
+              gen.delegate_keys = [];
+              return;
+            } else {
+              gen.delegate_keys = rkeys;
+            }
+
+            var k = gen.delegate_keys[0];
+            gen.delegate_key_exp = k.exp;
+            gen.delegate_key_mod = k.mod;
+            gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
+
+            gen.delegator_webid = webid;
+
+            this.setDelegateText(gen);
+            this.setDelegatorText(gen);
+
+            break;
+          }
         }
-
-        if (gen.delegate_keys.length===0) {
-          gen.delegate_keys.push({'pkey':'key', 'mod': rc.youid.mod, 'exp': rc.youid.exp});
-        }
-
-        var k = gen.delegate_keys[0];
-        gen.delegate_key_exp = k.exp;
-        gen.delegate_key_mod = k.mod;
-        gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
-
-        gen.delegator_webid = webid;
-
-        this.setDelegateText(gen);
-        this.setDelegatorText(gen);
       }
     }
     catch (e) {

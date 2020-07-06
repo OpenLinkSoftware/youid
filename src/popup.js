@@ -32,9 +32,7 @@ $(document).ready(function()
 
   $('#ext_ver').text('version: '+ Browser.api.runtime.getManifest().version);
 
-//--  $('a[href="#add_youid"]').click(function(e){v_youid.click_add_youid(e);});
   document.querySelector('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
-//??--  document.querySelector('#add_youid').onclick = (e) => { Browser.openTab("options.html#add_youid"); };
   document.querySelector('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
 
   load_popup();

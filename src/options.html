@@ -71,7 +71,7 @@
           <table>
            <tr>
              <div class="grid_buttons" width="100%">
-               <button id="add_youid" type="button" class="btn">Add&nbspWebID</button>
+               <button id="add_youid" type="button" class="btn btn-primary">Add&nbspWebID</button>
              </div>
              </br>
              <table id="youid_tbl" class="footable">
@@ -305,7 +305,7 @@
         <h4 class="modal-title">Info</h4>
       </div>
       <div class="modal-body">
-        <section>
+        <section style="overflow-wrap: break-word;">
           <p id="alert-msg1"></p>
           <p id="alert-msg2"></p>
         </section>
@@ -366,9 +366,17 @@
           <div class="form-group row">
             <label for="c_webid_lst" class="col-md-1 control-label">WebId:</label>
             <div class="col-md-11">
-              <select name="profile" class="form-control" id="c_webid_lst">
+              <select class="form-control" id="c_webid_lst">
               </select>
-              <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
+            </div>
+          </div>
+        </form>
+        <form id="verify-pkey-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_pkey_lst" class="col-md-1 control-label">PubKey:</label>
+            <div class="col-md-11">
+              <select class="form-control" id="c_pkey_lst">
+              </select>
             </div>
           </div>
         </form>
@@ -400,7 +408,6 @@
          <tr id="uri-link">
           <td> WebID:&nbsp;</td>
           <td> <input id="uri" style="WIDTH: 480px" value="" title="A WebID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
-         
          </tr>
 
         </table>
@@ -456,7 +463,7 @@
          <img src="images/throbber.gif" width="16" /> Wait...
         </div>
         <section id="webid-cert">
-          <h5>Your WebID:&nbsp; <a id="webid_href" href="#" target="_blank"> </a></h5> 
+          <h5>Your WebID:&nbsp; <a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a></h5> 
           <hr>
         </section>
         <section id="p12-cert">

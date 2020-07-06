@@ -19,7 +19,7 @@
  */
 
 YouID_Loader = function () {
-  this.verify_query = `
+  this.load_webid = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
   PREFIX schema: <http://schema.org/> 
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
@@ -50,25 +50,9 @@ YouID_Loader = function () {
         {?url skos:prefLabel ?skos_prefLabel} UNION 
         {?url skos:altLabel ?skos_altLabel} 
        } 
-       OPTIONAL { ?webid oplcert:hasIdentityDelegate ?delegate} 
-       OPTIONAL { ?webid oplcert:onBehalfOf ?behalfOf} 
-       OPTIONAL { ?webid acl:delegates ?acl_delegates} 
-       OPTIONAL { ?webid pim:storage ?pim_store } 
-       OPTIONAL { ?webid ldp:inbox ?inbox } 
-       OPTIONAL { ?webid as:outbox ?outbox } 
-       OPTIONAL { ?webid foaf:knows ?knows } 
-       OPTIONAL {
-        ?webid cert:key ?pubkey . 
-        ?pubkey cert:modulus ?mod .  
-        ?pubkey cert:exponent ?exponent . 
-        ?pubkey a ?alg . 
-       }
-       OPTIONAL { ?webid foaf:mbox ?foaf_mbox . }
-       OPTIONAL { ?webid vcard:email ?vcard_email . }
-       OPTIONAL { ?webid schema:email ?schema_email . }
     }`;
-
-  this.verify_query1 = `
+  
+  this.webid_details = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
   PREFIX schema: <http://schema.org/> 
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
@@ -84,55 +68,40 @@ YouID_Loader = function () {
 
   SELECT * WHERE 
     { 
-       {{?url foaf:primaryTopic ?webid .} UNION 
-        {?url schema:mainEntity ?webid .} 
-        ?webid cert:key ?pubkey . 
-        ?pubkey cert:modulus ?mod .  
-        ?pubkey cert:exponent ?exponent . 
-        ?pubkey a ?alg . 
-       }
-       {{?webid schema:name ?schema_name} UNION 
-        {?webid foaf:name ?foaf_name} UNION 
-        {?webid rdfs:label ?rdfs_name} UNION 
-        {?webid skos:prefLabel ?skos_prefLabel} UNION 
-        {?webid skos:altLabel ?skos_altLabel} 
-        UNION 
-        {?url schema:name ?schema_name} UNION 
-        {?url foaf:name ?foaf_name} UNION 
-        {?url rdfs:label ?rdfs_name} UNION 
-        {?url skos:prefLabel ?skos_prefLabel} UNION 
-        {?url skos:altLabel ?skos_altLabel} 
-       } 
-       OPTIONAL { ?webid oplcert:hasIdentityDelegate ?delegate} 
-       OPTIONAL { ?webid oplcert:onBehalfOf ?behalfOf} 
-       OPTIONAL { ?webid acl:delegates ?acl_delegates} 
-       OPTIONAL { ?webid pim:storage ?pim_store } 
-       OPTIONAL { ?webid ldp:inbox ?inbox } 
-       OPTIONAL { ?webid as:outbox ?outbox } 
-       OPTIONAL { ?webid foaf:knows ?knows } 
-       OPTIONAL { ?webid foaf:mbox ?foaf_mbox . }
-       OPTIONAL { ?webid vcard:email ?vcard_email . }
-       OPTIONAL { ?webid schema:email ?schema_email . }
+       { <#{webid}> oplcert:hasIdentityDelegate ?delegate . } UNION
+       { <#{webid}> oplcert:onBehalfOf ?behalfOf . } UNION
+       { <#{webid}> acl:delegates ?acl_delegates . } UNION
+       { <#{webid}> pim:storage ?pim_store . } UNION
+       { <#{webid}> ldp:inbox ?inbox . } UNION
+       { <#{webid}> as:outbox ?outbox . } UNION
+       { <#{webid}> foaf:knows ?knows . } UNION
+       { <#{webid}> foaf:mbox ?foaf_mbox . } UNION
+       { <#{webid}> vcard:email ?vcard_email . } UNION
+       { <#{webid}> schema:email ?schema_email . }
     }`;
 
   
-  this.verify_pubkey = `
-  PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
-  PREFIX schema: <http://schema.org/> 
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-  PREFIX owl:  <http://www.w3.org/2002/07/owl#> 
+  this.load_pubkey = `
+  PREFIX terms: <http://purl.org/dc/terms/> 
+  PREFIX rd: <http://www.w3.org/2000/01/rdf-schema#> 
   PREFIX cert: <http://www.w3.org/ns/auth/cert#> 
-  PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
-  PREFIX acl: <http://www.w3.org/ns/auth/acl#> 
-  PREFIX pim: <http://www.w3.org/ns/pim/space#> 
-  PREFIX ldp: <http://www.w3.org/ns/ldp#> 
+  PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
+  PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+  PREFIX schema: <http://schema.org/> 
+
   SELECT * WHERE 
     { 
-       {{?url foaf:primaryTopic ?webid .} UNION 
-        {?url schema:mainEntity ?webid .} 
-       }
-       OPTIONAL { ?webid cert:key ?pubkey} 
+      {
+       <#{webid}> cert:key ?pubkey .
+       ?pubkey a ?alg ;
+              cert:modulus  ?cert_mod ;
+              cert:exponent ?cert_exp .
+      }
+       OPTIONAL { ?pubkey terms:created ?key_cr_dt . }
+       OPTIONAL { ?pubkey terms:title   ?key_cr_title . }
+       OPTIONAL { ?pubkey rd:label ?key_label . }
     }`;
+
 };
 
 YouID_Loader.prototype = {
@@ -143,15 +112,11 @@ YouID_Loader.prototype = {
             .catch(err => {
               throw new Error("Could not parse data from: "+baseURI+"\nError: "+err);
             }));
-
-    var rc = await self.exec_verify_query(store, this.verify_query1, {data, content_type, baseURI});
-    if (rc.success)
-      return rc;
-    else
-      return await self.exec_verify_query(store, this.verify_query, {data, content_type, baseURI});
+    return await self.exec_verify_query_1(store, {data, content_type, baseURI});
   },
 
-  verify_ID : async function(uri, oidc_fetch) {
+
+  verify_ID_1 : async function(uri, oidc_fetch) {
     var self = this;
     var baseURI = new URL(uri);
         baseURI.hash = '';
@@ -168,18 +133,19 @@ YouID_Loader.prototype = {
               throw new Error("Could not parse data from: "+uri+"\nError: "+err);
             }));
 
-    return await self.exec_verify_query(store, this.verify_query, {data, content_type, baseURI});
+    return await self.exec_verify_query_1(store, {data, content_type, baseURI});
   },
 
 
-  exec_verify_query : async function(store, verify_query, profile) {
+
+  exec_verify_query_1 : async function(store, profile) {
     var self = this;
 
     var ret;
     var i = 0;
 
     while(i < 3) {
-      ret = await this.exec_query(store, verify_query);
+      ret = await this.exec_query(store, self.load_webid);
       if (!ret.err && (ret.results && ret.results.length==0) && i < 3) {
         i++;
         continue;
@@ -189,90 +155,23 @@ YouID_Loader.prototype = {
 
     // process results
     if (ret.err || (ret.results && ret.results.length==0)) {
-      if (err) {
-        throw new Error("Could not extract profile data\n"+(err?err:""));
-      } else {
-        var {err, res} = await this.exec_query(store, this.verify_pubkey);
-
-        var verify_pkey = {pubkey:null, url:null, webid:null};
-
-        if (res) {
-          for(var i=0; i < res.length; i++) {
-            if (res[i].url && String(res[i].url.value).lastIndexOf(aseURI, 0)!=0)
-              continue;
-            if (res[i].pubkey)
-              verify_pkey.pubkey = res[i].pubkey.value
-            if (res[i].url)
-              verify_pkey.url = res[i].url.value
-            if (res[i].webid)
-              verify_pkey.webid = res[i].webid.value
-          }
-        }
-
-        if (!verify_pkey.pubkey && verify_pkey.url && verify_pkey.webid) {
-          throw new Error("Could not extract profile data.\n"+
-                        "The next item is missing from the profile\n"+
-                        "document associated with the input WebID:\n"+
-                        "?webid cert:key ?pubkey .\n");
-        } else {
-          throw new Error("Could not extract profile data.\n"+
-                        "At least one of the following is missing from the profile\n"+
-                        "document associated with the input WebID:\n"+
-                        "{webid-profile-doc-url} foaf:primaryTopic ?webid \n"+
-                        " OR \n"+
-                        "{webid-profile-doc-url} schema:mainEntity ?webid .");
-        }
-      }
+      throw new Error("Could not extract profile data\n"+(ret.err?ret.err:""));
     }
 
+    var lst = {};
     var results = ret.results;
-
-//??    var profile = {data, content_type, baseURI};
-    var youid = { id: null, name: null, alg: null, pubkey: null, email:null,
-          mod: null, exp: null, delegate: null,
-          acl: [], behalfOf: [], foaf_knows:[],
-          pim: null, inbox: null, outbox: null };
-
-    var url, acl_delegates, behalfOf, foaf_knows;
-    var schema_name, foaf_name, rdfs_name, skos_prefLabel, skos_altLabel;
-
-    acl_delegates = {};
-    behalfOf = {};
-    foaf_knows = {};
-
     for(var i=0; i < results.length; i++) {
       var r = results[i];
-//??      if (r.url && String(r.url.value).lastIndexOf(baseURI, 0)!=0)
-//??      if (r.url && !String(r.url.value).startsWith(baseURI))
-//??        continue;
+      var webid = r.webid.value;;
+      var youid = { id:webid, name: null, keys: [], pubkey:null, alg:null, mod:null, exp:null,
+            delegate: null, email:null,
+            acl: [], behalfOf: [], foaf_knows:[],
+            pim: null, inbox: null, outbox: null };
+      var schema_name, foaf_name, rdfs_name, skos_prefLabel, skos_altLabel;
 
-      if (r.delegate)
-        youid.delegate = r.delegate.value;
-      if (r.acl_delegates)
-        acl_delegates[r.acl_delegates.value] = 1;
-      if (r.behalfOf)
-        behalfOf[r.behalfOf.value] = 1;
-      if (r.knows)
-        foaf_knows[r.knows.value] = 1;
-      if (r.pim_store)
-        youid.pim = r.pim_store.value;
-      if (r.inbox)
-        youid.inbox = r.inbox.value;
-      if (r.outbox)
-        youid.outbox = r.outbox.value;
-
-      if (r.url)
-        url = r.url.value;
-      if (r.pubkey)
-        youid.pubkey = r.pubkey.value;
-      if (r.alg)
-        youid.alg = r.alg.value;
-      if (r.mod)
-        youid.mod = r.mod.value;
-      if (r.exponent)
-        youid.exp = r.exponent.value;
-      if (r.webid)
-        youid.id = r.webid.value;
+      var ret = await self.loadCertKeys(store, webid);
+      if (!ret.error && ret.keys)
+        youid.keys = ret.keys;
 
       if (r.schema_name)
         schema_name = r.schema_name.value;
@@ -285,93 +184,145 @@ YouID_Loader.prototype = {
       if (r.skos_altLabel)
         skos_altLabel = r.skos_altLabel.value;
 
-        if (r.foaf_mbox) {
-          var s = r.foaf_mbox.value;
-          if (s.startsWith('mailto:'))
-            youid.email = s.substring(7);
-          else
-            youid.email = s;
-        }
-        if (r.vcard_email) 
+      if (skos_prefLabel)
+        youid.name = skos_prefLabel;
+      else if (skos_altLabel)
+        youid.name = skos_altLabel;
+      else if (schema_name)
+        youid.name = schema_name
+      else if (foaf_name)
+        youid.name = foaf_name;
+      else if (rdfs_name)
+        youid.name = rdfs_name;
+
+      lst[webid] = youid;
+    }
+
+    var _webid = Object.keys(lst);
+    for(var i=0; i < _webid.length; i++) {
+      var query = self.webid_details.replace(/#\{webid\}/g, _webid[i]);
+      
+      var ret = await this.exec_query(store, query);
+
+      var acl_delegates = {};
+      var behalfOf = {};
+      var foaf_knows = {};
+
+      var youid = lst[_webid[i]];
+
+      if (!ret.err) {
+        for(var j=0; j < ret.results.length; j++) {
+          var r = ret.results[j];
+
+          if (r.delegate)
+            youid.delegate = r.delegate.value;
+          if (r.acl_delegates)
+            acl_delegates[r.acl_delegates.value] = 1;
+          if (r.behalfOf)
+            behalfOf[r.behalfOf.value] = 1;
+          if (r.knows)
+            foaf_knows[r.knows.value] = 1;
+          if (r.pim_store)
+            youid.pim = r.pim_store.value;
+          if (r.inbox)
+            youid.inbox = r.inbox.value;
+          if (r.outbox)
+            youid.outbox = r.outbox.value;
+
+          if (r.foaf_mbox) {
+            var s = r.foaf_mbox.value;
+            if (s.startsWith('mailto:'))
+              youid.email = s.substring(7);
+            else
+              youid.email = s;
+          }
+          if (r.vcard_email) 
             youid.email = r.vcard_email.value;
-        if (r.schema_email) 
+          if (r.schema_email) 
             youid.email = r.schema_email.value;
+        }
+      }
 
-    }
-    if (skos_prefLabel)
-      youid.name = skos_prefLabel;
-    else if (skos_altLabel)
-      youid.name = skos_altLabel;
-    else if (schema_name)
-      youid.name = schema_name
-    else if (foaf_name)
-      youid.name = foaf_name;
-    else if (rdfs_name)
-      youid.name = rdfs_name;
+      var _tmp = Object.keys(acl_delegates);
+      for(var j=0; j<_tmp.length; j++)
+        youid.acl.push(_tmp[j]);
 
-    var _tmp = Object.keys(acl_delegates);
-    for(var i=0; i<_tmp.length; i++)
-      youid.acl.push(_tmp[i]);
+      var _tmp = Object.keys(behalfOf);
+      for(var j=0; j<_tmp.length; j++)
+        youid.behalfOf.push(_tmp[j]);
 
-    var _tmp = Object.keys(behalfOf);
-    for(var i=0; i<_tmp.length; i++)
-      youid.behalfOf.push(_tmp[i]);
+      var _tmp = Object.keys(foaf_knows);
+      for(var j=0; j<_tmp.length; j++)
+        youid.foaf_knows.push(_tmp[j]);
 
-    var _tmp = Object.keys(foaf_knows);
-    for(var i=0; i<_tmp.length; i++)
-      youid.foaf_knows.push(_tmp[i]);
-
-    var msg, success, verify_data;
+      var msg, success, verify_data;
 //    if (youid.id && youid.pubkey && youid.mod && youid.exp && youid.name) {
-    if (youid.id && youid.name) {
-      msg = 'Successfully verified.';
-      success = true;
-    } else {
-      msg = 'Failed, could not verify WebID.';
-      success = false;
-    }
-
-    verify_data = `<table class="footable verify-tbl"><tbody id="verify-data">`;
-
-    verify_data += `<tr id="row"><td>WebID</td><td>${youid.id}</td></tr>`;
-    verify_data += `<tr id="row"><td>Name</td><td>${youid.name}</td></tr>`;
-    verify_data += `<tr id="row"><td>PubKey</td><td>${youid.pubkey}</td></tr>`;
-    verify_data += `<tr id="row"><td>Algorithm</td><td>${youid.alg}</td></tr>`;
-    verify_data += `<tr id="row"><td>Modulus</td><td>${youid.mod}</td></tr>`;
-    verify_data += `<tr id="row"><td>Exponent</td><td>${youid.exp}</td></tr>`;
-    if (youid.delegate)
-      verify_data += `<tr id="row"><td>Delegate</td><td>${youid.delegate}</td></tr>`;
-
-    if (youid.pim)
-      verify_data += `<tr id="row"><td>Storage</td><td>${youid.pim}</td></tr>`;
-    if (youid.inbox)
-      verify_data += `<tr id="row"><td>Inbox</td><td>${youid.inbox}</td></tr>`;
-
-    if (youid.behalfOf.length>0) {
-      var s = '';
-      for(var i=0; i<youid.behalfOf.length; i++) {
-        s += `<div>${youid.behalfOf[i]}</div>`;
+//      if (youid.id && youid.name) {
+      if (youid.name) {
+        youid.msg = 'Successfully verified.';
+        youid.success = true;
+      } else {
+        youid.msg = 'Failed, could not verify WebID.';
+        youid.success = false;
       }
-      verify_data += `<tr id="row"><td>OnBehalfOf</td><td>${s}</td></tr>`;
     }
-    if (youid.foaf_knows.length>0) {
-      var s = '';
-      for(var i=0; i<youid.foaf_knows.length; i++) {
-        s += `<div>${youid.foaf_knows[i]}</div>`;
-      }
-      verify_data += `<tr id="row"><td>Knows</td><td>${s}</td></tr>`;
-    }
-    if (youid.acl.length>0) {
-      var s = '';
-      for(var i=0; i<youid.acl.length; i++) {
-        s += `<div>${youid.acl[i]}</div>`;
-      }
-      verify_data += `<tr id="row"><td>Delegates</td><td>${s}</td></tr>`;
+    return lst;
+  },
+
+
+  genHTML_view : function(data)
+  {
+    var out;
+    out = `<table class="footable verify-tbl"><tbody id="verify-data">`;
+
+    out += `<tr id="row"><td>WebID</td><td>${data.id}</td></tr>`;
+    out += `<tr id="row"><td>Name</td><td>${data.name}</td></tr>`;
+
+    if (!data.keys || data.keys.length == 0) {
+      out += `<tr id="row"><td>PubKey</td><td>null</td></tr>`;
+      out += `<tr id="row"><td>Algorithm</td><td>null</td></tr>`;
+      out += `<tr id="row"><td>Modulus</td><td>null</td></tr>`;
+      out += `<tr id="row"><td>Exponent</td><td>null</td></tr>`;
+    } else { 
+      out += `<tr id="row"><td>PubKey</td><td id="pkey_uri">${data.keys[0].pubkey_uri}</td></tr>`;
+      out += `<tr id="row"><td>Algorithm</td><td id="pkey_alg">${data.keys[0].alg}</td></tr>`;
+      out += `<tr id="row"><td>Modulus</td><td id="pkey_mod">${data.keys[0].mod}</td></tr>`;
+      out += `<tr id="row"><td>Exponent</td><td id="pkey_exp">${data.keys[0].exp}</td></tr>`;
     }
 
-    verify_data += `</tbody></table>`;
+    if (data.delegate)
+      out += `<tr id="row"><td>Delegate</td><td>${data.delegate}</td></tr>`;
 
-    return await {success, youid, msg, verify_data, profile};
+    if (data.pim)
+      out += `<tr id="row"><td>Storage</td><td>${data.pim}</td></tr>`;
+    if (data.inbox)
+      out += `<tr id="row"><td>Inbox</td><td>${data.inbox}</td></tr>`;
+
+    if (data.behalfOf.length>0) {
+      var s = '';
+      for(var i=0; i<data.behalfOf.length; i++) {
+        s += `<div>${data.behalfOf[i]}</div>`;
+      }
+      out += `<tr id="row"><td>OnBehalfOf</td><td>${s}</td></tr>`;
+    }
+    if (data.foaf_knows.length>0) {
+      var s = '';
+      for(var i=0; i<data.foaf_knows.length; i++) {
+        s += `<div>${data.foaf_knows[i]}</div>`;
+      }
+      out += `<tr id="row"><td>Knows</td><td>${s}</td></tr>`;
+    }
+    if (data.acl.length>0) {
+      var s = '';
+      for(var i=0; i<data.acl.length; i++) {
+        s += `<div>${data.acl[i]}</div>`;
+      }
+      out += `<tr id="row"><td>Delegates</td><td>${s}</td></tr>`;
+    }
+
+    out += `</tbody></table>`;
+
+    return out;
   },
 
 
@@ -455,41 +406,16 @@ YouID_Loader.prototype = {
     })
   },
 
-  getCertKeys : async function(profile, webid) {
+
+  loadCertKeys : async function(store, webid) {
     var self = this;
     var store;
 
-    try {
-      store = await this.load_data(profile.baseURI, profile.data, profile.content_type);
-    } catch(err) {
-      var msg = "Could not parse data from: "+profile.baseURI+"\nError: "+err;
-      return { "error": msg};
-    }
-
-    var q = `
-  PREFIX terms: <http://purl.org/dc/terms/> 
-  PREFIX rd: <http://www.w3.org/2000/01/rdf-schema#> 
-  PREFIX cert: <http://www.w3.org/ns/auth/cert#> 
-  PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
-  PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
-  PREFIX schema: <http://schema.org/> 
-
-  SELECT * WHERE 
-    { 
-      {
-       <${webid}> cert:key ?pubkey .
-       ?pubkey a cert:RSAPublicKey ;
-              cert:modulus  ?cert_mod ;
-              cert:exponent ?cert_exp .
-      }
-       OPTIONAL { ?pubkey terms:created ?key_cr_dt . }
-       OPTIONAL { ?pubkey terms:title   ?key_cr_title . }
-       OPTIONAL { ?pubkey rd:label ?key_label . }
-    }`;
+    var query = self.load_pubkey.replace(/#\{webid\}/g, webid);
 
     var rc;
     try {
-      rc = await this.exec_query(store, q);
+      rc = await this.exec_query(store, query);
     } catch(err) {
       return { "error": err};
     }
@@ -507,7 +433,7 @@ YouID_Loader.prototype = {
         } catch(e) {
         }
 
-        var v = {pkey, mod:r.cert_mod.value, exp:r.cert_exp.value};
+        var v = {pkey, pubkey_uri:r.pubkey.value,  alg:r.alg.value,  mod:r.cert_mod.value, exp:r.cert_exp.value};
         if (r.key_cr_dt) 
           v["key_created"] = r.key_cr_dt.value;
         if (r.key_cr_title) 
@@ -717,7 +643,7 @@ function fix_Nano_data(str)
 }
 
 
-function sniff_data(doc, uri)
+function sniff_doc_data(doc, uri)
 {
     var idata = {ttl:[], ldjson:[], rdfxml:[]}
 
@@ -875,6 +801,124 @@ function sniff_data(doc, uri)
 
 
     
+    return idata;
+}
+
+
+function sniff_text_data(txt, uri)
+{
+    var idata = {ttl:[], ldjson:[], rdfxml:[]}
+
+    var url = new URL(uri);
+    url.hash = '';
+    idata.baseURI = url.toString();
+    
+    try {
+      if (txt) {
+        function isWhitespace(c) {
+            var cc = c.charCodeAt(0);
+            if (( cc >= 0x0009 && cc <= 0x000D ) ||
+                ( cc == 0x0020 ) ||
+                ( cc == 0x0085 ) ||
+                ( cc == 0x00A0 )) {
+                return true;
+            }
+            return false;
+        }
+
+
+        //drop commetns
+        var eoln = /(?:\r\n)|(?:\n)|(?:\r)/g;
+        var s_split = txt.split(eoln);
+        var s_doc = "";
+        var p1 = /## +([Nn]anotation|[Tt]urtle) +(Start|End|Stop) *##/;
+        var p2 = /^ *#/;
+        var p3 = /## +(JSON-LD) +(Start|End|Stop) *##/;
+        var p4 = /## +(RDF(\/|-)XML) +(Start|End|Stop) *##/;
+
+        s_split.forEach(function (item, i, arr) {
+            if (item.length > 0 && (!p2.test(item) || p1.test(item) || p3.test(item) || p4.test(item)))
+                s_doc += item + "\n";
+        });
+
+        s_doc = fix_Nano_data(s_doc);
+
+        //try get Turtle Nano
+        while (true) {
+            var ndata = ttl_nano_pattern.exec(s_doc);
+            if (ndata == null)
+                break;
+
+            var str = ndata[3];
+            if (str.length > 0)
+               idata.ttl.push(str);
+        }
+
+        //try get Turtle Nano in CurlyBraces { ... }
+        var j = 0;
+        var inCurly = 0;
+        var str = "";
+        while (j < s_doc.length) {
+            var ch = s_doc[j++];
+            if (ch == '"') {
+                var rc = s_doc.indexOf(ch, j);
+                if (rc == -1)
+                    break;
+                if (inCurly > 0)
+                    str += s_doc.substring(j - 1, rc + 1);
+                j = rc + 1;
+            }
+            else if (ch == '{') {
+                inCurly++;
+            }
+            else if (ch == '}') {
+                inCurly--;
+                idata.ttl.push(str);
+                str = "";
+            }
+            else if (inCurly > 0) {
+                str += ch;
+            }
+        }
+
+        //try get JSON-LD Nano
+        while (true) {
+            var ndata = jsonld_nano_pattern.exec(s_doc);
+            if (ndata == null)
+                break;
+
+            var str = ndata[2];
+            if (str.length > 0) {
+                var add = false;
+                for (var c = 0; c < str.length; c++) {
+                    add = str[c] === "{" ? true : false;
+                    if (add)
+                        break;
+                    if (!isWhitespace(str[c]))
+                        break;
+                }
+
+                if (add)
+                    idata.ldjson.push(str);
+            }
+        }
+
+        //try get RDF/XML Nano
+        while (true) {
+            var ndata = rdf_nano_pattern.exec(s_doc);
+            if (ndata == null)
+                break;
+
+            var str = ndata[3];
+            if (str.length > 0) {
+                idata.rdfxml.push(str);
+            }
+        }
+      }
+    } catch(e) {
+      console.log(e);
+    }
+
     return idata;
 }
 

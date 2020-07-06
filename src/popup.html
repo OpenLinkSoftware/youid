@@ -43,8 +43,8 @@
 
       <div id="pulldown" class="content_scroll">
        <div class="grid_buttons">
-       <button id="add_youid" type="button" class="btn">Add&nbspWebID</button>
-       <button id="btn-gen-cert" type="button" class="btn">Certificate&nbspGeneration</button>
+       <button id="add_youid" type="button" class="btn btn-primary">Add&nbspWebID</button>
+       <button id="btn-gen-cert" type="button" class="btn btn-primary">Certificate&nbspGeneration</button>
        </div>
        <br>
        <table id="youid_tbl" class="footable">
@@ -80,7 +80,7 @@
         <h4 class="modal-title">Info</h4>
       </div>
       <div class="modal-body">
-        <section>
+        <section style="overflow-wrap: break-word;">
           <p id="alert-msg1"></p>
           <p id="alert-msg2"></p>
         </section>
@@ -141,7 +141,16 @@
           <div class="form-group row">
             <label for="c_webid_lst" class="col-md-1 control-label">WebId:</label>
             <div class="col-md-11">
-              <select name="profile" class="form-control" id="c_webid_lst">
+              <select class="form-control" id="c_webid_lst">
+              </select>
+            </div>
+          </div>
+        </form>
+        <form id="verify-pkey-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_pkey_lst" class="col-md-1 control-label">PubKey:</label>
+            <div class="col-md-11">
+              <select class="form-control" id="c_pkey_lst">
               </select>
             </div>
           </div>
