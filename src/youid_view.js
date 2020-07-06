@@ -360,9 +360,10 @@ YouId_View.prototype = {
                  return;
                }
                data = await rc.text();
-
+               console.log("Data fetched LEN="+data.length);
                var parser = new DOMParser();
                var doc = parser.parseFromString(data, 'text/html');
+               console.log("created DOC="+doc);
                var idata = self.sniff_data(doc, uri);
                console.log("idata = "+JSON.stringify(idata));
                $('#add-dlg').modal('hide');
