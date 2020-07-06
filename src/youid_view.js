@@ -288,7 +288,6 @@ YouId_View.prototype = {
 
     if (this.is_popup) {
       this.save_youid_data();
-      window.close();
     }
   },
 

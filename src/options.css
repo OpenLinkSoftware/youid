@@ -1,7 +1,7 @@
 /*
  *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2018 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ div.grid_buttons {
 
 .youid_item { 
     font-weight: bold;
-    width:650px; 
+    width:1150px; 
     table-layout: fixed;
 }
 
