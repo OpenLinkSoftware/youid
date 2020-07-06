@@ -543,13 +543,12 @@ YouId_View.prototype = {
                $('#verify1-dlg #verify-tbl-place').children().remove();
                $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(ret[sel].verify_data));
                _webid = ret[sel].youid;
-               _success = ret[0].success;
+               _success = ret[sel].success;
             }
+          } 
 
-          } else {
-            _webid = ret[0].youid;
-            _success = ret[0].success;
-          }
+          _webid = ret[0].youid;
+          _success = ret[0].success;
 
           $("#verify1-dlg #btn-ok").show();
           $("#verify1-dlg #verify_progress").hide();

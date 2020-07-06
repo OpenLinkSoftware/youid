@@ -148,19 +148,20 @@
         <form class="form-horizontal">
 
           <div class="form-group row">
-            <label for="c_idp" class="col-md-4 control-label">Profile:</label>
+            <label for="c_idp" class="col-md-4 control-label">WebID-Profile Storage Providers:</label>
             <div class="col-md-8">
+OpenLink Solid Server (8444), OpenLink Solid Server (8445), Generic (Secure LDP)
               <select name="profile" class="form-control" id="c_idp">
-                <option value="manual" selected>Manual Upload</option>
+                <option value="manual" selected>Manual</option>
                 <option value="opl_dav">MyOpenLink (WebDAV)</option>
-                <option value="opl_dav_https">MyOpenLink (WebDAV) https://</option>
+                <option value="opl_dav_https">MyOpenLink (Secure WebDAV)</option>
                 <option value="opl_ldp">MyOpenLink (LDP)</option>
-                <option value="opl_ldp_https">MyOpenLink (LDP) https://</option>
+                <option value="opl_ldp_https">MyOpenLink (Secure LDP)</option>
                 <option value="solid_oidc">Solid WebID-OIDC</option>
 <!--
                 <option value="ldp_tls_solid">Solid LDP WebID-TLS</option>
 -->
-                <option value="ldp_tls">LDP WebID-TLS</option>
+                <option value="ldp_tls">Generic (Secure LDP)</option>
               </select>
               <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
             </div>
@@ -396,11 +397,11 @@
         <table style="font-size: 14px;">
 
          <tr id="uri-link">
-          <td> WebID&nbsp;URI:&nbsp;</td>
+          <td> WebID:&nbsp;</td>
 <!--
 //??      <td> <input id="uri" style="WIDTH: 480px" value="http://id.myopenlink.net/DAV/home/smalinin/Public/YouID/IDcard_Twitter_1/index.html"> </td>
 -->
-          <td> <input id="uri" style="WIDTH: 480px" value=""> </td>
+          <td> <input id="uri" style="WIDTH: 480px" value="" title="A WebID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
          
          </tr>
 
