@@ -38,6 +38,7 @@
     <script type="text/javascript" src="settings.js"></script>
     <script type="text/javascript" src="OidcWebid.js"></script>
     <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="cert_manual.js"></script>
     <script type="text/javascript" src="certificate.js"></script>
     <script type="text/javascript" src="youid_view.js"></script>
     <script type="text/javascript" src="options.js"></script>
@@ -122,9 +123,11 @@
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_city" class="col-md-4 control-label">Locality:</label>
+            <label for="c_country" class="col-md-4 control-label">Country:</label>
             <div class="col-md-8">
-              <input type="text" class="form-control" id="c_city" />
+              <select class="form-control" id="c_country">
+                <option value="" ></option>
+              </select>
             </div>
           </div>
           <div class="form-group row">
@@ -136,11 +139,9 @@
             </div>
           </div>
           <div class="form-group row">
-            <label for="c_country" class="col-md-4 control-label">Country:</label>
+            <label for="c_city" class="col-md-4 control-label">Locality:</label>
             <div class="col-md-8">
-              <select class="form-control" id="c_country">
-                <option value="" ></option>
-              </select>
+              <input type="text" class="form-control" id="c_city" />
             </div>
           </div>
         </form>
@@ -454,6 +455,10 @@
         <div id="c_wait">
          <img src="images/throbber.gif" width="16" /> Wait...
         </div>
+        <section id="webid-cert">
+          <h5>Your WebID:&nbsp; <a id="webid_href" href="#" target="_blank"> </a></h5> 
+          <hr>
+        </section>
         <section id="p12-cert">
            <h5>PKCS12 Credentials Store</h5>
            <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
@@ -463,13 +468,51 @@
         </section>
         <p/>
         <section id="profile-card">
-          <textarea id="card-text" class="hidden" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
-          </textarea>
+          <hr>
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#n_ttl" data-toggle="tab">N3/Turtle</a></li>
+            <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
+            <li><a href="#n_rdfxml" data-toggle="tab">RDF/XML</a></li>
+            <li><a href="#i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
+            <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+            <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF/XML</a></li>
+          </ul>
+
+          <!-- Tab panes -->
+          <div class="tab-content">
+            <div class="tab-pane active" id="n_ttl">
+              <textarea id="text-n-ttl" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+            <div class="tab-pane" id="n_jsonld">
+              <textarea id="text-n-jsonld" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+            <div class="tab-pane" id="n_rdfxml">
+              <textarea id="text-n-rdfxml" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+            <div class="tab-pane" id="i_ttl">
+              <textarea id="text-i-ttl" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+            <div class="tab-pane" id="i_jsonld">
+              <textarea id="text-i-jsonld" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+            <div class="tab-pane" id="i_rdfxml">
+              <textarea id="text-i-rdfxml" style="width: 870px; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+          </div>
         </section>
         <p/>
         <section>
           <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
           <button id="btn-update_cert" type="button" class="btn btn-primary hidden">Update Profile</button>
+        </section>
+        <section id="webid-card">
+          <h5>Your identity card has been created. <a id="card_href" href="#" target="_blank"> </a></h5>
         </section>
         <p/>
         <hr/>

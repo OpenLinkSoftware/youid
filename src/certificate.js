@@ -450,7 +450,9 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').removeAttribute('href');
     DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
     DOM.qHide('#gen-cert-ready-dlg #u_wait');
-    DOM.qHide('#gen-cert-ready-dlg #card-text');
+    DOM.qHide('#gen-cert-ready-dlg #webid-cert');
+    DOM.qHide('#gen-cert-ready-dlg #webid-card');
+    DOM.qHide('#gen-cert-ready-dlg #profile-card');
     DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate')
     DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = '';
     DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = '';
@@ -502,13 +504,23 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
       DOM.qHide('#gen-cert-ready-dlg #ready_msg');
       DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
-      DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate')
+      DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
+      DOM.qShow('#gen-cert-ready-dlg #webid-cert');
+
+      var v = DOM.qSel('#webid-cert #webid_href');
+      v.href = webid;
+      v.innerText = webid;
 
       if (gen.idp === 'manual') {
         DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
-        var s = self.genManualCard(webid, certData.cert);
-        DOM.qSel('#gen-cert-ready-dlg #card-text').value = s;
-        DOM.qShow('#gen-cert-ready-dlg #card-text');
+        var s = self.genManualCard(webid, certData);
+        DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
+        DOM.qSel('#profile-card #text-n-jsonld').value = s.nano_jsonld;
+        DOM.qSel('#profile-card #text-n-rdfxml').value = s.nano_rdfxml;
+        DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
+        DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
+        DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
+        DOM.qShow('#gen-cert-ready-dlg #profile-card');
       } else {
 
         DOM.qShow('#gen-cert-ready-dlg #ready_msg');
@@ -778,6 +790,12 @@ Certificate.prototype = {
       if (done_ok) {
         setTimeout(function () {
           DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = true;
+
+          DOM.qShow('#gen-cert-ready-dlg #webid-card');
+          var v = DOM.qSel('#webid-card #card_href');
+          v.href = certData.card;
+          v.innerText = certData.card;
+          
           alert('Done. Profile Document was uploaded.');
         }, 500);
       }
@@ -958,133 +976,24 @@ Certificate.prototype = {
   },
 
 
-  genManualCard: function (webid, cert) {
-    var profileUri = webid.split('#')[0];
-    var keyUri = profileUri + '#key-' + cert.validity.notBefore.getTime();
-    var CN = cert.subject.getField('CN');
-    var commonName = CN.value;
-    var exponent = cert.publicKey.e.toString(10);
-    var modulus = cert.publicKey.n.toString(16).toLowerCase();
-    var timeCreated = cert.validity.notBefore.toISOString();
+  genManualCard: function (webid, certData) {
+    var {ttl, jsonld, rdfxml} = genManualUploads(webid, certData);
 
-    var card_text = `
-  ## Turtle Start ##
-  @prefix : <#>.
-  @prefix cert: <http://www.w3.org/ns/auth/cert#>.
-  @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-  @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-  @prefix terms: <http://purl.org/dc/terms/>.
-  @prefix foaf: <http://xmlns.com/foaf/0.1/>.
-  @prefix schema: <http://schema.org/>.
+    var nano_ttl = '## Turtle Start ##\n'+ttl+'\n## Turtle End ##\n';
+    var nano_jsonld = '## JSON-LD Start ##\n'+jsonld+'\n## JSON-LD End ##\n';
+    var nano_rdfxml = '## RDF-XML Start ##\n'+rdfxml+'\n## RDF-XML End ##\n';
 
-  <>
-    a foaf:PersonalProfileDocument ;
-    foaf:maker <${webid}> ;
-    foaf:primaryTopic <${webid}> .
+    var i_ttl = '<!-- start rdf-turtle profile 1 -->\n<script type="text/turtle">\n'
+                +ttl
+                +'\n</script>\n';
+    var i_jsonld = '<!-- start json-ld profile 2 -->\n<script type="application/ld+json">\n'
+                   +jsonld
+                   +'\n</script>\n';
+    var i_rdfxml = '<!-- start rdf/xml profile 3 -->\n<script type="application/rdf+xml">\n'
+                   +rdfxml
+                   +'\n</script>\n';
 
-  <${webid}>
-    a foaf:Person ;
-    a schema:Person ;
-    foaf:name "${commonName}" ;
-    cert:key <${keyUri}>.
-
-
-  <${keyUri}>
-    a cert:RSAPublicKey;
-    terms:created "${timeCreated}"^^xsd:dateTime;
-    terms:title "Created by YouID";
-    rdfs:label "${commonName}";
-    cert:exponent "${exponent}"^^xsd:int;
-    cert:modulus "${modulus}"^^xsd:hexBinary.
-  ## Turtle End ##
-
-  ## JSON-LD Start ##
-  {
-    "@context": {
-      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-      "foaf": "http://xmlns.com/foaf/0.1/",
-      "schema": "http://schema.org/",
-      "cert": "http://www.w3.org/ns/auth/cert#",
-      "dcterms": "http://purl.org/dc/terms/",
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      "schema": "http://schema.org/"
-    },
-    "@graph": [
-      {
-        "@id": "",
-        "@type": "foaf:PersonalProfileDocument",
-        "foaf:maker": {
-          "@id": "${webid}"
-        },
-        "foaf:primaryTopic": {
-          "@id": "${webid}"
-        }
-      },
-      {
-        "@id": "${webid}",
-        "@type": [
-          "foaf:Person",
-          "schema:Person"
-        ],
-        "cert:key": {
-          "@id": "${keyUri}"
-        },
-        "foaf:name": "${commonName}"
-      },
-      {
-        "@id": "${keyUri}",
-        "@type": "cert:RSAPublicKey",
-        "dcterms:created": {
-          "@type": "xsd:dateTime",
-          "@value": "${timeCreated}"
-        },
-        "dcterms:title": "Created by YouID",
-        "rdfs:label": "${commonName}",
-        "cert:exponent": {
-          "@type": "xsd:int",
-          "@value": "${exponent}"
-        },
-        "cert:modulus": {
-          "@type": "xsd:hexBinary",
-          "@value": "${modulus}"
-        }
-      }
-    ]
-  }
-  ## JSON-LD End ##
-  
-  ## RDF-XML Start ##
-  <rdf:RDF
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:n0="http://xmlns.com/foaf/0.1/"
-   xmlns:cert="http://www.w3.org/ns/auth/cert#"
-   xmlns:terms="http://purl.org/dc/terms/"
-   xmlns:rd="http://www.w3.org/2000/01/rdf-schema#">
-   xmlns:schema="http://schema.org/">
-      <rdf:Description rdf:about="">
-          <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/PersonalProfileDocument"/>
-          <n0:maker rdf:resource="${webid}"/>
-          <n0:primaryTopic rdf:resource="${webid}"/>
-      </rdf:Description>
-      <rdf:Description rdf:about="${webid}">
-          <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
-          <rdf:type rdf:resource="http://schema.org/Person"/>
-          <cert:key rdf:resource="${keyUri}"/>
-          <n0:name>${commonName}</n0:name>
-      </rdf:Description>
-      <rdf:Description rdf:about="${keyUri}">
-          <terms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">${timeCreated}</terms:created>
-          <terms:title>Created by YouID</terms:title>
-          <rdf:type rdf:resource="http://www.w3.org/ns/auth/cert#RSAPublicKey"/>
-          <rd:label>"${commonName}"</rd:label>
-          <cert:exponent rdf:datatype="http://www.w3.org/2001/XMLSchema#int">${exponent}</cert:exponent>
-          <cert:modulus rdf:datatype="http://www.w3.org/2001/XMLSchema#hexBinary">${modulus}</cert:modulus>
-      </rdf:Description>
-  </rdf:RDF>
-  ## RDF-XML End ##
-    `;
-    return card_text;
+    return {nano_ttl, nano_jsonld, nano_rdfxml, i_ttl, i_jsonld, i_rdfxml};
   },
 
 
@@ -1343,47 +1252,21 @@ class Uploader {
   }
 
 
-  parseTpl(s, map) {
-    var data = [];
-    var prev = 0;
-    var pos = 0;
-    while (true) {
-      var i = s.indexOf('%{', pos);
-      if (i == -1) {
-        data.push(s.substring(pos));
-        break;
-      }
-      data.push(s.substring(pos, i))
-
-      var j = s.indexOf('}', i);
-      if (j == -1)
-        break;
-      var key = s.substring(i + 2, j);
-      var v = map[key];
-      if (v !== undefined)
-        data.push(v);
-      else
-        data.push('%{' + key + '}')
-      pos = j + 1;
-    }
-    return data.join('');
-  }
-
   getProfilesData(tpl_data, files) {
     var f = files["profile.ttl"];
-    f.out_text = this.parseTpl(f.tpl_text, tpl_data);
+    f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     tpl_data['profile_ttl'] = f.out_text;
 
     f = files["prof_jsonld"];
-    f.out_text = this.parseTpl(f.tpl_text, tpl_data);
+    f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     tpl_data['json_ld'] = f.out_text;
 
     f = files["prof_microdata"];
-    f.out_text = this.parseTpl(f.tpl_text, tpl_data);
+    f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     tpl_data['microdata'] = f.out_text;
 
     f = files["prof_rdfa"];
-    f.out_text = this.parseTpl(f.tpl_text, tpl_data);
+    f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     tpl_data['rdfa'] = f.out_text;
 
     f = files["photo_130x145.base64"];
@@ -1470,7 +1353,9 @@ class Uploader {
     tpl_data['prof_url'] = dir_url + this.files["profile.ttl"].fname;
     tpl_data['pubkey_url'] = dir_url + this.files["public_key.ttl"].fname;
     tpl_data['cert_url'] = dir_url + this.files["certificate.ttl"].fname;
-    tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
+
+    certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
+
     tpl_data['jsonld_prof_url'] = dir_url + this.files["prof_jsonld"].fname;
     tpl_data['jsonld_cert_url'] = dir_url + this.files["certificate.jsonld"].fname;
     tpl_data['jsonld_pubkey_url'] = dir_url + this.files["public_key.jsonld"].fname;
@@ -1481,10 +1366,18 @@ class Uploader {
     tpl_data['qr_card_url'] = '';
     tpl_data['qr_rdfa_url'] = '';
 
+    tpl_data['pdp_mail'] = email;
     var md = forge.md.sha1.create();
     md.start();
-    md.update(certData.der);
+    md.update(email);
     var digest = md.digest();
+    tpl_data['pdp_mail_sha1'] = toHex(digest);
+
+
+    md = forge.md.sha1.create();
+    md.start();
+    md.update(certData.der);
+    digest = md.digest();
     tpl_data['fingerprint'] = toHex(digest);
     tpl_data['fingerprint_colon'] = toHex(digest, ':');
     tpl_data['fingerprint-digest'] = 'sha1';
@@ -1507,7 +1400,7 @@ class Uploader {
     for (var key in this.files) {
       var f = this.files[key];
       if (f.tpl && f.tpl_text)
-        f.out_text = this.parseTpl(f.tpl_text, tpl_data);
+        f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     }
     return true;
   }
@@ -2249,4 +2142,124 @@ class LocalTextFile {
   }
 }
 
+            
+class TplPrep {
+  constructor(tpl, vals) {
+    this.tpl = tpl;
+    this.vals = vals;
+    this.pos = 0;
+  }
+
+  _nextChar() {
+    if (this.pos >= this.tpl.length)
+      return '\0';
+    return this.tpl[this.pos++];
+  }
+
+  _peekNextChar() {
+    if (this.pos >= this.tpl.length)
+      return '\0';
+    return this.tpl[this.pos];
+  }
+
+  _getToken(cend) {
+    var data = [];
+    while(true) {
+      var c = this._nextChar();
+      if (c==='\0' || c===cend)
+        break;
+      data.push(c);
+    }
+    return data.join('');
+  }
+
+  _skipToDefineEnd() {
+    while (true) {
+      var ch = this._nextChar();
+      if (ch==='!') {
+        if ((ch = this._nextChar())==='!')
+          if ((ch = this._nextChar())==='.')
+            break;
+      }
+    }
+  }
+
+
+  tplStrSubstVal() {
+    var ret = [];
+    var ch;
+    
+    if (!this.tpl)
+        return '';
+    
+    while (true) {
+        ch = this._nextChar();
+        if (ch==='\0')
+            break;
+
+        if (ch === '%') {
+            var c1 = this._nextChar();
+            if (c1=='{') {
+                var key = this._getToken('}');
+                if (key.length > 0) {
+                    var v = this.vals[key];
+                    if (v!==undefined)
+                      ret.push(v);
+                }
+            }
+            else {
+                ret.push('%');
+                ret.push(c1);;
+            }
+        }
+        else if (ch === '!') {
+            var c1 = this._nextChar();
+            if (c1==='{') {
+                var key = this._getToken('}');
+                if (key.length > 0) {
+                    var v = this.vals[key];
+                    if (v===undefined || v.length==0) {
+                        //Skip to line end
+                        while(true) {
+                            ch = this._nextChar();
+                            if (ch==='\n' || ch==='\0')
+                                break;             
+                        }
+                    }
+                }
+            }
+            else if (c1==='!') {
+                var c2 = this._nextChar();
+                if (c2==='{') {
+                    var key = this._getToken('}');
+                    if (key.length > 0) {
+                        var v = this.vals[key];
+                        if (v===undefined || v.length==0) {
+                            //Skip to define end  !!.
+                            this._skipToDefineEnd();
+                        }
+                    }
+                }
+                else if (c2==='.') {
+                    // skip
+                }
+                else {
+                    ret.push('!!');
+                    ret.push(c2);
+                }
+            }
+            else {
+                ret.push('!');
+                ret.push(c1);
+            }
+        }
+        else {
+            ret.push(ch);
+        }
+        
+    }
+    
+    return ret.join('');
+  }
+}
 

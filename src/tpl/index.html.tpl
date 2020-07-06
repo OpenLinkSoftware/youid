@@ -58,8 +58,10 @@
                    
                         <p class="fieldName">Email Address</p>
                         <p class="fieldContent">%{subj_email_mailto_href}</p>
-
-%{pdp_url_row}
+!!{pdp_url}
+                        <p class="fieldName">Web Page</p>
+                        <p class="fieldContent"><a href="%{pdp_url}">%{pdp_url}</a></p>
+!!.
                         <p class="fieldName">Issued</p>
                         <p class="fieldContent">%{date_before}</p>
                         
@@ -89,7 +91,12 @@
 
                 </div><!-- end pKey -->
 
-%{ca_key_row}
+!!{ca_cert_url}
+                <div class="caKey">
+                	<a class="aimg" href="%{ca_cert_url}"><img src="%{lock_url}" width="38" height="38" alt="Issuer Public Key"/></a>
+                        <a href="%{ca_cert_url}">Issuer Public Key</a>
+                </div>
+!!.
 <!--
                 <div class="cardQr">
                 
