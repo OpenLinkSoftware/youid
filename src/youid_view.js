@@ -494,16 +494,31 @@ YouId_View.prototype = {
     function add_id(rc, out_lst)
     {
       for(var webid in rc) {
-        var found = false;
+        var found = -1;
         var val = rc[webid];
         for(var i=0; i < out_lst.length; i++) {
-          if (webid === out_lst[i].webid) {
-            found = true;
+          if (webid === out_lst[i].id) {
+            found = i;
             break;
           }
         }
-        if (!found && val.success && val.keys.length > 0)
-          out_lst.push(val);
+
+        if (val.success && val.keys.length > 0) {
+          if (found == -1) {
+            out_lst.push(val);
+          } else {
+            var item = out_lst[found];
+            for(var i=0; i < val.keys.length; i++) {
+              var add = true;
+              for(var j=0; j < item.keys.length; j++) {
+                if (item.keys[i].pubkey_url === val.keys[i].pubkey_uri)
+                  add = false;
+              }
+              if (add)
+                item.keys.push(val.keys[i]);
+            }
+          }
+        }
       }
     }
 
