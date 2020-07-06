@@ -94,7 +94,7 @@ Certificate.prototype = {
                 return;
               }
 
-              var data = await rc.text();
+              var data = await status.text();
               var parser = new DOMParser();
               var doc = parser.parseFromString(data, 'text/html');
               idata = sniff_doc_data(doc, uri);
