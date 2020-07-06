@@ -195,16 +195,18 @@ YouID_Loader.prototype = {
         var {err, res} = await this.exec_query(store, this.verify_pubkey);
 
         var verify_pkey = {pubkey:null, url:null, webid:null};
-                       
-        for(var i=0; i < res.length; i++) {
-          if (res[i].url && String(res[i].url.value).lastIndexOf(aseURI, 0)!=0)
-            continue;
-          if (res[i].pubkey)
-            verify_pkey.pubkey = res[i].pubkey.value
-          if (res[i].url)
-            verify_pkey.url = res[i].url.value
-          if (res[i].webid)
-            verify_pkey.webid = res[i].webid.value
+
+        if (res) {
+          for(var i=0; i < res.length; i++) {
+            if (res[i].url && String(res[i].url.value).lastIndexOf(aseURI, 0)!=0)
+              continue;
+            if (res[i].pubkey)
+              verify_pkey.pubkey = res[i].pubkey.value
+            if (res[i].url)
+              verify_pkey.url = res[i].url.value
+            if (res[i].webid)
+              verify_pkey.webid = res[i].webid.value
+          }
         }
 
         if (!verify_pkey.pubkey && verify_pkey.url && verify_pkey.webid) {
