@@ -141,19 +141,19 @@ Certificate.prototype = {
 
               rc = null;
               for(var i=0; i<idata.ldjson.length; i++) {
-                var rc = await get_data(idata.ldjson[i], 'application/ld+json', '');
+                var rc = await get_data(idata.ldjson[i], 'application/ld+json', idata.baseURI);
                 if (rc && rc.success)
                   break;
               }
               if (!rc)
                 for(var i=0; i<idata.ttl.length; i++) {
-                  var rc = await get_data(idata.ttl[i], 'text/turtle', '');
+                  var rc = await get_data(idata.ttl[i], 'text/turtle', idata.baseURI);
                   if (rc && rc.success)
                     break;
                 }
               if (!rc)
                 for(var i=0; i<idata.rdfxml.length; i++) {
-                  var rc = await get_data(idata.rdfxml[i], 'application/rdf+xml', '');
+                  var rc = await get_data(idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
                   if (rc && rc.success)
                     break;
                 }

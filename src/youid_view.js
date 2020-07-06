@@ -512,7 +512,7 @@ YouId_View.prototype = {
         try {
            var data = idata.ttl[i];
            var loader = new YouID_Loader();
-           var rc = await loader.parse_data(data, 'text/turtle', "");
+           var rc = await loader.parse_data(data, 'text/turtle', idata.baseURI);
            add_id(rc, lst);
         } catch (e) { console.log(e); }
       }
@@ -520,7 +520,7 @@ YouId_View.prototype = {
         try {
            var data = idata.ldjson[i];
            var loader = new YouID_Loader();
-           var rc = await loader.parse_data(data, 'application/ld+json', "");
+           var rc = await loader.parse_data(data, 'application/ld+json', idata.baseURI);
            add_id(rc, lst);
         } catch (e) { console.log(e); }
       }
