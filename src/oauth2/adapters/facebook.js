@@ -14,9 +14,6 @@ OAuth2.adapter('facebook', {
   },
 
   parseAuthorizationCode: function(url) {
-    // TODO: error handling (URL may have
-    // ?error=asfasfasiof&error_code=43 etc)
-//    return url.match(/[&\?]code=([^&]+)/)[1];
     var u = new URL(url);
     var params = u.searchParams;
     if (params.has('error')) {

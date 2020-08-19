@@ -34,7 +34,10 @@
     <script type="text/javascript" src="lib/purify.min.js"></script>
     <script type="text/javascript" src="lib/forge.bundle.js"></script>
     <script type="text/javascript" src="lib/oidc-web.min.js"></script>
+    <script type="text/javascript" src="lib/aws-sdk.js"></script>
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
+    <script type="text/javascript" src="oauth2/sha1.js"></script>
+    <script type="text/javascript" src="oauth2/oauth1.js"></script>
     <script type="text/javascript" src="oauth2/oauth2_utils.js"></script>
     <script type="text/javascript" src="browser.js"></script>
     <script type="text/javascript" src="settings.js"></script>
@@ -94,11 +97,10 @@
               <select name="provider" class="form-control" id="c_pdp">
                 <option value="pdp_webid" selected>WebID-Profile Document</option>
                 <option value="pdp_amazon">Amazon</option>
-<!-- -->
                 <option value="pdp_facebook">Facebook</option>
-<!-- -->
                 <option value="pdp_google">Google</option>
                 <option value="pdp_linkedin">LinkedIn</option>
+                <option value="pdp_twitter">Twitter</option>
                 <option value="pdp_win_azure">Windows Azure</option>
                 <option value="pdp_win_live">Windows Live</option>
               </select>
@@ -191,6 +193,7 @@
                 <option value="ldp_tls_solid">Solid LDP WebID-TLS</option>
 -->
                 <option value="ldp_tls">Generic (Secure LDP)</option>
+                <option value="aws_s3">Amazon S3</option>
               </select>
               <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
             </div>
@@ -221,6 +224,26 @@
                 <div class="col-md-3">
                   <button id="btn-solid-oidc-login" type="button" class="btn">Login</button>
                   <a id="c_oidc_webid" href="" title="" class="hidden"> <img id="uid-icon" src="images/uid.png" style="width:28px"> </a>
+                </div>
+              </div>
+          </section>
+          <section id="c_aws_s3" class="hidden"> 
+              <div class="form-group row">
+                <label for="c_access_key" class="col-md-3 control-label">Access&nbsp;Key:</label>
+                <div class="col-md-9">
+                  <input type="text" class="form-control" id="c_access_key" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_secret_key" class="col-md-3 control-label">Secret&nbsp;Key:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_secret_key"  />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_bucket" class="col-md-3 control-label">Bucket&nbsp;Name:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_bucket" />
                 </div>
               </div>
           </section>
@@ -603,13 +626,6 @@
          <div id="u_msg"></div>
         </div>
       </div>
-<!--
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
-        <button id="btn-update_cert" type="button" class="btn btn-primary hidden">Update Profile</button>
-      </div>
--->
     </div>
   </div>
 </div>

@@ -19,7 +19,6 @@
  */
 
 
-
 Certificate = function () {
   this.gPref = new Settings();
   this.gOidc = new OidcWeb();
@@ -68,7 +67,6 @@ Certificate.prototype = {
     if (DOM.qSel('#c_idp option:checked').value === 'solid_oidc') {
       this.oidc_changed();
     }
-//-----------------------------------
 
     DOM.qSel('#gen-cert-dlg #c_pdp')
       .onchange = (e) => {
@@ -150,6 +148,17 @@ Certificate.prototype = {
                 linkedinAuth.userInfo(function(data) {
                   DOM.iSel('c_name').value = data.name ? data.name: "";
                   DOM.iSel('c_org').value = 'LinkedIn';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+          case 'pdp_twitter':
+            {
+              twitterAuth.authorize(function() {
+                twitterAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'Twitter';
                   DOM.iSel('c_email').value = data.email ? data.email : "";
                 });
               });
@@ -332,10 +341,11 @@ Certificate.prototype = {
         DOM.qHide('#gen-cert-dlg #c_solid_oidc');
         DOM.qHide('#gen-cert-dlg #r_cert_name');
         DOM.qHide('#gen-cert-dlg #r_cert_path');
+        DOM.qHide('#gen-cert-dlg #c_aws_s3');
+        DOM.qSel('#gen-cert-dlg #c_webid').value = '';
 
         if (sel === 'manual') {
           DOM.qShow('#gen-cert-dlg #r_webid');
-          DOM.qSel('#gen-cert-dlg #r_webid').value = '';
         }
         else if (sel === 'opl_dav' || sel === 'opl_dav_https') {
           if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
@@ -372,6 +382,11 @@ Certificate.prototype = {
           DOM.qShow('#gen-cert-dlg #r_webid');
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
+        }
+        else if (sel === 'aws_s3') {
+          DOM.qSel('#gen-cert-dlg #c_bucket').value = 'youid-card-'+create_UUID();
+          DOM.qShow('#gen-cert-dlg #r_cert_name');
+          DOM.qShow('#gen-cert-dlg #c_aws_s3');
         }
       };
 
@@ -470,6 +485,61 @@ Certificate.prototype = {
             gen.dav_fullpath += '/';
 
           var webid = gen.dav_fullpath + 'profile.ttl#identity';
+
+          DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
+        }
+        else if (gen.idp === 'aws_s3') {
+          gen.acc_key = DOM.qSel('#gen-cert-dlg #c_access_key').value;
+          gen.sec_key = DOM.qSel('#gen-cert-dlg #c_secret_key').value;
+          gen.bucket = DOM.qSel('#gen-cert-dlg #c_bucket').value;
+
+          if (gen.acc_key.length < 1) {
+            alert('S3 Access Key is empty');
+            return
+          }
+          if (gen.sec_key.length < 1) {
+            alert('S3 Secret Key is empty');
+            return
+          }
+          if (gen.bucket.length < 1) {
+            alert('Bucket name is empty');
+            return
+          }
+          for (var i=0; i< gen.bucket.length; i++) {
+            var c = gen.bucket[i];
+            if (c === '_') {
+              alert('Bucket name contains invalid character \'-\'');
+              return;
+            }
+            if (c !== c.toLowerCase()) {
+              alert('Bucket name must not contain uppercase characters ');
+              return;
+            }
+          }
+
+          var up = new Uploader_AWS_S3(gen.bucket, gen.acc_key, gen.sec_key);
+          var lst = await up.checkCredentials();
+          if (!lst) {
+            alert('Wrong Access Key or Secret Key');
+            return
+          }
+          var exists = false;
+          for(var id of lst) {
+            if (id === gen.bucket) {
+              exists = true;
+              break;
+            }
+          }
+          if (exists) {
+            alert('Bucket ' + gen.bucket + ' exists already');
+            return;
+          }
+
+          gen.s3_fullpath = up.getDirPath();
+          if (!gen.s3_fullpath.endsWith('/'))
+            gen.s3_fullpath += '/';
+
+          var webid = gen.s3_fullpath + 'profile.ttl#identity';
 
           DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
         }
@@ -788,43 +858,10 @@ Certificate.prototype = {
   uploadCert: async function (gen, webid, certData) {
     var done_ok = false;
     try {
-      if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {
-        var up = new Uploader_OPL_WebDav(gen.uid, gen.pwd, gen.dav_path, gen.idp);
-        var rc = await up.createProfileDir(gen.cert_dir);
-        if (rc && rc.ok) {
-          rc = await up.loadCardFiles();
-          if (!rc) {
-            alert('Could not load card template files');
-            return;
-          }
-          rc = await up.updateTemplate(certData, webid, up.getDirPath(gen.cert_dir), gen);
-          if (!rc) {
-            alert('Could not update card templates');
-            return;
-          }
-          rc = await up.uploadCardFiles(gen.cert_dir);
-          if (!rc) {
-            alert('Could not upload card files');
-            return;
-          }
-          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', certData.pkcs12B64, 'application/x-pkcs12');
-          if (!rc.ok) {
-            alert('Could not upload file ' + gen.cert_name + '.p12');
-            return;
-          }
-          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', certData.der, 'application/pkix-cert');
-          if (!rc.ok) {
-            alert('Could not upload file ' + gen.cert_name + '.crt');
-            return;
-          }
-        } else {
-          alert('Could not create dir ' + gen.cert_dir);
-          return;
-        }
-      }
-      else if (gen.idp === 'solid_oidc') {
+      var up = null;
+      if (gen.idp === 'solid_oidc') {
         var url = new URL(webid);
-        var up = new Uploader_Solid_OIDC(this.gOidc, url.origin + '/');
+        up = new Uploader_Solid_OIDC(this.gOidc, url.origin + '/');
 
         var query = this.genSolidInsertCert(webid, certData.cert);
         var rc = await up.updateProfileCard(webid, query);
@@ -838,45 +875,25 @@ Certificate.prototype = {
           alert('Could not upload file ' + gen.cert_name + '.p12');
           return;
         }
-      }
-      else if (gen.idp === 'ldp_tls' || gen.idp === 'ldp_tls_solid') {
-        var url = new URL(webid);
-        var up = new Uploader_LDP_TLS(url.origin + '/', gen.idp);
-
-        var rc = await up.createProfileDir(gen.cert_dir);
-        if (rc && rc.ok) {
-          rc = await up.loadCardFiles();
-          if (!rc) {
-            alert('Could not load card template files');
-            return;
-          }
-          rc = await up.updateTemplate(certData, webid, up.getDirPath(gen.cert_dir), gen);
-          if (!rc) {
-            alert('Could not update card templates');
-            return;
-          }
-          rc = await up.uploadCardFiles(gen.cert_dir);
-          if (!rc) {
-            alert('Could not upload card files');
-            return;
-          }
-          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', certData.pkcs12B64, 'application/x-pkcs12');
-          if (!rc.ok) {
-            alert('Could not upload file ' + gen.cert_name + '.p12');
-            return;
-          }
-          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', certData.der, 'application/pkix-cert');
-          if (!rc.ok) {
-            alert('Could not upload file ' + gen.cert_name + '.crt');
-            return;
-          }
-        } else {
-          alert('Could not create dir ' + gen.cert_dir);
+      } 
+      else {
+        if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {
+          up = new Uploader_OPL_WebDav(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+        }
+        else if (gen.idp === 'ldp_tls' || gen.idp === 'ldp_tls_solid') {
+          var url = new URL(webid);
+          up = new Uploader_LDP_TLS(url.origin + '/', gen.idp);
+        }
+        else if (gen.idp === 'opl_ldp' || gen.idp === 'opl_ldp_https') {
+          up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+        }
+        else if (gen.idp === 'aws_s3') {
+          var up = new Uploader_AWS_S3(gen.bucket, gen.acc_key, gen.sec_key);
+        } 
+        else {
           return;
         }
-      }
-      else if (gen.idp === 'opl_ldp' || gen.idp === 'opl_ldp_https') {
-        var up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+
         var rc = await up.createProfileDir(gen.cert_dir);
         if (rc && rc.ok) {
           rc = await up.loadCardFiles();
@@ -2142,6 +2159,182 @@ class Uploader_OPL_LDP extends Uploader {
     } finally {
       DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = ''
     }
+  }
+
+}
+
+
+class Uploader_AWS_S3 extends Uploader {
+  constructor(bucket, acc_key, sec_key) {
+    super();
+    this.bucket = bucket;
+    this.acc_key = acc_key;
+    this.sec_key = sec_key;
+    this.s3 = new AWS.S3({
+      apiVersion: '2006-03-01',
+      accessKeyId: acc_key,
+      secretAccessKey: sec_key
+    });
+  }
+
+  async checkCredentials() {
+    try {
+      return await this._listBuckets();
+    } catch(e) {
+      return null;
+    }
+  }
+
+  getDirPath(dir) {
+     return 'https://'+this.bucket+'.s3.amazonaws.com';
+  }
+
+  async createProfileDir(dir) {
+    try {
+      var rc = await this._createBucket(this.bucket);
+      return { ok: true };
+    } catch (e) {
+      return { err: e};
+    }
+  }
+
+  async uploadFile(dir, fname, data, type) {
+    DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = fname;
+    try {
+      var rc = await this._putObject(this.bucket, fname, data, type);
+      return { ok: true };
+    } catch (e) {
+      return { err: e};
+    } finally {
+      DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = '';
+    }
+  }
+
+  async _listBuckets() {
+    var self = this;
+    return new Promise((resolve, reject) => {
+      self.s3.listBuckets( (err, data) => { 
+        if (err)
+          reject(err);
+        else {
+          var lst = [];
+          for(var id of data.Buckets)
+            lst.push(id.Name);
+
+          resolve(lst); 
+        }
+      });
+    });
+  }
+
+
+  async _putObject(bucket, key, body, type) {
+    var self = this;
+    return new Promise((resolve, reject) => {
+      var params = {
+        Body: body,
+        Bucket: bucket,
+        Key: key,
+        ACL: "public-read",
+        ContentType: type
+      };
+
+      self.s3.putObject(params, (err, data) => {
+        if (err)
+          reject(err);
+        else
+          resolve(data); 
+      });
+    });
+  }
+
+  async _deleteObject(bucket, key) {
+    var self = this;
+    return new Promise((resolve, reject) => {
+      var params = {
+        Bucket: bucket,
+        Key: key
+      };
+
+      self.s3.deleteObject(params, (err, data) => {
+        if (err)
+          reject(err);
+        else
+          resolve(data); 
+      });
+    });
+  }
+
+  async _deleteObjects(bucket, keys) {
+    var self = this;
+    lst = [];
+    for(var id of keys) {
+      lst.push = {Key: id};
+    }
+
+    return new Promise((resolve, reject) => {
+      var params = {
+        Bucket: bucket,
+        Delete: { Objects: lst, Quiet: false }
+      };
+
+      self.s3.deleteObjects(params, (err, data) => {
+        if (err)
+          reject(err);
+        else
+          resolve(data); 
+      });
+    });
+  }
+
+  async _deleteBucket(bucket) {
+    var self = this;
+    return new Promise((resolve, reject) => {
+      var params = {
+        Bucket: bucket
+      };
+
+      self.s3.deleteBucket(params, (err, data) => {
+        if (err)
+          reject(err);
+        else
+          resolve(data); 
+      });
+    });
+  }
+
+  async _createBucket(bucket) {
+    var self = this;
+    return new Promise((resolve, reject) => {
+      var params = {
+        Bucket: encodeURIComponent(bucket),
+        ACL: 'public-read'
+      };
+
+      self.s3.createBucket(params, (err, data) => {
+        if (err)
+          reject(err);
+        else
+          resolve(data); 
+      });
+    });
+  }
+
+  async _listObjects(bucket) {
+    var self = this;
+    return new Promise((resolve, reject) => {
+      var params = {
+        Bucket: bucket
+      };
+
+      self.s3.listObjectsV2(params, (err, data) => {
+        if (err)
+          reject(err);
+        else {
+          resolve(data); 
+        }
+      });
+    });
   }
 
 }

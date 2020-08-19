@@ -123,41 +123,44 @@ OAuth2.prototype.openAuthorizationCodePopup = function(callback) {
  * @param {Function} callback Called back with 3 params:
  *                            access token, refresh token and expiry time
  */
-OAuth2.prototype.getAccessAndRefreshTokens = function(authorizationCode, callback) {
-  var that = this;
-  // Make an XHR to get the token
-  var xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function(event) {
-    if (xhr.readyState == 4) {
-      if (xhr.status == 200) {
-        // Callback with the data (incl. tokens).
-        callback(that.adapter.parseAccessToken(xhr.responseText));
-      }
-    }
-  });
-
-  var method = that.adapter.accessTokenMethod();
-  var items = that.adapter.accessTokenParams(authorizationCode, that.getConfig());
+OAuth2.prototype.getAccessAndRefreshTokens = async function(authorizationCode, callback) {
+  var method = this.adapter.accessTokenMethod();
+  var items = this.adapter.accessTokenParams(authorizationCode, this.getConfig());
   var key = null;
+  var url = this.adapter.accessTokenURL();
+
   if (method == 'POST') {
     var formData = "";;
     for (key in items) {
       formData += encodeURIComponent(key) + '=' +
                 encodeURIComponent(items[key]) + '&';
     }
-    xhr.open(method, that.adapter.accessTokenURL(), true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    xhr.send(formData);
+    var options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData
+    }
+    var rc = await fetch(url, options);
+    if (rc.ok) {
+      var data = await rc.text();
+      callback(this.adapter.parseAccessToken(data));
+    }
 
   } else if (method == 'GET') {
-    var url = that.adapter.accessTokenURL();
     var params = '?';
     for (key in items) {
       params += encodeURIComponent(key) + '=' +
                 encodeURIComponent(items[key]) + '&';
     }
-    xhr.open(method, url + params, true);
-    xhr.send();
+
+    var rc = await fetch(url + params, options);
+    if (rc.ok) {
+      var data = await rc.text();
+      callback(this.adapter.parseAccessToken(data));
+    }
+
   } else {
     throw method + ' is an unknown method';
   }
@@ -171,20 +174,7 @@ OAuth2.prototype.getAccessAndRefreshTokens = function(authorizationCode, callbac
  * @param {String} refreshToken A valid refresh token
  * @param {Function} callback On success, called with access token and expiry time and refresh token
  */
-OAuth2.prototype.refreshAccessToken = function(refreshToken, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function(event) {
-    if (xhr.readyState == 4) {
-      if(xhr.status == 200) {
-        console.log(xhr.responseText);
-        // Parse response with JSON
-        var obj = JSON.parse(xhr.responseText);
-        // Callback with the tokens
-        callback(obj.access_token, obj.expires_in, obj.refresh_token);
-      }
-    }
-  };
-
+OAuth2.prototype.refreshAccessToken = async function(refreshToken, callback) {
   var data = this.get();
 
   var formData = "";;
@@ -193,9 +183,24 @@ OAuth2.prototype.refreshAccessToken = function(refreshToken, callback) {
   formData += 'refresh_token=' + encodeURIComponent(refreshToken) + '&';
   formData += 'grant_type=' + 'refresh_token';
 
-  xhr.open('POST', this.adapter.accessTokenURL(), true);
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-  xhr.send(formData);
+  var url = this.adapter.accessTokenURL();
+
+  try {
+    var options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData
+    }
+    var rc = await fetch(url, options);
+    if (rc.ok) {
+      var obj = await rc.json();
+      callback(obj.access_token, obj.expires_in, obj.refresh_token);
+    }
+  } catch(e) {
+    console.log(e);
+  }
 };
 
 /**

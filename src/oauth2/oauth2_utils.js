@@ -48,9 +48,8 @@
     api_scope: 'openid offline_access profile User.Read',
     mode2: true
   });
-/**
+
   var twitterAuth = new OAuth1('twitter', {
-    client_id: 'WBCEO8jOeNBjmIZE1jKVRA',
-    client_secret: 'v8USBQNfBHkDJKLuqV7I4z5a5f85iMdGyoS3WgtOK8'
+    consumerKey: 'WBCEO8jOeNBjmIZE1jKVRA',
+    consumerSec: 'v8USBQNfBHkDJKLuqV7I4z5a5f85iMdGyoS3WgtOK8',
   });
-**/
