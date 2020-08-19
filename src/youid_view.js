@@ -558,7 +558,7 @@ YouId_View.prototype = {
           $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(html));
        } else {
          $('#verify1-dlg').modal('hide');
-         Msg.showInfo("Could not found any valid WebId relations");
+         Msg.showInfo("Couldn’t find any relations associating this WebID with a Public Key.");
        }
 
     } catch(err) {

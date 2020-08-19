@@ -34,6 +34,7 @@ $(document).ready(function()
 
   document.querySelector('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
   document.querySelector('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
+  document.querySelector('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
 
   load_popup();
 });

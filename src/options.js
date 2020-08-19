@@ -53,6 +53,11 @@ $(function(){
           v_cert.click_gen_cert(v_youid.cur_webid);
           return false;
         });
+        $('#tabs a[href="#delegate"').click(() => {
+          selectTab('#delegate');
+          v_cert.showTab_delegate('#delegate-tab');
+          return false;
+        });
         $('#tabs a[href="#accounts"').click(() => {
           selectTab('#accounts');
           return false;
@@ -81,6 +86,9 @@ $(function(){
         if (url.hash == '#certificate') {
           selectTab('#certificate');
           v_cert.click_gen_cert(v_youid.cur_webid);
+        } else if (url.hash == '#delegate') {
+          selectTab('#delegate');
+          v_cert.showTab_delegate('#delegate-tab');
         } else if (url.hash == '#add_youid') {
           selectTab('#webid');
           v_youid.click_add_youid();
@@ -109,6 +117,7 @@ function selectTab(tab)
 
   updateTab('#webid', selectedTab);
   updateTab('#certificate', selectedTab);
+  updateTab('#delegate', selectedTab);
   updateTab('#accounts', selectedTab);
   updateTab('#headers', selectedTab);
   updateTab('#about', selectedTab);

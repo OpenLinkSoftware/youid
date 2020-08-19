@@ -69,8 +69,9 @@
      <div style="WIDTH: 1200px;">      
       <div id="header">
         <ul id="tabs">
-          <li><a href="#webid"  >WebID&nbsp;List</a></li>
-          <li><a href="#certificate" title="Certificate with Credentials (pkcs#12 file) Generator">Certificate</a></li>
+          <li><a href="#webid" title="Register a WebID with your Browser">WebID&nbsp;List</a></li>
+          <li><a href="#certificate" title="Generate an X.509 Certificate for tokenizing your Credentials">Certificate</a></li>
+          <li><a href="#delegate" title="Associate your WebID with a Credentials Authentication Delegate">Delegation</a></li>
           <li><a href="#accounts" title="Settings for IdP accounts">IdP Settings</a></li>
           <li><a href="#headers">Header&nbsp;Settings</a></li>
           <li><a href="#about"  >About</a></li>
@@ -314,6 +315,81 @@
 <!-- ========================================================================= -->
         </div>
 
+
+        <div id="delegate_items" style="font-size: 13px;">
+
+          <form id="delegate-tab" class="form-horizontal">
+            <div class="form-group row">
+              <label for="webid_uri" class="col-md-1 control-label">WebID&nbsp;URI:</label>
+              <div class="col-md-10" style="display:flex; flex-direction:row">
+                <input type="text" class="form-control" id="webid_uri" value="">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;URI:</label>
+              <div class="col-md-10" style="display:flex; flex-direction:row">
+                <input type="text" class="form-control" id="delegate_uri" value="">
+                <button id="btn-delegate_uri" type="button" class="btn ml5">
+                  <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
+                  Fetch Profile 
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-md-12">
+                <button id="btn-delegate_cert_key" style="text-align:left" class="btn col-md-12" type="button">Certificate Key<span class="caret pull-right" style="margin-top:10px"></span></button>
+              </div> 
+
+              <div class="col-md-12">
+                <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
+                <textarea id="delegate-text" class="form-control" style="max-width:100%; height: 130px; overflow:scroll; white-space:nowrap;">
+                </textarea>
+                <button id="btn-update_delegate" type="button" class="btn btn-primary ">
+                  Update Delegate Profile 
+                </button>
+
+              </div>
+            </div>
+
+            <section id="section-delegator">
+              Relations for uploading to Delegator profile:
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#delegator1-sparql" data-toggle="tab">SPARQL</a></li>
+                <li><a href="#delegator1-i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
+                <li><a href="#delegator1-i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                <div class="tab-pane active" id="delegator1-sparql">
+                  <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:nowrap;">
+                  </textarea>
+                  <button id="btn-update_delegator" type="button" class="btn btn-primary ">
+                    Update Delegator Profile 
+                  </button>
+                </div>
+                <div class="tab-pane" id="delegator1-i_ttl">
+                  <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
+                  </textarea>
+                </div>
+                <div class="tab-pane" id="delegator1-i_jsonld">
+                  <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
+                  </textarea>
+                </div>
+              </div>
+            </section>
+
+            <div id="u_wait" class="hidden">
+             <img src="images/throbber.gif" width="16" /> Wait...
+             <div id="u_msg"></div>
+            </div>
+          </form>
+
+        </div>
+        
+        
         <div id="accounts_items" style="font-size: 13px;">
         <form id="s3_account" class="form-horizontal">
           <div class="form-group row">
@@ -577,8 +653,9 @@
           </div>
         </section>
         <p/>
-        <section id="profile-card">
-          <hr>
+        <form class="form-horizontal">
+         <section id="profile-card">
+         <hr>
           <ul class="nav nav-tabs">
             <li class="active"><a href="#n_ttl" data-toggle="tab">N3/Turtle</a></li>
             <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
@@ -591,31 +668,32 @@
           <!-- Tab panes -->
           <div class="tab-content">
             <div class="tab-pane active" id="n_ttl">
-              <textarea id="text-n-ttl" style="width: 1100px; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-n-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
             <div class="tab-pane" id="n_jsonld">
-              <textarea id="text-n-jsonld" style="width: 1100px; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-n-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
             <div class="tab-pane" id="n_rdfxml">
-              <textarea id="text-n-rdfxml" style="width: 1100px; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-n-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_ttl">
-              <textarea id="text-i-ttl" style="width: 1100px; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_jsonld">
-              <textarea id="text-i-jsonld" style="width: 1100px; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_rdfxml">
-              <textarea id="text-i-rdfxml" style="width: 1100px; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
           </div>
-        </section>
+         </section>
+        </form>
         <p/>
         <section id="webid-card">
           Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
@@ -635,8 +713,7 @@
             <label for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;URI:</label>
             <div class="col-md-11" style="display:flex; flex-direction:row">
               <input type="text" class="form-control" id="delegate_uri" value="">
-              &nbsp;&nbsp;
-              <button id="btn-delegate_uri" type="button" class="btn">
+              <button id="btn-delegate_uri" type="button" class="btn ml10">
                 <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
                 Fetch Profile 
               </button>
@@ -649,7 +726,7 @@
 
             <div class="col-md-12">
               <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
-              <textarea id="delegate-text" class="form-control hidden1" style="width: 1100px; height: 130px; overflow:scroll; white-space:nowrap;">
+              <textarea id="delegate-text" class="form-control hidden1" style="max-width:100%; height: 130px; overflow:scroll; white-space:nowrap;">
               </textarea>
               <button id="btn-update_delegate" type="button" class="btn btn-primary ">
                 Update Delegate Profile 
@@ -668,18 +745,18 @@
           <!-- Tab panes -->
           <div class="tab-content">
             <div class="tab-pane active" id="delegator-sparql">
-              <textarea id="text-sparql" class="form-control" style="width: 1100px; height: 200px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:nowrap;">
               </textarea>
               <button id="btn-update_delegator" type="button" class="btn btn-primary ">
                 Update Delegator Profile 
               </button>
             </div>
             <div class="tab-pane" id="delegator-i_ttl">
-              <textarea id="text-i-ttl" class="form-control" style="width: 1100px; height: 240px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
             <div class="tab-pane" id="delegator-i_jsonld">
-              <textarea id="text-i-jsonld" class="form-control" style="width: 1100px; height: 240px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
           </div>
