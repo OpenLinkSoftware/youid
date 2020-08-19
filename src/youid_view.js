@@ -457,8 +457,8 @@ YouId_View.prototype = {
           }
         }
 
-//!!        if (val.success && val.keys.length > 0) {
-        if (val.success) {
+        if (val.success && val.keys.length > 0) {
+//!!        if (val.success) {
           if (found == -1) {
             lst.push(val);
           } else {
