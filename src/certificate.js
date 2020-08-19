@@ -779,8 +779,8 @@ Certificate.prototype = {
       DOM.qSel('#gen-cert-ready-dlg #btn-message')
         .onclick = () => {
           var sel = DOM.qSel('#c_announce option:checked').value;
-          var msg = `ID Claim: ${certData.fingerprint_b64}`;
-
+          var msg = `ID Claim: ni:///sha1;${certData.fingerprint_b64}`;
+                                          
           if (sel === 'pdp_twitter') 
           {
             twitterAuth.authorize(function() {
