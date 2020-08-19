@@ -19,55 +19,6 @@
  */
 
 YouID_Loader = function () {
-  this.verify_query = `
-  PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
-  PREFIX schema: <http://schema.org/> 
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-  PREFIX owl:  <http://www.w3.org/2002/07/owl#> 
-  PREFIX cert: <http://www.w3.org/ns/auth/cert#> 
-  PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
-  PREFIX acl: <http://www.w3.org/ns/auth/acl#> 
-  PREFIX pim: <http://www.w3.org/ns/pim/space#> 
-  PREFIX ldp: <http://www.w3.org/ns/ldp#> 
-  PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
-  PREFIX as: <http://www.w3.org/ns/activitystreams#> 
-  PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
-
-  SELECT * WHERE 
-    { 
-       {{?url foaf:primaryTopic ?webid .} UNION 
-        {?url schema:mainEntity ?webid .} 
-       }
-       {{?webid schema:name ?schema_name} UNION 
-        {?webid foaf:name ?foaf_name} UNION 
-        {?webid rdfs:label ?rdfs_name} UNION 
-        {?webid skos:prefLabel ?skos_prefLabel} UNION 
-        {?webid skos:altLabel ?skos_altLabel} 
-        UNION 
-        {?url schema:name ?schema_name} UNION 
-        {?url foaf:name ?foaf_name} UNION 
-        {?url rdfs:label ?rdfs_name} UNION 
-        {?url skos:prefLabel ?skos_prefLabel} UNION 
-        {?url skos:altLabel ?skos_altLabel} 
-       } 
-       OPTIONAL { ?webid oplcert:hasIdentityDelegate ?delegate} 
-       OPTIONAL { ?webid oplcert:onBehalfOf ?behalfOf} 
-       OPTIONAL { ?webid acl:delegates ?acl_delegates} 
-       OPTIONAL { ?webid pim:storage ?pim_store } 
-       OPTIONAL { ?webid ldp:inbox ?inbox } 
-       OPTIONAL { ?webid as:outbox ?outbox } 
-       OPTIONAL { ?webid foaf:knows ?knows } 
-       OPTIONAL {
-        ?webid cert:key ?pubkey . 
-        ?pubkey cert:modulus ?mod .  
-        ?pubkey cert:exponent ?exponent . 
-        ?pubkey a ?alg . 
-       }
-       OPTIONAL { ?webid foaf:mbox ?foaf_mbox . }
-       OPTIONAL { ?webid vcard:email ?vcard_email . }
-       OPTIONAL { ?webid schema:email ?schema_email . }
-    }`;
-
 
   this.load_webid = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
@@ -196,6 +147,40 @@ YouID_Loader.prototype = {
        }
 
        var idata = sniff_text_data(data, baseURI); //idata = {ttl:[], ldjson, rdfxml:[]}
+       var rc = {};
+
+       for(var i=0; i<idata.ldjson.length; i++) {
+         rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
+       }
+       for(var i=0; i<idata.ttl.length; i++) {
+         rc = await get_data(rc, idata.ttl[i], 'text/turtle', idata.baseURI);
+       }
+       for(var i=0; i<idata.rdfxml.length; i++) {
+         rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
+       }
+
+       return rc;
+
+    } else if (content_type.indexOf('text/html') != -1) {
+       
+       async function get_data(out, data, content_type, baseURI)
+       {
+         try {
+           var ret = await self.parse_data(data, content_type, baseURI);
+           for(var webid in ret) {
+             var data = ret[webid];
+             if (data.success)
+               out[webid] = data;
+           }
+           return out;
+         } catch(e) {
+           return out;
+         }
+       }
+
+       var parser = new DOMParser();
+       var doc = parser.parseFromString(data, 'text/html');
+       var idata = sniff_doc_data(doc, baseURI);
        var rc = {};
 
        for(var i=0; i<idata.ldjson.length; i++) {
@@ -778,111 +763,10 @@ function sniff_doc_data(doc, uri)
              } 
          }
     
-    var txt = document.body.innerText;
-    try {
-      if (txt) {
-        function isWhitespace(c) {
-            var cc = c.charCodeAt(0);
-            if (( cc >= 0x0009 && cc <= 0x000D ) ||
-                ( cc == 0x0020 ) ||
-                ( cc == 0x0085 ) ||
-                ( cc == 0x00A0 )) {
-                return true;
-            }
-            return false;
-        }
-
-
-        //drop commetns
-        var eoln = /(?:\r\n)|(?:\n)|(?:\r)/g;
-        var s_split = txt.split(eoln);
-        var s_doc = "";
-        var p1 = /## +([Nn]anotation|[Tt]urtle) +(Start|End|Stop) *##/;
-        var p2 = /^ *#/;
-        var p3 = /## +(JSON-LD) +(Start|End|Stop) *##/;
-        var p4 = /## +(RDF(\/|-)XML) +(Start|End|Stop) *##/;
-
-        s_split.forEach(function (item, i, arr) {
-            if (item.length > 0 && (!p2.test(item) || p1.test(item) || p3.test(item) || p4.test(item)))
-                s_doc += item + "\n";
-        });
-
-        s_doc = fix_Nano_data(s_doc);
-        //try get Turtle Nano
-        while (true) {
-            var ndata = ttl_nano_pattern.exec(s_doc);
-            if (ndata == null)
-                break;
-
-            var str = ndata[3];
-            if (str.length > 0)
-               idata.ttl.push(str);
-        }
-
-        //try get Turtle Nano in CurlyBraces { ... }
-        var j = 0;
-        var inCurly = 0;
-        var str = "";
-        while (j < s_doc.length) {
-            var ch = s_doc[j++];
-            if (ch == '"') {
-                var rc = s_doc.indexOf(ch, j);
-                if (rc == -1)
-                    break;
-                if (inCurly > 0)
-                    str += s_doc.substring(j - 1, rc + 1);
-                j = rc + 1;
-            }
-            else if (ch == '{') {
-                inCurly++;
-            }
-            else if (ch == '}') {
-                inCurly--;
-                idata.ttl.push(str);
-                str = "";
-            }
-            else if (inCurly > 0) {
-                str += ch;
-            }
-        }
-
-        //try get JSON-LD Nano
-        while (true) {
-            var ndata = jsonld_nano_pattern.exec(s_doc);
-            if (ndata == null)
-                break;
-
-            var str = ndata[2];
-            if (str.length > 0) {
-                var add = false;
-                for (var c = 0; c < str.length; c++) {
-                    add = str[c] === "{" ? true : false;
-                    if (add)
-                        break;
-                    if (!isWhitespace(str[c]))
-                        break;
-                }
-
-                if (add)
-                    idata.ldjson.push(str);
-            }
-        }
-
-        //try get RDF/XML Nano
-        while (true) {
-            var ndata = rdf_nano_pattern.exec(s_doc);
-            if (ndata == null)
-                break;
-
-            var str = ndata[3];
-            if (str.length > 0) {
-                idata.rdfxml.push(str);
-            }
-        }
-      }
-    } catch(e) {
-      console.log(e);
-    }
+    var data = sniff_text_data(doc.body.innerText, uri);
+    idata.ttl = idata.ttl.concat(data.ttl);
+    idata.ldjson = idata.ldjson.concat(data.ldjson);
+    idata.rdfxml = idata.rdfxml.concat(data.rdfxml);
 
     try{
       var rdfa_ttl = get_rdfa_data(doc);

@@ -126,7 +126,6 @@ OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, quer
   var signBase = `${meth}&${percentEncode(url)}&${percentEncode(encodedParameters)}`;
 
   var key = percentEncode(signKey.consumerSec)+'&'+percentEncode(signKey.tokenSec);
-//  var key = signKey.consumerSec+'&'+signKey.tokenSec;
   var oauth_signature = percentEncode(b64_hmac_sha1(key, signBase));
 
   var add_callback = callback ? `oauth_callback="${encodeURIComponent(callback)}", ` : '';
