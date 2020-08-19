@@ -35,7 +35,7 @@
   @prefix cert: <http://www.w3.org/ns/auth/cert#>.
   @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
   @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-  @prefix terms: <http://purl.org/dc/terms/>.
+  @prefix dcterms: <http://purl.org/dc/terms/>.
   @prefix foaf: <http://xmlns.com/foaf/0.1/>.
   @prefix schema: <http://schema.org/>.
 
@@ -53,8 +53,8 @@
 
   <${keyUri}>
     a cert:RSAPublicKey;
-    terms:created "${timeCreated}"^^xsd:dateTime;
-    terms:title "Created by YouID";
+    dcterms:created "${timeCreated}"^^xsd:dateTime;
+    dcterms:title "Created by YouID";
     rdfs:label "${commonName}";
     cert:exponent "${exponent}"^^xsd:int;
     cert:modulus "${modulus}"^^xsd:hexBinary.
@@ -121,8 +121,8 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:n0="http://xmlns.com/foaf/0.1/"
    xmlns:cert="http://www.w3.org/ns/auth/cert#"
-   xmlns:terms="http://purl.org/dc/terms/"
-   xmlns:rd="http://www.w3.org/2000/01/rdf-schema#">
+   xmlns:dcterms="http://purl.org/dc/terms/"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
    xmlns:schema="http://schema.org/">
       <rdf:Description rdf:about="">
           <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/PersonalProfileDocument"/>
@@ -136,10 +136,10 @@
           <n0:name>${commonName}</n0:name>
       </rdf:Description>
       <rdf:Description rdf:about="${keyUri}">
-          <terms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">${timeCreated}</terms:created>
-          <terms:title>Created by YouID</terms:title>
+          <dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">${timeCreated}</dcterms:created>
+          <dcterms:title>Created by YouID</dcterms:title>
           <rdf:type rdf:resource="http://www.w3.org/ns/auth/cert#RSAPublicKey"/>
-          <rd:label>"${commonName}"</rd:label>
+          <rdfs:label>"${commonName}"</rdfs:label>
           <cert:exponent rdf:datatype="http://www.w3.org/2001/XMLSchema#int">${exponent}</cert:exponent>
           <cert:modulus rdf:datatype="http://www.w3.org/2001/XMLSchema#hexBinary">${modulus}</cert:modulus>
       </rdf:Description>

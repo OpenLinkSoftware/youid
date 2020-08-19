@@ -1302,7 +1302,7 @@ Certificate.prototype = {
   @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
   @prefix cert: <http://www.w3.org/ns/auth/cert#>.
   @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-  @prefix terms: <http://purl.org/dc/terms/>.
+  @prefix dcterms: <http://purl.org/dc/terms/>.
   @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 
   INSERT DATA
@@ -1311,8 +1311,8 @@ Certificate.prototype = {
 
   <${keyUri}>
     a cert:RSAPublicKey;
-    terms:created "${timeCreated}"^^xsd:dateTime;
-    terms:title "Created by YouID";
+    dcterms:created "${timeCreated}"^^xsd:dateTime;
+    dcterms:title "Created by YouID";
     rdfs:label "${commonName}";
     cert:exponent "${exponent}"^^xsd:int;
     cert:modulus "${modulus}"^^xsd:hexBinary.

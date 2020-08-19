@@ -83,8 +83,8 @@ YouID_Loader = function () {
 
   
   this.load_pubkey = `
-  PREFIX terms: <http://purl.org/dc/terms/> 
-  PREFIX rd: <http://www.w3.org/2000/01/rdf-schema#> 
+  PREFIX dcterms: <http://purl.org/dc/terms/> 
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
   PREFIX cert: <http://www.w3.org/ns/auth/cert#> 
   PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
   PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
@@ -98,9 +98,9 @@ YouID_Loader = function () {
               cert:modulus  ?cert_mod ;
               cert:exponent ?cert_exp .
       }
-       OPTIONAL { ?pubkey terms:created ?key_cr_dt . }
-       OPTIONAL { ?pubkey terms:title   ?key_cr_title . }
-       OPTIONAL { ?pubkey rd:label ?key_label . }
+       OPTIONAL { ?pubkey dcterms:created ?key_cr_dt . }
+       OPTIONAL { ?pubkey dcterms:title   ?key_cr_title . }
+       OPTIONAL { ?pubkey rdfs:label ?key_label . }
     }`;
 
 };
