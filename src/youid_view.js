@@ -329,6 +329,66 @@ YouId_View.prototype = {
     return true;
   },
 
+  load_data_from_uri: async function(uri, row)
+  {
+    var self = this;
+
+    var url = new URL(uri);
+    url.hash = '';
+    url = url.toString();
+    var url_lower = url.toLowerCase();
+    if (url_lower.endsWith(".html") || url_lower.endsWith(".htm"))
+      {
+        var data;
+        try {
+          var rc = await fetch(url, {credentials: 'include'});
+          if (!rc.ok) {
+            $('#add-dlg').modal('hide');
+            Msg.showInfo("Could not load URL "+url);
+            return;
+          }
+          data = await rc.text();
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(data, 'text/html');
+          var idata = sniff_doc_data(doc, uri);
+          $('#add-dlg').modal('hide');
+          self.verify1_youid_exec(idata, null, row);
+
+        } catch(e) {
+           $('#add-dlg').modal('hide');
+           Msg.showInfo("Error:"+e+" for load URL "+uri);
+           return;
+        }
+      }
+    else if (url_lower.endsWith(".txt"))
+      {
+        var data;
+        try {
+          var rc = await fetch(url, {credentials: 'include'});
+          if (!rc.ok) {
+            $('#add-dlg').modal('hide');
+            Msg.showInfo("Could not load URL "+url);
+            return;
+          }
+          data = await rc.text();
+          var idata = sniff_text_data(data, uri);
+          $('#add-dlg').modal('hide');
+          self.verify1_youid_exec(idata, null, row);
+
+        } catch(e) {
+           $('#add-dlg').modal('hide');
+           Msg.showInfo("Error:"+e+" for load URL "+uri);
+           return;
+        }
+      }
+    else
+      {
+        $('#add-dlg').modal('hide');
+        self.verify1_youid_exec(null, uri, row);
+      }
+  },
+
+
   click_refresh_youid: function (e)
   {
     var self = this;
@@ -343,8 +403,8 @@ YouId_View.prototype = {
     }
 
     if (youid && youid.id) {
-       Msg.showYN("Do you want to reload YouID item data ?",youid.name, function(){
-         self.verify1_youid_exec(null, youid.id, row);
+       Msg.showYN("Do you want to reload YouID item data ?",youid.name, async function(){
+         self.load_data_from_uri(youid.id, row);
        });
     }
 
@@ -360,59 +420,7 @@ YouId_View.prototype = {
     btnOk.onclick = async () =>
        {
          var uri = $('#add-dlg #uri').val().trim();
-         var url = new URL(uri);
-         url.hash = '';
-         url = url.toString();
-         var url_lower = url.toLowerCase();
-         if (url_lower.endsWith(".html") || url_lower.endsWith(".htm"))
-           {
-             var data;
-             try {
-               var rc = await fetch(url, {credentials: 'include'});
-               if (!rc.ok) {
-                 $('#add-dlg').modal('hide');
-                 Msg.showInfo("Could not load URL "+url);
-                 return;
-               }
-               data = await rc.text();
-               var parser = new DOMParser();
-               var doc = parser.parseFromString(data, 'text/html');
-               var idata = sniff_doc_data(doc, uri);
-               $('#add-dlg').modal('hide');
-               self.verify1_youid_exec(idata, null, null);
-
-             } catch(e) {
-                $('#add-dlg').modal('hide');
-                Msg.showInfo("Error:"+e+" for load URL "+uri);
-                return;
-             }
-           }
-         else if (url_lower.endsWith(".txt"))
-           {
-             var data;
-             try {
-               var rc = await fetch(url, {credentials: 'include'});
-               if (!rc.ok) {
-                 $('#add-dlg').modal('hide');
-                 Msg.showInfo("Could not load URL "+url);
-                 return;
-               }
-               data = await rc.text();
-               var idata = sniff_text_data(data, uri);
-               $('#add-dlg').modal('hide');
-               self.verify1_youid_exec(idata, null, null);
-
-             } catch(e) {
-                $('#add-dlg').modal('hide');
-                Msg.showInfo("Error:"+e+" for load URL "+uri);
-                return;
-             }
-           }
-         else
-           {
-             $('#add-dlg').modal('hide');
-             self.verify1_youid_exec(null, uri, null);
-           }
+         self.load_data_from_uri(uri, null);
        };
 
     var dlg = $('#add-dlg .modal-content');
