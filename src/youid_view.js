@@ -38,7 +38,7 @@ YouId_View.prototype = {
       if (_str)
         return `<tr class="dtext">
                   <td valign="top" class="dtext_col1">
-                    <a href="${_name_href}" class="uri">${_name}</a>
+                    <a href="${_name_href}" class="uri" title="${_name_href}" target="_blank">${_name}</a>
                   </td>
                   <td>
                     ${_str}
@@ -53,7 +53,7 @@ YouId_View.prototype = {
       if (_href)
         return mk_row_str(_name_href, 
                         _name, 
-                        `<a href="${_href}" class="uri">${_href}</a>`);
+                        `<a href="${_href}" class="uri" target="_blank">${_href}</a>`);
       else
         return '';
     }
@@ -62,7 +62,7 @@ YouId_View.prototype = {
                   : ' class="youid_item"';
     var checked = sel ? ' checked="checked"':' ';
     var mdata = encodeURI(JSON.stringify(youid, undefined, 2));
-    var uri = youid.id ? `<a href="${youid.id}" class="uri">${youid.id}</a>` : '';
+    var uri = youid.id ? `<a href="${youid.id}" class="uri" target="_blank">${youid.id}</a>` : '';
 
     var det = "";
 
@@ -91,7 +91,7 @@ YouId_View.prototype = {
     if (youid.behalfOf && youid.behalfOf.length>0) {
       var val = ""
       for(var i=0; i< youid.behalfOf.length; i++) {
-        var href = youid.behalfOf[i] ? `<a href="${youid.behalfOf[i]}" class="uri">${youid.behalfOf[i]}</a>` 
+        var href = youid.behalfOf[i] ? `<a href="${youid.behalfOf[i]}" class="uri" target="_blank">${youid.behalfOf[i]}</a>` 
                                      : '';
         val += `<div>${href}</div>`;
       }
@@ -103,7 +103,7 @@ YouId_View.prototype = {
     if (youid.foaf_knows && youid.foaf_knows.length>0) {
       var val = ""
       for(var i=0; i< youid.foaf_knows.length; i++) {
-        var href = youid.foaf_knows[i] ? `<a href="${youid.foaf_knows[i]}" class="uri">${youid.foaf_knows[i]}</a>` 
+        var href = youid.foaf_knows[i] ? `<a href="${youid.foaf_knows[i]}" class="uri" target="_blank">${youid.foaf_knows[i]}</a>` 
                                        : '';
         val += `<div>${href}</div>`;
       }
@@ -115,7 +115,7 @@ YouId_View.prototype = {
     if (youid.acl && youid.acl.length>0) {
       var val = ""
       for(var i=0; i< youid.acl.length; i++) {
-        var href = youid.acl[i] ? `<a href="${youid.acl[i]}" class="uri">${youid.acl[i]}</a>` 
+        var href = youid.acl[i] ? `<a href="${youid.acl[i]}" class="uri" target="_blank">${youid.acl[i]}</a>` 
                                 : '';
         val += `<div>${href}</div>`;
       }
