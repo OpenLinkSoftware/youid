@@ -112,11 +112,11 @@ YouID_Loader.prototype = {
             .catch(err => {
               throw new Error("Could not parse data from: "+baseURI+"\nError: "+err);
             }));
-    return await self.exec_verify_query_1(store, {data, content_type, baseURI});
+    return await self.exec_verify_query(store, {data, content_type, baseURI});
   },
 
 
-  verify_ID_1 : async function(uri, oidc_fetch) {
+  verify_ID : async function(uri, oidc_fetch) {
     var self = this;
     var baseURI = new URL(uri);
         baseURI.hash = '';
@@ -222,7 +222,7 @@ YouID_Loader.prototype = {
               throw new Error("Could not parse data from: "+uri+"\nError: "+err);
             }));
 
-      var ret = await self.exec_verify_query_1(store, {data, content_type, baseURI});
+      var ret = await self.exec_verify_query(store, {data, content_type, baseURI});
       for(var webid in ret) {
         var data = ret[webid];
         rc.push(data); 
@@ -234,7 +234,7 @@ YouID_Loader.prototype = {
 
 
 
-  exec_verify_query_1 : async function(store, profile) {
+  exec_verify_query : async function(store, profile) {
     var self = this;
 
     var ret;
@@ -433,7 +433,6 @@ YouID_Loader.prototype = {
         method: 'GET',
         headers: {
           'Accept': 'text/turtle;q=1.0,application/ld+json;q=0.5,text/plain;q=0.2,text/html;q=0.5,*/*;q=0.1',
-//          'Accept': 'text/turtle, application/ld+json'
         }
       }
 

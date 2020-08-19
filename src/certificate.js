@@ -233,7 +233,7 @@ Certificate.prototype = {
         try {
           DOM.qShow('#gen-cert-dlg #fetch_wait');
           var loader = new YouID_Loader();
-          var ret = await loader.verify_ID_1(uri);
+          var ret = await loader.verify_ID(uri);
               
           for(var val of ret) {
             if (val.success && !rc0)
@@ -606,7 +606,7 @@ Certificate.prototype = {
 
         try {
           var youid = new YouID_Loader();
-          var rc = await youid.verify_ID_1(this.gOidc.webid, this.gOidc.fetch);
+          var rc = await youid.verify_ID(this.gOidc.webid, this.gOidc.fetch);
           if (rc) {
             for(var webid in rc) {
               var data = rc[webid];
@@ -1016,10 +1016,9 @@ Certificate.prototype = {
     DOM.qShow('#gen-cert-ready-dlg #delegate_wait');
     var uri = DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value;
     try {
-      var rc = await (new YouID_Loader()).verify_ID_1(uri);
+      var rc = await (new YouID_Loader()).verify_ID(uri);
       if (rc) {
-        for(var webid in rc) {
-          var data = rc[webid];
+        for(var data of rc) {
           if (data.success && data.id.startsWith(uri)) {
             var s;
         

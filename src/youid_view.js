@@ -446,7 +446,7 @@ YouId_View.prototype = {
     var lst = [];
     try {
       var loader = new YouID_Loader();
-      var rc = await loader.verify_ID_1(uri)
+      var rc = await loader.verify_ID(uri)
 
       for(var val of rc) {
         var found = -1;

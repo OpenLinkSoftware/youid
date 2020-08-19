@@ -552,15 +552,20 @@
          <img src="images/throbber.gif" width="16" /> Wait...
         </div>
         <section id="webid-cert">
-          <h5>Your WebID:&nbsp; <a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a></h5> 
+          Your WebID:&nbsp; <a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
           <hr>
         </section>
         <section id="p12-cert">
-           <h5>PKCS12 Credentials Store</h5>
-           <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+           <div style="display:flex; flex-direction:row">
+            PKCS12 Credentials Store&nbsp;&nbsp;
+            <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+           </div>
            <br/>
-           <h5 id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</h5>
-           <h5 class="hidden" id="ready_msg">Please save PKCS12 Credentials Store on local disk and click Upload.</h5>
+           <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
+           <div class="hidden" id="ready_msg" style="display:flex; flex-direction:row; align-items: baseline;">
+             Please save PKCS12 Credentials Store on local disk and click Upload.&nbsp;&nbsp;
+             <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
+           </div>
         </section>
         <p/>
         <section id="profile-card">
@@ -603,17 +608,16 @@
           </div>
         </section>
         <p/>
-        <section>
-          <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
-          <button id="btn-update_cert" type="button" class="btn btn-primary hidden">Update Profile</button>
-        </section>
         <section id="webid-card">
-          <h5>Your identity card has been created. <a id="card_href" href="#" target="_blank"> </a></h5>
+          Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
         </section>
         <section id="r-message">
           <hr/>
-          <h5 id="ann_title">Announce your Certificate identity claims via post. </h5>
-          <button id="btn-message" type="button" class="btn btn-primary">Send</button>
+          <div style="display:flex; flex-direction:row; align-items: baseline;">
+             <div id="ann_title"> Announce your Certificate identity claims via post. </div>
+             &nbsp;&nbsp;
+             <button id="btn-message" type="button" class="btn btn-primary">Send</button>
+          </div>
         </section>
         <p/>
         <hr/>
@@ -628,8 +632,9 @@
         <form id="delegate-create" class="form-horizontal hidden">
           <div class="form-group row">
             <label for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;URI:</label>
-            <div class="col-md-11">
+            <div class="col-md-11" style="display:flex; flex-direction:row">
               <input type="text" class="form-control" id="delegate_uri" value="">
+              &nbsp;&nbsp;
               <button id="btn-delegate_uri" type="button" class="btn">
                 <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
                 Fetch Profile 

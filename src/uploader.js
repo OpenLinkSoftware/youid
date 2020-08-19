@@ -227,8 +227,8 @@ class Uploader {
     }
 
 
-    tpl_data['qr_card_img'] = create_qrcode(dir_url + this.files["index.html"].fname);
-    tpl_data['qr_rdfa_img'] = create_qrcode(dir_url + this.files["profile_rdfa.html"].fname);
+    tpl_data['qr_card_img'] = this.create_qrcode(dir_url + this.files["index.html"].fname);
+    tpl_data['qr_rdfa_img'] = this.create_qrcode(dir_url + this.files["profile_rdfa.html"].fname);
 
     tpl_data['pdp_url_head'] = '';
     tpl_data['pdp_url_row'] = '';
@@ -428,6 +428,8 @@ class Uploader_OPL_WebDav extends Uploader {
     var rc = await this.propfind(url);
     if (rc.ok)
       return { exists: true };
+    else if (rc.code == 404)
+      return { exists: false };
     else
       return { err: rc.err };
   }
