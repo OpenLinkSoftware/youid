@@ -686,7 +686,9 @@ Certificate.prototype = {
     DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate')
     DOM.qHide('#gen-cert-ready-dlg #r-message')
     DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = '';
-    DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = '';
+    DOM.qSel('#gen-cert-ready-dlg #delegator-sparql #text-sparql').value = '';
+    DOM.qSel('#gen-cert-ready-dlg #delegator-i_ttl #text-i-ttl').value = '';
+    DOM.qSel('#gen-cert-ready-dlg #delegator-i_jsonld #text-i-jsonld').value = '';
     DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value = '';
     DOM.qSel('#gen-cert-ready-dlg #reg_delegate').checked = false;
 
@@ -1072,25 +1074,88 @@ Certificate.prototype = {
 
   setDelegatorText: function(gen) {
     var s = '';
+    var s_ttl = ''
+    var s_json = '';
     if (gen.delegator_webid && gen.delegate_uri) {
-        s = '@prefix acl: <http://www.w3.org/ns/auth/acl#> . \n' +
-          '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . \n' +
-          '@prefix cert: <http://www.w3.org/ns/auth/cert#> . \n\n';
+        s = `@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cert: <http://www.w3.org/ns/auth/cert#> .
 
-        s += `INSERT { \n`;
-        s += `<${gen.delegator_webid}> \n`;
-        s += `      acl:delegates <${gen.delegate_uri}> . \n`;
+INSERT { 
+<${gen.delegator_webid}> 
+      acl:delegates <${gen.delegate_uri}> . 
 
-        s += `<${gen.delegate_uri}> \n`;
-        s += `   cert:key [ \n`;
-        s += `             a cert:RSAPublicKey;\n`;
-        s += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;\n`;
-        s += `             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary\n`;
-        s += `            ] .\n`;
-        s += ` }\n`;
+<${gen.delegate_uri}> 
+   cert:key [ 
+             a cert:RSAPublicKey;
+             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;
+             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary
+            ] .
+ }`;
+
+
+        s_ttl = `<script type="text/turtle">
+
+@prefix acl: <http://www.w3.org/ns/auth/acl#> . 
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cert: <http://www.w3.org/ns/auth/cert#> .
+
+<${gen.delegator_webid}> 
+      acl:delegates <${gen.delegate_uri}> . 
+
+<${gen.delegate_uri}> 
+   cert:key [ 
+             a cert:RSAPublicKey;
+             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;
+             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary
+            ] .
+</script>
+ `;
+
+        s_json = `<script type="application/ld+json">
+
+{
+  "@context": {
+    "acl": "http://www.w3.org/ns/auth/acl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "cert": "http://www.w3.org/ns/auth/cert#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "_:b2_b1",
+      "@type": "cert:RSAPublicKey",
+      "cert:exponent": {
+        "@type": "xsd:int",
+        "@value": "65537"
+      },
+      "cert:modulus": {
+        "@type": "xsd:hexBinary",
+        "@value": "a81b2b70cf5e77b845cc69e8bb354c868f22cb3fb3b97f6473efe4c3c1378eb68ca93c2044bd04c1a121cd1ab35486387119e0814203e2b21288a97120d17406f06733b82c591fcfc68bf870b8b1cbe91d8cead4bb2b25f22cc89ceef664bacc2000c280e7454fb7dcc6b03aa3b846e6ef60b3cc544b08e6accb81b6aac2114ba07788d7d602fd613b8429c3bcdb54b608d1b6ef6ac07754f0f812dd7c3eb9588323cd4c9a391ed7e09988ed92c44c0106beb495bd6d122a10d84a0249af98a69fc14fe9518623aaa64d69bf7c7e60fc8e10bcfde8fbcdeff20be60d77722ab67c79b11a9e4f7f47631ed744e405f6ff2265ea4935da4ada1aefda479c92e333"
+      }
+    },
+    {
+      "@id": "${gen.delegate_uri}",
+      "cert:key": {
+        "@id": "_:b2_b1"
+      }
+    },
+    {
+      "@id": "${gen.delegator_webid}",
+      "acl:delegates": {
+        "@id": "${gen.delegate_uri}"
+      }
+    }
+  ]
+}
+</script>
+ `;
+
     }
 
-    DOM.qSel('#gen-cert-ready-dlg #delegator-text').value = s;
+    DOM.qSel('#gen-cert-ready-dlg #delegator-sparql #text-sparql').value = s;
+    DOM.qSel('#gen-cert-ready-dlg #delegator-i_ttl #text-i-ttl').value = s_ttl;
+    DOM.qSel('#gen-cert-ready-dlg #delegator-i_jsonld #text-i-jsonld').value = s_json;
 
     var btn = DOM.qSel('#gen-cert-ready-dlg #btn-delegate_cert_key');
     if (gen.delegate_uri)
