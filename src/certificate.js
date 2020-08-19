@@ -68,8 +68,97 @@ Certificate.prototype = {
     if (DOM.qSel('#c_idp option:checked').value === 'solid_oidc') {
       this.oidc_changed();
     }
+//-----------------------------------
+
+    DOM.qSel('#gen-cert-dlg #c_pdp')
+      .onchange = (e) => {
+        var sel = DOM.qSel('#c_pdp option:checked').value;
+        DOM.qHide('#gen-cert-dlg #r_pdp-webid');
+        DOM.qHide('#gen-cert-dlg #r_pdp-name');
+
+        if (sel === 'pdp_webid') {
+          DOM.qShow('#gen-cert-dlg #r_pdp-webid');
+        } else {
+          DOM.qShow('#gen-cert-dlg #r_pdp-name');
+        }
+      };
 
 
+    DOM.qSel('#gen-cert-dlg #btn-fetch-pdp')
+      .onclick = async () => {
+        var sel = DOM.qSel('#c_pdp option:checked').value;
+        switch(sel) 
+        {
+          case 'pdp_google':
+            {
+              googleAuth.authorize(function() {
+                googleAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'Google';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+          case 'pdp_facebook':
+            {
+              facebookAuth.authorize(function() {
+                facebookAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'Facebook';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+          case 'pdp_amazon':
+            {
+              amazonAuth.authorize(function() {
+                amazonAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'Amazon';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+          case 'pdp_win_live':
+            {
+              winLiveAuth.authorize(function() {
+                winLiveAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'Windows Live';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+          case 'pdp_win_azure':
+            {
+              winAzureAuth.authorize(function() {
+                winAzureAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'Windows Azure';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+          case 'pdp_linkedin':
+            {
+              linkedinAuth.authorize(function() {
+                linkedinAuth.userInfo(function(data) {
+                  DOM.iSel('c_name').value = data.name ? data.name: "";
+                  DOM.iSel('c_org').value = 'LinkedIn';
+                  DOM.iSel('c_email').value = data.email ? data.email : "";
+                });
+              });
+              break;
+            }
+        }
+      };
+
+    
     DOM.qSel('#gen-cert-dlg #btn-fetch-profile')
       .onclick = async () => {
         var uri = DOM.iSel('c_profile').value.trim();

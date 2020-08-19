@@ -128,12 +128,46 @@ YouID_Loader.prototype = {
               throw new Error("Could not load data from: "+uri+"\nError: "+err);
             }));
 
-    var store = await (this.load_data(baseURI, data, content_type)
+    if (content_type.indexOf('text/plain') != -1) {
+       
+       async function get_data(out, data, content_type, baseURI)
+       {
+         try {
+           var ret = await self.parse_data(data, content_type, baseURI);
+           for(var webid in ret) {
+             var data = ret[webid];
+             if (data.success)
+               out[webid] = data;
+           }
+           return out;
+         } catch(e) {
+           return out;
+         }
+       }
+
+       var idata = sniff_text_data(data, baseURI); //idata = {ttl:[], ldjson, rdfxml:[]}
+       var rc = {};
+
+       for(var i=0; i<idata.ldjson.length; i++) {
+         rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
+       }
+       for(var i=0; i<idata.ttl.length; i++) {
+         rc = await get_data(rc, idata.ttl[i], 'text/turtle', idata.baseURI);
+       }
+       for(var i=0; i<idata.rdfxml.length; i++) {
+         rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
+       }
+
+       return rc;
+
+    } else {
+      var store = await (this.load_data(baseURI, data, content_type)
             .catch(err => {
               throw new Error("Could not parse data from: "+uri+"\nError: "+err);
             }));
 
-    return await self.exec_verify_query_1(store, {data, content_type, baseURI});
+      return await self.exec_verify_query_1(store, {data, content_type, baseURI});
+    }
   },
 
 
