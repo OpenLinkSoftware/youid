@@ -58,6 +58,24 @@ OAuth2.adapter('facebook', {
         callback({'email':data.email, 'name':data.name});
       }
     }
+  },
+
+  sendMessage: async function(accessToken, context, msg, callback) {
+    var url = 'https://graph.facebook.com/me/feed';
+    var body = `access_token=${accessToken}&message=${msg}`;
+    var options = {
+      method: 'POST',
+      headers: {
+//        'Authorization': 'Bearer '+accessToken,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body
+    }
+    var rc = await fetch(url, options);
+    var text = await rc.text();
+      if (callback) {
+        callback({});
+      }
   }
 
 });

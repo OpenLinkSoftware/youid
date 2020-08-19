@@ -5,19 +5,15 @@
     mode2: false
   });
 
-/**0
-  var facebookAuth = new OAuth2('facebook', {
-    client_id: '177955888930840',
-    client_secret: 'b42a5741bd3d6de6ac591c7b0e279c9f',
-    api_scope: 'read_stream,user_likes',
-    mode2: false
-  });
-***/
   var facebookAuth = new OAuth2('facebook', {
     client_id: '453029738100680',
     client_secret: '9efa297e80b23386c780a7c8c677bb41',
+//    api_scope: 'email pages_manage_posts',
+//    api_scope: 'email,publish_pages',    publish_actions
+//    api_scope: 'email,publish_actions',
     api_scope: 'email',
-    mode2: false
+    mode2: false,
+    supportMessages: false
   });
   
 
@@ -38,8 +34,9 @@
   var linkedinAuth = new OAuth2('linkedin', {
     client_id: 'geyovx12q4tz',
     client_secret: 'HvTPPEJnvOty9mJW',
-    api_scope: 'r_liteprofile r_emailaddress',
-    mode2: false
+    api_scope: 'r_liteprofile r_emailaddress w_member_social',
+    mode2: false,
+    supportMessages: true
   });
 
   var winAzureAuth = new OAuth2('win_azure', {
@@ -52,4 +49,5 @@
   var twitterAuth = new OAuth1('twitter', {
     consumerKey: 'WBCEO8jOeNBjmIZE1jKVRA',
     consumerSec: 'v8USBQNfBHkDJKLuqV7I4z5a5f85iMdGyoS3WgtOK8',
+    supportMessages: true
   });

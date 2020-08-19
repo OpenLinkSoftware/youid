@@ -53,6 +53,10 @@ $(function(){
           v_cert.click_gen_cert(v_youid.cur_webid);
           return false;
         });
+        $('#tabs a[href="#accounts"').click(() => {
+          selectTab('#accounts');
+          return false;
+        });
         $('#tabs a[href="#headers"').click(() => {
           selectTab('#headers');
           return false;
@@ -105,6 +109,7 @@ function selectTab(tab)
 
   updateTab('#webid', selectedTab);
   updateTab('#certificate', selectedTab);
+  updateTab('#accounts', selectedTab);
   updateTab('#headers', selectedTab);
   updateTab('#about', selectedTab);
 }
@@ -134,6 +139,15 @@ function loadPref()
     } catch(e){}
 
     load_hdr_list(hdr_list);
+
+    
+    DOM.qSel('#s3_account #c_s3_access_key').value = gPref.getValue('ext.youid.s3_access_key');
+    DOM.qSel('#s3_account #c_s3_secret_key').value = gPref.getValue('ext.youid.s3_secret_key');
+    DOM.qSel('#s3_account #c_s3_bucket').value = gPref.getValue('ext.youid.s3_bucket');
+
+    DOM.qSel('#az_account #c_az_account').value = gPref.getValue('ext.youid.s3_account');
+    DOM.qSel('#az_account #c_az_sas_token').value = gPref.getValue('ext.youid.s3_sas_token');
+
 }
 
 
@@ -142,6 +156,14 @@ function savePref()
 {
    v_youid.save_youid_data();
    save_hdr_list();
+
+   gPref.setValue('ext.youid.s3_access_key', DOM.qSel('#s3_account #c_s3_access_key').value);
+   gPref.setValue('ext.youid.s3_secret_key', DOM.qSel('#s3_account #c_s3_secret_key').value);
+   gPref.setValue('ext.youid.s3_bucket', DOM.qSel('#s3_account #c_s3_bucket').value);
+
+   gPref.setValue('ext.youid.s3_account', DOM.qSel('#az_account #c_az_account').value);
+   gPref.setValue('ext.youid.s3_sas_token', DOM.qSel('#az_account #c_az_sas_token').value);
+
    closeOptions();
 }
 

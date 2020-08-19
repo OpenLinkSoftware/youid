@@ -12,7 +12,11 @@ var OAuth1 = function(adapterName, config) {
 
       var data = that.get();
       data.consumerKey = config.consumerKey;
-      data.clientSecret = {consumerSec:config.consumerSec, tokenSec:''};
+//      data.clientSecret = {consumerSec:config.consumerSec, tokenSec:''};
+      data.clientSecret.consumerSec = config.consumerSec;
+      if (!data.clientSecret.tokenSec)
+        data.clientSecret.tokenSec = '';
+      data.supportMessages = config.supportMessages;
       that.setSource(data);
     }
   });
@@ -70,7 +74,13 @@ OAuth1.prototype.nonce = function(len) {
 
 
 OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, queryParams) {
-  var ts = ""+parseInt(Date.now() / 1000);
+  function percentEncode(str) {
+    return encodeURIComponent(str).replace(/[!*()']/g, (character) => {
+      return '%' + character.charCodeAt(0).toString(16);
+    });  
+  }
+
+  var ts = ""+parseInt(Math.round(Date.now() / 1000));
   var nonce = this.nonce(6);
   var meth = meth.toUpperCase();
   var params = {...queryParams};
@@ -103,8 +113,8 @@ OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, quer
   var encodedParameters = '';
 
   for (k in ordered) {
-    const encodedValue = encodeURIComponent(ordered[k]);
-    const encodedKey = encodeURIComponent(k);  
+    const encodedKey = k;  
+    const encodedValue = percentEncode(ordered[k]);
     if(encodedParameters === ''){
       encodedParameters += `${encodedKey}=${encodedValue}`;
     }
@@ -113,19 +123,16 @@ OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, quer
     }
   }
 
-//  console.log(encodedParameters);
-  var signBase = `${meth}&${encodeURIComponent(url)}&${encodeURIComponent(encodedParameters)}`;
-//  console.log("base=>"+signBase);
+  var signBase = `${meth}&${percentEncode(url)}&${percentEncode(encodedParameters)}`;
 
-  var key = encodeURIComponent(signKey.consumerSec)+'&'+encodeURIComponent(signKey.tokenSec);
-//  console.log("key=>"+key);
-  var oauth_signature = encodeURIComponent(b64_hmac_sha1(key, signBase));
-//  console.log(oauth_signature);
+  var key = percentEncode(signKey.consumerSec)+'&'+percentEncode(signKey.tokenSec);
+//  var key = signKey.consumerSec+'&'+signKey.tokenSec;
+  var oauth_signature = percentEncode(b64_hmac_sha1(key, signBase));
 
   var add_callback = callback ? `oauth_callback="${encodeURIComponent(callback)}", ` : '';
   var add_token = params['oauth_token'] ? `oauth_token="${encodeURIComponent(params['oauth_token'])}", ` : '';
 
-  return `OAuth ${add_callback}oauth_consumer_key="${consumerKey}", oauth_signature_method="HMAC-SHA1", oauth_signature="${oauth_signature}", oauth_timestamp="${ts}", oauth_nonce="${nonce}", ${add_token}oauth_version="1.0"`;
+  return `OAuth ${add_callback}oauth_consumer_key="${consumerKey}", ${add_token}oauth_signature_method="HMAC-SHA1", oauth_signature="${oauth_signature}", oauth_timestamp="${ts}", oauth_nonce="${nonce}", oauth_version="1.0"`;
 }
 
 
@@ -150,7 +157,6 @@ OAuth1.prototype.requestToken = async function(config) {
         {
           var oauth_token = params.get('oauth_token');
           var oauth_token_secret = params.get('oauth_token_secret');
-
           var data = that.get();
           data.r_oauth_token_secret = oauth_token_secret;
           data.r_oauth_token = oauth_token;
@@ -224,6 +230,7 @@ OAuth1.prototype.getAccessTokens = async function(oauth_verifier) {
       var data = this.get();
       data.oauth_token = params.get('oauth_token'); 
       data.clientSecret.tokenSec = params.get('oauth_token_secret');;
+
       data.screen_name = params.get('screen_name');
       this.setSource(data);
       this.clear('r_oauth_token');
@@ -259,11 +266,8 @@ OAuth1.prototype.finishAuth = async function() {
 
     // Once we get here, close the current tab and we're good to go.
     // The following works around bug: crbug.com/84201
-//?????
-/***/
     window.open('', '_self', '');
     window.close();
-/***/
   }
 
   var config = this.getConfig();
@@ -362,7 +366,8 @@ OAuth1.prototype.getConfig = function() {
     consumerKey: data.consumerKey,
     clientSecret: data.clientSecret,
     r_oauth_token: data.r_oauth_token,
-    apiScope: data.apiScope
+    apiScope: data.apiScope,
+    supportMessages: data.supportMessages
   };
 };
 
@@ -470,9 +475,8 @@ OAuth1.prototype.userInfo = function(callback) {
   OAuth1.loadAdapter(that.adapterName, async function() {
     that.adapter = OAuth1.adapters[that.adapterName];
     if (that.hasAccessToken()) {
-//      that.adapter.userInfo(data.accessToken, callback);
       var data = that.get();
-      var url = 'https://api.twitter.com/1.1/users/lookup.json'; //this.adapter.accessTokenURL();
+      var url = 'https://api.twitter.com/1.1/users/lookup.json';
       var screen_name = data.screen_name;
       var OAuthHeader = that.prepareOAuthHeader('GET', url, null, null, {screen_name});
 
@@ -496,4 +500,42 @@ OAuth1.prototype.userInfo = function(callback) {
     } 
   });
 };
+
+OAuth1.prototype.sendMessage = function(msg, callback) {
+  var that = this;
+  OAuth1.loadAdapter(that.adapterName, async function() {
+    that.adapter = OAuth1.adapters[that.adapterName];
+    if (that.hasAccessToken()) {
+      var data = that.get();
+      if (data.supportMessages) {
+        var url = 'https://api.twitter.com/1.1/statuses/update.json'; 
+        var OAuthHeader = that.prepareOAuthHeader('POST', url, null, null, {status: msg});
+
+        try {
+          var options = {
+            method: 'POST',
+            headers: {
+              'Authorization': OAuthHeader,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'status='+encodeURIComponent(msg)
+          }
+          var rc = await fetch(url, options);
+          var data = await rc.json();
+          var error = null;
+          if (!rc.ok && data.errors) {
+            error =data.errors[0].message;
+            data = null;
+          }
+          if (callback) {
+            callback(data, error);
+          }
+        } catch(e) {
+          console.log(e);
+        }
+      }
+    } 
+  });
+};
+
 

@@ -61,9 +61,61 @@ OAuth2.adapter('linkedin', {
     var rc = await fetch(url, options);
     if (rc.ok) {
       var data = await rc.json();
-      if (callback) {
-        callback({'email':'', 'name':data.localizedFirstName+' '+data.localizedLastName});
+
+      url = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))';
+      var rc = await fetch(url, options);
+      if (rc.ok) {
+        var edata = await rc.json();
+        var email = (edata.elements && edata.elements.length > 0) ? edata.elements[0]["handle~"].emailAddress : '';
+
+        if (callback) {
+          callback({'email': email,
+                  'name':data.localizedFirstName+' '+data.localizedLastName,
+                  'id': data.id
+                 }, {id: data.id});
+        }
       }
+    }
+  },
+
+
+  sendMessage: async function(accessToken, context, msg, callback) {
+    var url = 'https://api.linkedin.com/v2/ugcPosts';
+    var data = 
+        {
+          "author": "urn:li:person:"+context.id,
+          "lifecycleState": "PUBLISHED",
+          "specificContent": {
+             "com.linkedin.ugc.ShareContent": {
+                "shareCommentary": {
+                   "text": msg
+                 },
+                "shareMediaCategory": "NONE"
+             }
+          },
+          "visibility": {
+            "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+          }
+        };
+
+    var options = {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer '+accessToken,
+        'Content-Type': 'application/json',
+        'X-Restli-Protocol-Version': '2.0.0',
+        'x-li-format': 'json'
+      },
+      body: JSON.stringify(data)
+    }
+    var rc = await fetch(url, options);
+    if (rc.ok) {
+      var data = await rc.json();
+      if (callback)
+        callback(data, null);
+    } else {
+      if (callback)
+        callback(null, 'Could not sent message '+rc.status);
     }
   }
 

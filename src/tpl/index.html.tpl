@@ -97,13 +97,9 @@
                         <a href="%{ca_cert_url}">Issuer Public Key</a>
                 </div>
 !!.
-<!--
                 <div class="cardQr">
-                
-                	<img src="%{qr_card_url}" width="85" height="85" alt="QR Code">
-                
+                	%{qr_card_img}
                 </div>
--->
                 <!-- end cardQr -->
                 
                 <div class="clear"></div>

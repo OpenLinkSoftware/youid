@@ -25,6 +25,7 @@
     <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
     <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
 
+    <script type="text/javascript" src="lib/qrcode.js"></script>
     <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="lib/bootstrap.js"></script>
     <script type="text/javascript" src="lib/multimodal.js"></script>
@@ -44,6 +45,7 @@
     <script type="text/javascript" src="settings.js"></script>
     <script type="text/javascript" src="OidcWebid.js"></script>
     <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="uploader.js"></script>
     <script type="text/javascript" src="cert_manual.js"></script>
     <script type="text/javascript" src="certificate.js"></script>
     <script type="text/javascript" src="youid_view.js"></script>
@@ -66,6 +68,7 @@
         <ul id="tabs">
           <li><a href="#webid"  >WebID&nbsp;List</a></li>
           <li><a href="#certificate" title="Certificate with Credentials (pkcs#12 file) Generator">Certificate</a></li>
+          <li><a href="#accounts" title="Settings for IdP accounts">IdP Settings</a></li>
           <li><a href="#headers">Header&nbsp;Settings</a></li>
           <li><a href="#about"  >About</a></li>
         </ul>
@@ -115,7 +118,6 @@
                 <img class="hidden" id="fetch_wait" src="images/throbber.gif" width="16" />
                 Fetch Profile 
               </button>
-
             </div>
           </div>
 
@@ -259,7 +261,7 @@
               <div class="form-group row">
                 <label for="c_account_key" class="col-md-3 control-label">SAS&nbsp;Token:</label>
                 <div class="col-md-9">
-                  <input type="text" class="form-control" id="c_account_key" placeholder="sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-08-31T21:48:18Z&st=2020-07-30T13:48:18Z&spr=https,http&sig=Fw%2BoJ4FMIYWZCXVFBVDSC6hYD9L4wfp5Tzl9BwRtpZ8%3D"/>
+                  <input type="text" class="form-control" id="c_account_key" placeholder="sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-08-31T21:48:18Z&st=2020-07-30T13:48:18Z&spr=https,http&sig=Fw%2BoJ4FMIYWZCXVFBVDSC6hYD9XXXXXXXXXXXXRtpZ8%3D"/>
                 </div>
               </div>
           </section>
@@ -311,6 +313,52 @@
 
 <!-- ========================================================================= -->
         </div>
+
+        <div id="accounts_items" style="font-size: 13px;">
+        <form id="s3_account" class="form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-4 control-label">AWS S3 Settings</label>
+          </div>
+          <div class="form-group row">
+            <label for="c_s3_access_key" class="col-md-2 control-label">Access Key:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_s3_access_key" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_s3_secret_key" class="col-md-2 control-label">Secret Key:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_s3_secret_key" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_s3_bucket" class="col-md-2 control-label">Bucket Name:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_s3_bucket" value="">
+            </div>
+          </div>
+        </form>
+        <hr>
+
+        <form id="az_account" class="form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-4 control-label">Azure Settings</label>
+          </div>
+          <div class="form-group row">
+            <label for="c_az_account" class="col-md-2 control-label">Storage Account:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_az_account" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_az_sas_token" class="col-md-2 control-label">SAS Token:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_az_sas_token" value="" placeholder="sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-08-31T21:48:18Z&st=2020-07-30T13:48:18Z&spr=https,http&sig=Fw%2BoJ4FMIYWZCXVFBVDSC6hYD9XXXXXXXXXXXXRtpZ8%3D">
+            </div>
+          </div>
+        </form>
+        </div>
+
 
         <div id="headers_items" style="font-size: 13px;">
           <table>
@@ -381,33 +429,6 @@
       <div class="modal-footer">
         <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
         <button id="btn-yes" type="button" class="btn btn-primary">Yes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal -->
-<div class="modal" id="verify-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title">Verifying WebID</h4>
-      </div>
-      <div class="modal-body">
-        <div id="verify_progress">
-          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
-        </div>
-        <p id="verify-msg"></p>
-        <p/>
-        <div id="verify-tbl-place" style="height:400px; overflow: auto;"></div>
-      </div>
-      <div class="modal-footer">
-        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
       </div>
     </div>
   </div>
@@ -523,7 +544,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Upload certificate to server</h4>
+        <h4 id="title" class="modal-title">Upload certificate to server</h4>
       </div>
       <div class="modal-body">
         <div id="c_wait">
@@ -587,6 +608,11 @@
         </section>
         <section id="webid-card">
           <h5>Your identity card has been created. <a id="card_href" href="#" target="_blank"> </a></h5>
+        </section>
+        <section id="r-message">
+          <hr/>
+          <h5 id="ann_title">Announce your Certificate identity claims via post. </h5>
+          <button id="btn-message" type="button" class="btn btn-primary">Send</button>
         </section>
         <p/>
         <hr/>

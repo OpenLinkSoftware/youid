@@ -81,13 +81,9 @@
                 </div><!-- end pKey -->
 
 %{ca_key_row}
-<!--
                 <div class="cardQr">
-                
-                	<img src="%{qr_rdfa_url}" width="85" height="85" alt="QR Code">
-                
+                	%{qr_rdfa_img}
                 </div>
--->
                 <!-- end cardQr -->
                 
                 <div class="clear"></div>

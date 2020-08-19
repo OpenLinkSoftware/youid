@@ -37,6 +37,7 @@ var OAuth2 = function(adapterName, config) {
       data.clientSecret = config.client_secret;
       data.apiScope = config.api_scope;
       data.mode2 = config.mode2;
+      data.supportMessages = config.supportMessages;
       that.setSource(data);
     }
   });
@@ -511,7 +512,22 @@ OAuth2.prototype.userInfo = function(callback) {
     that.adapter = OAuth2.adapters[that.adapterName];
     var data = that.get();
     if (data.accessToken) {
-      that.adapter.userInfo(data.accessToken, callback);
+      that.adapter.userInfo(data.accessToken, (data, context) => {
+         if (context)
+           that.set('context', context);
+         callback(data);
+      });
+    } 
+  });
+};
+
+OAuth2.prototype.sendMessage = function(msg, callback) {
+  var that = this;
+  OAuth2.loadAdapter(that.adapterName, function() {
+    that.adapter = OAuth2.adapters[that.adapterName];
+    var data = that.get();
+    if (data.accessToken && data.supportMessages) {
+      that.adapter.sendMessage(data.accessToken, data.context, msg, callback);
     } 
   });
 };
