@@ -43,8 +43,7 @@ YouID_Loader = function () {
         {?webid foaf:name ?foaf_name} UNION 
         {?webid rdfs:label ?rdfs_name} UNION 
         {?webid skos:prefLabel ?skos_prefLabel} UNION 
-        {?webid skos:altLabel ?skos_altLabel} 
-        UNION 
+        {?webid skos:altLabel ?skos_altLabel} UNION 
         {?url schema:name ?schema_name} UNION 
         {?url foaf:name ?foaf_name} UNION 
         {?url rdfs:label ?rdfs_name} UNION 
@@ -123,31 +122,72 @@ YouID_Loader.prototype = {
         baseURI.hash = '';
         baseURI = baseURI.toString();
 
-    var get_url = uri + ((/\?/).test(uri) ? "&" : "?") + (new Date()).getTime();
-    var {data, content_type} = await (this.getProfile(get_url, oidc_fetch)
+    var url_lower = baseURI.toLowerCase();
+    var data, content_type;
+
+    if (url_lower.endsWith(".html") || url_lower.endsWith(".htm")) {
+      var rc = await fetch(baseURI, {credentials: 'include'});
+      if (!rc.ok) {
+        throw new Error("Could not load data from: "+baseURI);
+      }
+      data = await rc.text();
+      content_type = 'text/html';
+    }
+    else if (url_lower.endsWith(".txt")) {
+      var rc = await fetch(baseURI, {credentials: 'include'});
+      if (!rc.ok) {
+        throw new Error("Could not load data from: "+baseURI);
+      }
+      data = await rc.text();
+      content_type = 'text/plain';
+    }
+    else {
+      var get_url = uri + ((/\?/).test(uri) ? "&" : "?") + (new Date()).getTime();
+      var rc = await (this.getProfile(get_url, oidc_fetch)
             .catch(err => {
               throw new Error("Could not load data from: "+uri+"\nError: "+err);
             }));
+      data = rc.data;
+      content_type = rc.content_type;
+    }
 
+    async function get_data(out, data, content_type, baseURI)
+    {
+      try {
+        var ret = await self.parse_data(data, content_type, baseURI);
+        for(var webid in ret) {
+          var val = ret[webid];
+          if (val.success) {
+            var add = true;
+            for (var item of out) {
+              if (item.id === val.id && item.name === val.name) {
+                 add = false;
+            
+                 for(var i=0; i < val.keys.length; i++) {
+                   var add_key = true;
+                   for(var j=0; j < item.keys.length; j++) {
+                     if (item.keys[j].pubkey_uri === val.keys[i].pubkey_uri && item.keys[j].mod === val.keys[i].mod)
+                       add_key = false;
+                   }
+                   if (add_key)
+                     item.keys.push(val.keys[i]);
+                 }
+              }
+            }
+            if (add)
+              out.push(val); 
+          }
+        }
+        return out;
+      } catch(e) {
+        return out;
+      }
+    }
+
+    var rc = [];
     if (content_type.indexOf('text/plain') != -1) {
        
-       async function get_data(out, data, content_type, baseURI)
-       {
-         try {
-           var ret = await self.parse_data(data, content_type, baseURI);
-           for(var webid in ret) {
-             var data = ret[webid];
-             if (data.success)
-               out[webid] = data;
-           }
-           return out;
-         } catch(e) {
-           return out;
-         }
-       }
-
        var idata = sniff_text_data(data, baseURI); //idata = {ttl:[], ldjson, rdfxml:[]}
-       var rc = {};
 
        for(var i=0; i<idata.ldjson.length; i++) {
          rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
@@ -158,30 +198,12 @@ YouID_Loader.prototype = {
        for(var i=0; i<idata.rdfxml.length; i++) {
          rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
        }
-
-       return rc;
 
     } else if (content_type.indexOf('text/html') != -1) {
        
-       async function get_data(out, data, content_type, baseURI)
-       {
-         try {
-           var ret = await self.parse_data(data, content_type, baseURI);
-           for(var webid in ret) {
-             var data = ret[webid];
-             if (data.success)
-               out[webid] = data;
-           }
-           return out;
-         } catch(e) {
-           return out;
-         }
-       }
-
        var parser = new DOMParser();
        var doc = parser.parseFromString(data, 'text/html');
        var idata = sniff_doc_data(doc, baseURI);
-       var rc = {};
 
        for(var i=0; i<idata.ldjson.length; i++) {
          rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
@@ -193,16 +215,21 @@ YouID_Loader.prototype = {
          rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
        }
 
-       return rc;
-
     } else {
+
       var store = await (this.load_data(baseURI, data, content_type)
             .catch(err => {
               throw new Error("Could not parse data from: "+uri+"\nError: "+err);
             }));
 
-      return await self.exec_verify_query_1(store, {data, content_type, baseURI});
+      var ret = await self.exec_verify_query_1(store, {data, content_type, baseURI});
+      for(var webid in ret) {
+        var data = ret[webid];
+        rc.push(data); 
+      }
     }
+
+    return rc;
   },
 
 
@@ -214,12 +241,16 @@ YouID_Loader.prototype = {
     var i = 0;
 
     while(i < 3) {
-      ret = await this.exec_query(store, self.load_webid);
-      if (!ret.err && (ret.results && ret.results.length==0) && i < 3) {
-        i++;
-        continue;
+      try {
+        ret = await this.exec_query(store, self.load_webid);
+        if (!ret.err && (ret.results && ret.results.length==0) && i < 3) {
+          i++;
+          continue;
+        }
+        break;
+      } catch(e) {
+        console.log(e);
       }
-      break;
     }
 
     // process results
@@ -444,16 +475,47 @@ YouID_Loader.prototype = {
             $rdf.parse(data, kb, baseURI, "application/rdf+xml");
             data = $rdf.serialize(undefined, kb, baseURI, "text/turtle");
             content_type = "text/turtle";
+
+            store.load(content_type, data, options, function(err, res){
+	      if (err)
+                reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
+	      resolve(store);
+	    });
           } catch(err) {
               reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
           }
-        case 'text/turtle':
+          break;
         case 'application/ld+json':
-          store.load(content_type, data, options, function(err, res){
-	    if (err) {
-              reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
-	    }
+          try {
+            var jsonld_data = JSON.parse(data);
+            jsonld.expand(jsonld_data, {base:baseURI})
+              .then( expanded => {
+                jsonld.toRDF(expanded, {base:baseURI, format: 'application/nquads', includeRelativeUrls: true})
+                  .then(nquads => {
+                    content_type = "text/turtle";
 
+                    store.load(content_type, nquads, options, function(err, res){
+	              if (err)
+                        reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+nquads);
+	              resolve(store);
+	            });
+                  })
+                  .catch(err => {
+                    reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+nquads);
+                  });
+              })
+              .catch(err => {
+                reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
+              });
+          } catch(err) {
+              reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
+          }
+          break;
+
+        case 'text/turtle':
+          store.load(content_type, data, options, function(err, res){
+	    if (err)
+              reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
 	    resolve(store);
 	  });
 	  break;

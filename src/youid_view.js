@@ -331,61 +331,8 @@ YouId_View.prototype = {
 
   load_data_from_uri: async function(uri, row)
   {
-    var self = this;
-
-    var url = new URL(uri);
-    url.hash = '';
-    url = url.toString();
-    var url_lower = url.toLowerCase();
-    if (url_lower.endsWith(".html") || url_lower.endsWith(".htm"))
-      {
-        var data;
-        try {
-          var rc = await fetch(url, {credentials: 'include'});
-          if (!rc.ok) {
-            $('#add-dlg').modal('hide');
-            Msg.showInfo("Could not load URL "+url);
-            return;
-          }
-          data = await rc.text();
-          var parser = new DOMParser();
-          var doc = parser.parseFromString(data, 'text/html');
-          var idata = sniff_doc_data(doc, uri);
-          $('#add-dlg').modal('hide');
-          self.verify1_youid_exec(idata, null, row);
-
-        } catch(e) {
-           $('#add-dlg').modal('hide');
-           Msg.showInfo("Error:"+e+" for load URL "+uri);
-           return;
-        }
-      }
-    else if (url_lower.endsWith(".txt"))
-      {
-        var data;
-        try {
-          var rc = await fetch(url, {credentials: 'include'});
-          if (!rc.ok) {
-            $('#add-dlg').modal('hide');
-            Msg.showInfo("Could not load URL "+url);
-            return;
-          }
-          data = await rc.text();
-          var idata = sniff_text_data(data, uri);
-          $('#add-dlg').modal('hide');
-          self.verify1_youid_exec(idata, null, row);
-
-        } catch(e) {
-           $('#add-dlg').modal('hide');
-           Msg.showInfo("Error:"+e+" for load URL "+uri);
-           return;
-        }
-      }
-    else
-      {
-        $('#add-dlg').modal('hide');
-        self.verify1_youid_exec(null, uri, row);
-      }
+    $('#add-dlg').modal('hide');
+    this.verify1_youid_exec(uri, row);
   },
 
 
@@ -464,7 +411,7 @@ YouId_View.prototype = {
 
 
 
-  verify1_youid_exec: async function (idata, uri, row)
+  verify1_youid_exec: async function (uri, row)
   {
     var self = this;
     var _webid;
@@ -497,14 +444,14 @@ YouId_View.prototype = {
     $('#verify1-dlg').modal('show');
 
     var lst = [];
+    try {
+      var loader = new YouID_Loader();
+      var rc = await loader.verify_ID_1(uri)
 
-    function add_id(rc, out_lst)
-    {
-      for(var webid in rc) {
+      for(var val of rc) {
         var found = -1;
-        var val = rc[webid];
-        for(var i=0; i < out_lst.length; i++) {
-          if (webid === out_lst[i].id) {
+        for(var i=0; i < lst.length; i++) {
+          if (val.id === lst[i].id) {
             found = i;
             break;
           }
@@ -513,13 +460,13 @@ YouId_View.prototype = {
 //!!        if (val.success && val.keys.length > 0) {
         if (val.success) {
           if (found == -1) {
-            out_lst.push(val);
+            lst.push(val);
           } else {
-            var item = out_lst[found];
+            var item = lst[found];
             for(var i=0; i < val.keys.length; i++) {
               var add = true;
               for(var j=0; j < item.keys.length; j++) {
-                if (item.keys[i].pubkey_url === val.keys[i].pubkey_uri)
+                if (item.keys[i].pubkey_uri === val.keys[i].pubkey_uri)
                   add = false;
               }
               if (add)
@@ -528,40 +475,8 @@ YouId_View.prototype = {
           }
         }
       }
-    }
-
-    if (idata) {
-      for(var i=0; i<idata.ttl.length; i++) {
-        try {
-           var data = idata.ttl[i];
-           var loader = new YouID_Loader();
-           var rc = await loader.parse_data(data, 'text/turtle', idata.baseURI);
-           add_id(rc, lst);
-        } catch (e) { console.log(e); }
-      }
-      for(var i=0; i<idata.ldjson.length; i++) {
-        try {
-           var data = idata.ldjson[i];
-           var loader = new YouID_Loader();
-           var rc = await loader.parse_data(data, 'application/ld+json', idata.baseURI);
-           add_id(rc, lst);
-        } catch (e) { console.log(e); }
-      }
-      for(var i=0; i<idata.rdfxml.length; i++) {
-        try {
-           var data = idata.rdfxml[i];
-           var loader = new YouID_Loader();
-           var rc = await loader.parse_data(data, 'application/rdf+xml', idata.baseURI);
-           add_id(rc, lst);
-        } catch (e) { console.log(e); }
-      }
-    } else {
-      try {
-        var loader = new YouID_Loader();
-        var rc = await loader.verify_ID_1(uri)
-        add_id(rc, lst);
-      } catch (e) { console.log(e); }
-    }
+    
+    } catch (e) { console.log(e); }
 
 
     try {
