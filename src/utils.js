@@ -19,6 +19,56 @@
  */
 
 YouID_Loader = function () {
+  this.verify_query = `
+  PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
+  PREFIX schema: <http://schema.org/> 
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+  PREFIX owl:  <http://www.w3.org/2002/07/owl#> 
+  PREFIX cert: <http://www.w3.org/ns/auth/cert#> 
+  PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
+  PREFIX acl: <http://www.w3.org/ns/auth/acl#> 
+  PREFIX pim: <http://www.w3.org/ns/pim/space#> 
+  PREFIX ldp: <http://www.w3.org/ns/ldp#> 
+  PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
+  PREFIX as: <http://www.w3.org/ns/activitystreams#> 
+  PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+
+  SELECT * WHERE 
+    { 
+       {{?url foaf:primaryTopic ?webid .} UNION 
+        {?url schema:mainEntity ?webid .} 
+       }
+       {{?webid schema:name ?schema_name} UNION 
+        {?webid foaf:name ?foaf_name} UNION 
+        {?webid rdfs:label ?rdfs_name} UNION 
+        {?webid skos:prefLabel ?skos_prefLabel} UNION 
+        {?webid skos:altLabel ?skos_altLabel} 
+        UNION 
+        {?url schema:name ?schema_name} UNION 
+        {?url foaf:name ?foaf_name} UNION 
+        {?url rdfs:label ?rdfs_name} UNION 
+        {?url skos:prefLabel ?skos_prefLabel} UNION 
+        {?url skos:altLabel ?skos_altLabel} 
+       } 
+       OPTIONAL { ?webid oplcert:hasIdentityDelegate ?delegate} 
+       OPTIONAL { ?webid oplcert:onBehalfOf ?behalfOf} 
+       OPTIONAL { ?webid acl:delegates ?acl_delegates} 
+       OPTIONAL { ?webid pim:storage ?pim_store } 
+       OPTIONAL { ?webid ldp:inbox ?inbox } 
+       OPTIONAL { ?webid as:outbox ?outbox } 
+       OPTIONAL { ?webid foaf:knows ?knows } 
+       OPTIONAL {
+        ?webid cert:key ?pubkey . 
+        ?pubkey cert:modulus ?mod .  
+        ?pubkey cert:exponent ?exponent . 
+        ?pubkey a ?alg . 
+       }
+       OPTIONAL { ?webid foaf:mbox ?foaf_mbox . }
+       OPTIONAL { ?webid vcard:email ?vcard_email . }
+       OPTIONAL { ?webid schema:email ?schema_email . }
+    }`;
+
+
   this.load_webid = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
   PREFIX schema: <http://schema.org/> 

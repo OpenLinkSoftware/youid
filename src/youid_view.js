@@ -510,7 +510,8 @@ YouId_View.prototype = {
           }
         }
 
-        if (val.success && val.keys.length > 0) {
+//!!        if (val.success && val.keys.length > 0) {
+        if (val.success) {
           if (found == -1) {
             out_lst.push(val);
           } else {

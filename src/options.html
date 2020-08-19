@@ -35,6 +35,7 @@
     <script type="text/javascript" src="lib/forge.bundle.js"></script>
     <script type="text/javascript" src="lib/oidc-web.min.js"></script>
     <script type="text/javascript" src="lib/aws-sdk.js"></script>
+    <script type="text/javascript" src="lib/azure-sdk.js"></script>
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
     <script type="text/javascript" src="oauth2/oauth1.js"></script>
@@ -194,6 +195,7 @@
 -->
                 <option value="ldp_tls">Generic (Secure LDP)</option>
                 <option value="aws_s3">Amazon S3</option>
+                <option value="azure">Azure</option>
               </select>
               <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
             </div>
@@ -247,23 +249,37 @@
                 </div>
               </div>
           </section>
+          <section id="c_azure" class="hidden"> 
+              <div class="form-group row">
+                <label for="c_account" class="col-md-3 control-label">Storage&nbsp;Account:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_account" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_account_key" class="col-md-3 control-label">SAS&nbsp;Token:</label>
+                <div class="col-md-9">
+                  <input type="text" class="form-control" id="c_account_key" placeholder="sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-08-31T21:48:18Z&st=2020-07-30T13:48:18Z&spr=https,http&sig=Fw%2BoJ4FMIYWZCXVFBVDSC6hYD9L4wfp5Tzl9BwRtpZ8%3D"/>
+                </div>
+              </div>
+          </section>
           <hr/>
-          <div class="form-group row hidden" id="r_webid">
-            <label for="c_webid" class="col-md-3 control-label">WebId:</label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" id="c_webid" value="">
-            </div>
-          </div>
           <div class="form-group row" id="r_cert_name">
             <label for="c_cert_name" class="col-md-3 control-label">Certificate&nbsp;Name:</label>
-            <div class="col-md-9">
+            <div class="col-md-6">
               <input type="text" class="form-control" id="c_cert_name" value="">
             </div>
           </div>
           <div class="form-group row" id="r_cert_path">
             <label for="c_cert_path" class="col-md-3 control-label">Certificate&nbsp;Store&nbsp;Path:</label>
-            <div class="col-md-9">
+            <div class="col-md-6">
               <input type="text" class="form-control" id="c_cert_path" value="">
+            </div>
+          </div>
+          <div class="form-group row hidden" id="r_webid">
+            <label for="c_webid" class="col-md-3 control-label">WebId:</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="c_webid" value="">
             </div>
           </div>
 

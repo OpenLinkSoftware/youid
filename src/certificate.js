@@ -31,7 +31,13 @@ Certificate.prototype = {
     this.YMD = dt.toISOString().substring(0, 10).replace(/-/g, '');
     this.HMS = dt.toISOString().substring(11, 19).replace(/:/g, '');
 
-    DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + this.YMD + '_' + this.HMS;
+    var idp = DOM.qSel('#gen-cert-dlg #c_pdp').value;
+
+    if (idp === 'azure' || idp === 'aws_s3' || idp === 'ldp_tls' || idp === 'ldp_tls_solid')
+      DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + this.YMD + '_' + this.HMS;
+    else
+      DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + this.YMD + '_' + this.HMS;
+    
     DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + this.YMD + '_' + this.HMS;
   },
 
@@ -51,6 +57,48 @@ Certificate.prototype = {
       select.add(el);
     }
   },
+
+  gen_webid: function (idp) {
+        var cert_path = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
+
+        if (idp === 'manual') {
+        }
+        else if (idp === 'opl_dav' || idp === 'opl_dav_https') {
+          var uid = DOM.qSel('#gen-cert-dlg #c_dav_uid').value;
+          var up = new Uploader_OPL_WebDav(uid, '', idp);
+
+          DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath(cert_path) + '/profile.ttl#identity';
+          DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = true;
+        }
+        else if (idp === 'opl_ldp' || idp === 'opl_ldp_https') {
+          var uid = DOM.qSel('#gen-cert-dlg #c_dav_uid').value;
+          var up = new Uploader_OPL_LDP(uid, '', idp);
+
+          DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath(cert_path) + '/profile.ttl#identity';
+          DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = true;
+        }
+        else if (idp === 'solid_oidc') {
+        }
+        else if (idp === 'ldp_tls' || idp === 'ldp_tls_solid') {
+        }
+        else if (idp === 'aws_s3') {
+          var acc_key = DOM.qSel('#gen-cert-dlg #c_access_key').value;
+          var sec_key = DOM.qSel('#gen-cert-dlg #c_secret_key').value;
+          var bucket = DOM.qSel('#gen-cert-dlg #c_bucket').value;
+
+          var up = new Uploader_AWS_S3(bucket, acc_key, sec_key);
+          DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath('') + '/profile.ttl#identity';
+          DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = true;
+        }
+        else if (idp === 'azure') {
+          var account = DOM.qSel('#gen-cert-dlg #c_account').value;
+          var account_key = DOM.qSel('#gen-cert-dlg #c_account_key').value;
+
+          var up = new Uploader_Azure(cert_path, account, account_key);
+          DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath(cert_path) + '/profile.ttl#identity';
+          DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = true;
+        }
+  }, 
 
 
   click_gen_cert: async function (cur_webid) {
@@ -325,48 +373,48 @@ Certificate.prototype = {
         var up;
 
         if (idp === 'opl_ldp' || idp === 'opl_ldp_https')
-          up = new Uploader_OPL_LDP(uid, '', undefined, idp)
+          up = new Uploader_OPL_LDP(uid, '', idp)
         else
-          up = new Uploader_OPL_WebDav(uid, '', undefined, idp)
+          up = new Uploader_OPL_WebDav(uid, '', idp)
 
         DOM.qSel('#gen-cert-dlg #c_dav_path').value = up.getBasePath();
       };
 
     DOM.qSel('#gen-cert-dlg #c_idp')
       .onchange = (e) => {
+        var gen = {};
         var sel = DOM.qSel('#c_idp option:checked').value;
-        DOM.qHide('#gen-cert-dlg #r_webid');
+
         DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = false;
         DOM.qHide('#gen-cert-dlg #c_webdav');
         DOM.qHide('#gen-cert-dlg #c_solid_oidc');
         DOM.qHide('#gen-cert-dlg #r_cert_name');
         DOM.qHide('#gen-cert-dlg #r_cert_path');
         DOM.qHide('#gen-cert-dlg #c_aws_s3');
+        DOM.qHide('#gen-cert-dlg #c_azure');
         DOM.qSel('#gen-cert-dlg #c_webid').value = '';
 
         if (sel === 'manual') {
           DOM.qShow('#gen-cert-dlg #r_webid');
         }
         else if (sel === 'opl_dav' || sel === 'opl_dav_https') {
-          if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
-            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
           DOM.qShow('#gen-cert-dlg #c_webdav');
           var uid = DOM.qSel('#gen-cert-dlg #c_dav_uid').value;
-          var up = new Uploader_OPL_WebDav(uid, '', undefined, sel)
+          var up = new Uploader_OPL_WebDav(uid, '', sel)
           DOM.qSel('#gen-cert-dlg #c_dav_path').value = up.getBasePath();
         }
         else if (sel === 'opl_ldp' || sel === 'opl_ldp_https') {
-          if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
-            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
           DOM.qShow('#gen-cert-dlg #c_webdav');
           var uid = DOM.qSel('#gen-cert-dlg #c_dav_uid').value;
-          var up = new Uploader_OPL_LDP(uid, '', undefined, sel)
+          var up = new Uploader_OPL_LDP(uid, '', sel)
           DOM.qSel('#gen-cert-dlg #c_dav_path').value = up.getBasePath();
         }
         else if (sel === 'solid_oidc') {
@@ -376,8 +424,7 @@ Certificate.prototype = {
           this.oidc_changed();
         }
         else if (sel === 'ldp_tls' || sel === 'ldp_tls_solid') {
-          if (DOM.qSel('#gen-cert-dlg #c_cert_path').value.length < 1)
-            DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_webid');
           DOM.qShow('#gen-cert-dlg #r_cert_name');
@@ -388,6 +435,13 @@ Certificate.prototype = {
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #c_aws_s3');
         }
+        else if (sel === 'azure') {
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qShow('#gen-cert-dlg #r_cert_name');
+          DOM.qShow('#gen-cert-dlg #r_cert_path');
+          DOM.qShow('#gen-cert-dlg #c_azure');
+        }
+        this.gen_webid(sel);
       };
 
     DOM.qSel('#gen-cert-dlg #btn-solid-oidc-login')
@@ -400,6 +454,29 @@ Certificate.prototype = {
         }
       };
 
+    DOM.qSel('#gen-cert-dlg #c_cert_path')
+      .onchange = async () => {
+        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
+      };
+    DOM.qSel('#gen-cert-dlg #c_account')
+      .onchange = async () => {
+        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
+      };
+    DOM.qSel('#gen-cert-dlg #c_bucket')
+      .onchange = async () => {
+        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
+      };
+    DOM.qSel('#gen-cert-dlg #c_dav_path')
+      .onchange = async () => {
+        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
+      };
+    DOM.qSel('#gen-cert-dlg #c_dav_uid')
+      .onchange = async () => {
+        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
+      };
+
+
+
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
       .onclick = async () => {
         var gen = {};
@@ -411,7 +488,10 @@ Certificate.prototype = {
 
         gen.cert_dir = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
         if (gen.cert_dir.length < 1) {
-          gen.cert_dir = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          if (gen.idp === 'azure')
+            gen.cert_dir = 'IDcard_' + self.YMD + '_' + self.HMS;
+          else
+            gen.cert_dir = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
         }
 
         if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {
@@ -429,7 +509,7 @@ Certificate.prototype = {
             return
           }
 
-          var up = new Uploader_OPL_WebDav(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+          var up = new Uploader_OPL_WebDav(gen.uid, gen.pwd, gen.idp);
           var rc = await up.checkCredentials();
           if (!rc) {
             alert('Wrong DAV User or Pwd');
@@ -440,20 +520,15 @@ Certificate.prototype = {
             alert('Dir ' + gen.cert_dir + ' exists already');
             return;
           }
-
-          gen.dav_fullpath = up.getDirPath(gen.cert_dir);
-          if (!gen.dav_fullpath.endsWith('/'))
-            gen.dav_fullpath += '/';
-
-          var webid = gen.dav_fullpath + 'profile.ttl#identity';
-
-          DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
         }
-        else if (gen.idp === 'solid_oidc') {
+        else if (gen.idp === 'solid_oidc') 
+        {
         }
-        else if (gen.idp === 'ldp_tls' || gen.idp === 'ldp_tls_solid') {
+        else if (gen.idp === 'ldp_tls' || gen.idp === 'ldp_tls_solid') 
+        {
         }
-        else if (gen.idp === 'opl_ldp' || gen.idp === 'opl_ldp_https') {
+        else if (gen.idp === 'opl_ldp' || gen.idp === 'opl_ldp_https') 
+        {
           gen.uid = DOM.qSel('#gen-cert-dlg #c_dav_uid').value;
           gen.pwd = DOM.qSel('#gen-cert-dlg #c_dav_pwd').value;
           gen.cert_dir = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
@@ -468,7 +543,7 @@ Certificate.prototype = {
             return
           }
 
-          var up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+          var up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.idp);
           var rc = await up.checkCredentials();
           if (!rc) {
             alert('Wrong DAV User or Pwd');
@@ -479,16 +554,9 @@ Certificate.prototype = {
             alert('Dir ' + gen.cert_dir + ' exists already');
             return;
           }
-
-          gen.dav_fullpath = up.getDirPath(gen.cert_dir);
-          if (!gen.dav_fullpath.endsWith('/'))
-            gen.dav_fullpath += '/';
-
-          var webid = gen.dav_fullpath + 'profile.ttl#identity';
-
-          DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
         }
-        else if (gen.idp === 'aws_s3') {
+        else if (gen.idp === 'aws_s3') 
+        {
           gen.acc_key = DOM.qSel('#gen-cert-dlg #c_access_key').value;
           gen.sec_key = DOM.qSel('#gen-cert-dlg #c_secret_key').value;
           gen.bucket = DOM.qSel('#gen-cert-dlg #c_bucket').value;
@@ -534,14 +602,34 @@ Certificate.prototype = {
             alert('Bucket ' + gen.bucket + ' exists already');
             return;
           }
+        }
+        else if (gen.idp === 'azure') 
+        {
+          gen.account = DOM.qSel('#gen-cert-dlg #c_account').value;
+          gen.account_key = DOM.qSel('#gen-cert-dlg #c_account_key').value;
+          gen.cert_path = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
 
-          gen.s3_fullpath = up.getDirPath();
-          if (!gen.s3_fullpath.endsWith('/'))
-            gen.s3_fullpath += '/';
+          if (gen.account.length < 1) {
+            alert('Storage Account is empty');
+            return
+          }
+          if (gen.account_key.length < 1) {
+            alert('Account is empty');
+            return
+          }
 
-          var webid = gen.s3_fullpath + 'profile.ttl#identity';
+          var up = new Uploader_Azure(gen.cert_path, gen.account, gen.account_key);
+          var lst = await up.checkCredentials();
+          if (!lst) {
+            alert('Wrong Account Key or SAS Key');
+            return
+          }
 
-          DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
+          var rc = await up.checkDirExists(gen.cert_path);
+          if (rc && rc.exists) {
+            alert('Dir ' + gen.cert_path + ' exists already');
+            return;
+          }
         }
 
         this.genCertificate(gen);
@@ -878,17 +966,20 @@ Certificate.prototype = {
       } 
       else {
         if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {
-          up = new Uploader_OPL_WebDav(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+          up = new Uploader_OPL_WebDav(gen.uid, gen.pwd, gen.idp);
         }
         else if (gen.idp === 'ldp_tls' || gen.idp === 'ldp_tls_solid') {
           var url = new URL(webid);
           up = new Uploader_LDP_TLS(url.origin + '/', gen.idp);
         }
         else if (gen.idp === 'opl_ldp' || gen.idp === 'opl_ldp_https') {
-          up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.dav_path, gen.idp);
+          up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.idp);
         }
         else if (gen.idp === 'aws_s3') {
           var up = new Uploader_AWS_S3(gen.bucket, gen.acc_key, gen.sec_key);
+        } 
+        else if (gen.idp === 'azure') {
+          var up = new Uploader_Azure(gen.cert_path, gen.account, gen.account_key);
         } 
         else {
           return;
@@ -1623,21 +1714,17 @@ class Uploader_Solid_OIDC extends Uploader {
 
 class Uploader_OPL_WebDav extends Uploader {
 
-  constructor(uid, pwd, base_path, idp) {
+  constructor(uid, pwd, idp) {
     super();
     this.uid = uid;
     this.pwd = pwd;
-    if (base_path) {
-      if (!base_path.endsWith('/'))
-        base_path += '/';
-      this.base_path = base_path;
-    }
-    else {
-      this.base_path = (idp && idp === 'opl_dav_https') ? 'https://id.myopenlink.net/DAV/home/' : 'http://id.myopenlink.net/DAV/home/';;
-      if (uid)
-        this.base_path += uid + '/';
-    }
 
+    var base_path = (idp && idp === 'opl_dav_https') ? 'https://id.myopenlink.net/DAV/home/' : 'http://id.myopenlink.net/DAV/home/';;
+
+    if (uid)
+      this.base_path = base_path + uid + '/';
+    else
+      this.base_path = base_path;
   }
 
   getBasePath() {
@@ -1649,7 +1736,10 @@ class Uploader_OPL_WebDav extends Uploader {
       dir = dir.substring(1);
 
     var url = new URL(dir, new URL(this.base_path));
-    return url.href;
+    var path = url.href;
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+    return path;
   }
 
   async checkCredentials() {
@@ -1863,7 +1953,10 @@ class Uploader_LDP_TLS extends Uploader {
       dir = dir.substring(1);
 
     var url = new URL(dir, new URL(this.base_path));
-    return url.href;
+    var path = url.href;
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+    return path;
   }
 
   async createProfileDir(dir) {
@@ -2011,20 +2104,18 @@ class Uploader_LDP_TLS extends Uploader {
 
 class Uploader_OPL_LDP extends Uploader {
 
-  constructor(uid, pwd, base_path, idp) {
+  constructor(uid, pwd, idp) {
     super();
     this.uid = uid;
     this.pwd = pwd;
-    if (base_path) {
-      if (!base_path.endsWith('/'))
-        base_path += '/';
+
+    var base_path = (idp && idp === 'opl_ldp_https') ? 'https://id.myopenlink.net/DAV/home/' : 'http://id.myopenlink.net/DAV/home/';
+
+    if (uid)
+      this.base_path = base_path + uid + '/';
+    else
       this.base_path = base_path;
-    }
-    else {
-      this.base_path = (idp && idp === 'opl_ldp_https') ? 'https://id.myopenlink.net/DAV/home/' : 'http://id.myopenlink.net/DAV/home/';;
-      if (uid)
-        this.base_path += uid + '/';
-    }
+    
     this.LDP_RESOURCE = '<http://www.w3.org/ns/ldp#Resource>; rel="type"';
     this.LDP_DIR = '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"';
   }
@@ -2038,7 +2129,10 @@ class Uploader_OPL_LDP extends Uploader {
       dir = dir.substring(1);
 
     var url = new URL(dir, new URL(this.base_path));
-    return url.href;
+    var path = url.href;
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+    return path;
   }
 
   async checkCredentials() {
@@ -2186,7 +2280,11 @@ class Uploader_AWS_S3 extends Uploader {
   }
 
   getDirPath(dir) {
-     return 'https://'+this.bucket+'.s3.amazonaws.com';
+    var url = new URL(dir, new URL('https://'+this.bucket+'.s3.amazonaws.com'));
+    var path = url.href;
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+    return path;
   }
 
   async createProfileDir(dir) {
@@ -2335,6 +2433,139 @@ class Uploader_AWS_S3 extends Uploader {
         }
       });
     });
+  }
+
+}
+
+
+
+class Uploader_Azure extends Uploader {
+  constructor(path, account, acc_key) {
+    super();
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+
+    this.path = path;
+    this.blob = 'youid';
+    this.account = account;
+    if (acc_key.startsWith('?'))
+      this.acc_key = acc_key;
+    else
+      this.acc_key = '?'+acc_key;
+
+    this.serviceClient = new Azure.BlobServiceClient(
+       `https://${this.account}.blob.core.windows.net${this.acc_key}`  //${sas}
+     );
+  }
+
+  async checkCredentials() {
+    try {
+      return await this._listContainers();
+    } catch(e) {
+      return null;
+    }
+  }
+
+  async checkDirExists(dir) {
+    try {
+      var lst = await this._listContainers();
+      var exists = false;
+      for(var id of lst) {
+        if (id === this.blob) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) {
+        exists = false;
+        lst = await this._listDirs();
+        for(var id of lst) {
+          if (id === dir) {
+            exists = true;
+            break;
+          }
+        }
+      }
+      return {exists};
+    } catch(e) {
+      return {err: e.toString()};
+    }
+  }
+
+  
+  getDirPath(dir) {
+    var base = `https://${this.account}.blob.core.windows.net/`;
+    var url = new URL(`${this.blob}/${dir}`, new URL(base));
+    var path = url.href;
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+    return path;
+  }
+
+  async createProfileDir(dir) {
+    try {
+      var lst = await this._listContainers();
+      var exists = false;
+      for(var id of lst) {
+        if (id === this.blob) {
+          exists = true;
+          break;
+        }
+      }
+      const containerClient = this.serviceClient.getContainerClient(this.blob);
+      if (!exists) {  //create Blob
+        await containerClient.create({access: 'blob'});
+      }
+      //Don't neet create dir for Azure Blob, the Dir is just a prefix for filename.
+      return {ok: true};
+    } catch(e) {
+      return {err: e.toString()};
+    }
+  }
+
+  async uploadFile(dir, fname, data, type) {
+    DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = fname;
+    try {
+      var rc = await this._putObject(dir, fname, data, type);
+      return { ok: true };
+    } catch (e) {
+      return { err: e};
+    } finally {
+      DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = '';
+    }
+  }
+
+  async _listContainers() {
+    var lst = [];
+
+    for await (const blob of this.serviceClient.listContainers()) {
+      lst.push(blob.name);
+    }
+    return lst;
+  }
+
+  async _listDirs() {
+    var lst = [];
+    const containerClient = this.serviceClient.getContainerClient(this.blob);
+
+    for await (const entity of containerClient.listBlobsByHierarchy('/')) {
+      if (entity.kind === "prefix") {
+        var name = entity.name;
+        lst.push(name.substring(0, name.length-1));
+      } 
+    }
+    return lst;
+  }
+
+
+  async _putObject(dir, fname, body, type) {
+    var file_name = this.path + '/'+ fname;
+    const containerClient = this.serviceClient.getContainerClient(this.blob);
+    const blobClient = containerClient.getBlockBlobClient(file_name);
+
+    const len = (body instanceof Blob) ? body.size : body.length;
+    const blobOptions = { blobHTTPHeaders: { blobContentType: type } };
+    await blobClient.upload(body, len, blobOptions);
   }
 
 }
