@@ -448,9 +448,6 @@ OAuth2.prototype.authorize = function(callback) {
     that.adapter = OAuth2.adapters[that.adapterName];
     var data = that.get();
 
-    that.openAuthorizationCodePopup(callback);
-    return;
-/***
     if (!data.accessToken) {
       // There's no access token yet. Start the authorizationCode flow
       that.openAuthorizationCodePopup(callback);
@@ -479,7 +476,6 @@ OAuth2.prototype.authorize = function(callback) {
         callback();
       }
     }
-**/
   });
 };
 
@@ -527,7 +523,17 @@ OAuth2.prototype.sendMessage = function(msg, callback) {
     that.adapter = OAuth2.adapters[that.adapterName];
     var data = that.get();
     if (data.accessToken && data.supportMessages) {
-      that.adapter.sendMessage(data.accessToken, data.context, msg, callback);
+      if (!data.context) {
+        that.adapter.userInfo(data.accessToken, (val, context) => {
+          if (context)
+            that.set('context', context);
+
+          data = that.get();
+          that.adapter.sendMessage(data.accessToken, data.context, msg, callback);
+        });
+      } else {
+        that.adapter.sendMessage(data.accessToken, data.context, msg, callback);
+      }
     } 
   });
 };

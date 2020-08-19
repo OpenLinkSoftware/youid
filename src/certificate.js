@@ -109,7 +109,6 @@ Certificate.prototype = {
     }
 
     self.reset_gen_cert();
-
     self.initCountries();
 
     if (DOM.qSel('#c_idp option:checked').value === 'solid_oidc') {
@@ -120,12 +119,12 @@ Certificate.prototype = {
       .onchange = (e) => {
         var sel = DOM.qSel('#c_pdp option:checked').value;
         DOM.qHide('#gen-cert-dlg #r_pdp-webid');
-        DOM.qHide('#gen-cert-dlg #r_pdp-name');
+        DOM.qHide('#gen-cert-dlg #btn-fetch-pdp');
 
         if (sel === 'pdp_webid') {
           DOM.qShow('#gen-cert-dlg #r_pdp-webid');
         } else {
-          DOM.qShow('#gen-cert-dlg #r_pdp-name');
+          DOM.qShow('#gen-cert-dlg #btn-fetch-pdp');
         }
       };
 
@@ -738,6 +737,7 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #ready_msg');
       DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
       DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
+      DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
 
       DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Upload certificate to server';
@@ -776,31 +776,33 @@ Certificate.prototype = {
           await self.uploadDelegator(gen, webid, certData);
         };
 
-      if (self.pdp && self.pdp.message) {
-        DOM.qShow('#gen-cert-ready-dlg #r-message');
-        DOM.qSel('#gen-cert-ready-dlg #ann_title').innerText = `Announce your Certificate identity claims via ${self.pdp.title} post.`;
-        DOM.qSel('#gen-cert-ready-dlg #btn-message')
-          .onclick = () => {
-            var msg = `ID Claim: ${certData.fingerprint_b64}`;
-            if (self.pdp.id === 'pdp_twitter') 
-            {
+      DOM.qSel('#gen-cert-ready-dlg #btn-message')
+        .onclick = () => {
+          var sel = DOM.qSel('#c_announce option:checked').value;
+          var msg = `ID Claim: ${certData.fingerprint_b64}`;
+
+          if (sel === 'pdp_twitter') 
+          {
+            twitterAuth.authorize(function() {
               twitterAuth.sendMessage(msg, function(data, error) { 
                 if (error)
                   alert('Error: '+error);
                 else
                   alert('Message was sent');
               });
-            }
-            else if (self.pdp.id === 'pdp_linkedin') 
-            {
+            });
+          }
+          else if (sel === 'pdp_linkedin') 
+          {
+            linkedinAuth.authorize(function() {
               linkedinAuth.sendMessage(msg, function(data, error) { 
                 if (error)
                   alert('Error: '+error);
                 else
                   alert('Message was sent');
               });
-            }
-        }
+            });
+          }
       }
 
     }, 500);

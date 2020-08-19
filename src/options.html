@@ -58,6 +58,8 @@
 	body { 
 	  margin: 50px;
 	}
+	.ml5 {margin-left:5px}
+	.ml10 {margin-left:10px}
     </style>
   </head>
 
@@ -98,7 +100,7 @@
         <form class="form-horizontal">
           <div class="form-group row">
             <label for="c_pdp" class="col-md-3 control-label">Profile Data Provider:</label>
-            <div class="col-md-6">
+            <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
               <select name="provider" class="form-control" id="c_pdp">
                 <option value="pdp_webid" selected>WebID-Profile Document</option>
                 <option value="pdp_amazon">Amazon</option>
@@ -109,12 +111,17 @@
                 <option value="pdp_win_azure">Windows Azure</option>
                 <option value="pdp_win_live">Windows Live</option>
               </select>
+              &nbsp;&nbsp;&nbsp;
+              <button id="btn-fetch-pdp" type="button" class="btn btn-primary hidden">
+                Fetch Profile 
+              </button>
             </div>
           </div>
           <div class="form-group row" id="r_pdp-webid">
             <label for="c_profile" class="col-md-3 control-label">Profile Document URL:</label>
-            <div class="col-md-9">
+            <div class="col-md-9" style="display:flex; flex-direction:row; align-items: baseline;">
               <input type="text" class="form-control" id="c_profile" value="">
+              &nbsp;&nbsp;
               <button id="btn-fetch-profile" type="button" class="btn btn-primary">
                 <img class="hidden" id="fetch_wait" src="images/throbber.gif" width="16" />
                 Fetch Profile 
@@ -122,14 +129,6 @@
             </div>
           </div>
 
-          <div class="form-group row hidden" id="r_pdp-name">
-            <label for="c_pdp_name" class="col-md-3 control-label"></label>
-            <div class="col-md-9">
-              <button id="btn-fetch-pdp" type="button" class="btn btn-primary">
-                Fetch Profile 
-              </button>
-            </div>
-          </div>
           <hr/>
 
           <div class="form-group row">
@@ -409,7 +408,6 @@
     <input id="Cancel_btn" value=" Cancel " type="button">
 
 
-
 <!-- Modal -->
 <div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
   <div class="modal-dialog" role="document">
@@ -567,6 +565,17 @@
              <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
            </div>
         </section>
+        <section id="r-message">
+          <br/>
+          <div style="display:flex; flex-direction:row; align-items: baseline;">
+             <div> Announce your Certificate identity claims via post to </div>
+             <select name="provider" class="ml10 form-control" style="width:120px" id="c_announce">
+                <option value="pdp_linkedin">LinkedIn</option>
+                <option value="pdp_twitter" selected>Twitter</option>
+             </select>
+             <button id="btn-message" type="button" class="ml10 btn btn-primary">Send</button>
+          </div>
+        </section>
         <p/>
         <section id="profile-card">
           <hr>
@@ -610,14 +619,6 @@
         <p/>
         <section id="webid-card">
           Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
-        </section>
-        <section id="r-message">
-          <hr/>
-          <div style="display:flex; flex-direction:row; align-items: baseline;">
-             <div id="ann_title"> Announce your Certificate identity claims via post. </div>
-             &nbsp;&nbsp;
-             <button id="btn-message" type="button" class="btn btn-primary">Send</button>
-          </div>
         </section>
         <p/>
         <hr/>

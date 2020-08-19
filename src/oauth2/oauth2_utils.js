@@ -8,9 +8,6 @@
   var facebookAuth = new OAuth2('facebook', {
     client_id: '453029738100680',
     client_secret: '9efa297e80b23386c780a7c8c677bb41',
-//    api_scope: 'email pages_manage_posts',
-//    api_scope: 'email,publish_pages',    publish_actions
-//    api_scope: 'email,publish_actions',
     api_scope: 'email',
     mode2: false,
     supportMessages: false

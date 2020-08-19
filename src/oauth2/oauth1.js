@@ -72,14 +72,14 @@ OAuth1.prototype.nonce = function(len) {
   return result;
 }
 
+OAuth1.prototype.percentEncode = function(str) {
+  return encodeURIComponent(str).replace(/[!*()']/g, (character) => {
+      return '%' + character.charCodeAt(0).toString(16);
+  });  
+}
+
 
 OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, queryParams) {
-  function percentEncode(str) {
-    return encodeURIComponent(str).replace(/[!*()']/g, (character) => {
-      return '%' + character.charCodeAt(0).toString(16);
-    });  
-  }
-
   var ts = ""+parseInt(Math.round(Date.now() / 1000));
   var nonce = this.nonce(6);
   var meth = meth.toUpperCase();
@@ -114,7 +114,7 @@ OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, quer
 
   for (k in ordered) {
     const encodedKey = k;  
-    const encodedValue = percentEncode(ordered[k]);
+    const encodedValue = this.percentEncode(ordered[k]);
     if(encodedParameters === ''){
       encodedParameters += `${encodedKey}=${encodedValue}`;
     }
@@ -123,10 +123,10 @@ OAuth1.prototype.prepareOAuthHeader = function (meth, url, token, callback, quer
     }
   }
 
-  var signBase = `${meth}&${percentEncode(url)}&${percentEncode(encodedParameters)}`;
+  var signBase = `${meth}&${this.percentEncode(url)}&${this.percentEncode(encodedParameters)}`;
 
-  var key = percentEncode(signKey.consumerSec)+'&'+percentEncode(signKey.tokenSec);
-  var oauth_signature = percentEncode(b64_hmac_sha1(key, signBase));
+  var key = this.percentEncode(signKey.consumerSec)+'&'+this.percentEncode(signKey.tokenSec);
+  var oauth_signature = this.percentEncode(b64_hmac_sha1(key, signBase));
 
   var add_callback = callback ? `oauth_callback="${encodeURIComponent(callback)}", ` : '';
   var add_token = params['oauth_token'] ? `oauth_token="${encodeURIComponent(params['oauth_token'])}", ` : '';
@@ -440,12 +440,42 @@ OAuth1.prototype.authorize = async function(callback) {
   OAuth1.loadAdapter(that.adapterName, async function() {
     that.adapter = OAuth1.adapters[that.adapterName];
     var data = that.get();
+    var access = false;
 
-    that.clearAccessToken();
-    var rc = await that.requestToken(data);
-    if (rc) {
-       that.openAuthorizationCodePopup(callback);
+    if (that.hasAccessToken()) {
+      // check token
+      var url = 'https://api.twitter.com/1.1/users/lookup.json';
+      var screen_name = data.screen_name;
+      var OAuthHeader = that.prepareOAuthHeader('GET', url, null, null, {screen_name});
+
+      try {
+        var options = {
+          headers: {
+            'Authorization': OAuthHeader
+          }
+        }
+        var rc = await fetch(url+"?screen_name="+encodeURIComponent(screen_name), options);
+        var data = await rc.text();
+        if (rc.ok) {
+          access = true;
+        } else {
+          access = false;
+        }
+      } catch(e) {
+        access = false;
+      }
     }
+
+    if (access) {
+      callback();
+    } else {
+      that.clearAccessToken();
+      var rc = await that.requestToken(data);
+      if (rc) {
+        that.openAuthorizationCodePopup(callback);
+      }
+    }
+
   });
 };
 
