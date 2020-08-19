@@ -740,6 +740,7 @@ Certificate.prototype = {
         DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
         DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
         DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
+        DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni;
         DOM.qShow('#gen-cert-ready-dlg #profile-card');
       } else {
 
@@ -757,7 +758,8 @@ Certificate.prototype = {
       DOM.qSel('#gen-cert-ready-dlg #btn-message')
         .onclick = () => {
           var sel = DOM.qSel('#c_announce option:checked').value;
-          var msg = `ID Claim: ni:///sha1;${certData.fingerprint_b64}`;
+          var fmt = self.gPref.getValue('ext.youid.pref.ann_message');
+          var msg = fmt.replace(/{webid}/g, webid).replace(/{ni-scheme-uri}/g, certData.fingerprint_ni);
                                           
           if (sel === 'pdp_twitter') 
           {
@@ -1451,8 +1453,10 @@ INSERT {
     md.update(derCert);
     var digest = md.digest();
     var digest_b64 = forge.util.encode64(digest.data);
+    var fp_ni = `ni:///sha1;${digest_b64}`;
 
-    return { der: derCert, pem: pemCert, pkcs12B64: p12B64, pkcs12: p12Der, cert, fingerprint_b64: digest_b64};
+    return { der: derCert, pem: pemCert, pkcs12B64: p12B64, pkcs12: p12Der, cert, 
+             fingerprint_b64: digest_b64, fingerprint_ni: fp_ni};
   },
 
 

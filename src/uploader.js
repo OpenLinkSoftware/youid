@@ -294,6 +294,7 @@ class Uploader {
     digest = md.digest();
     tpl_data['fingerprint'] = toHex(digest);
     tpl_data['fingerprint_colon'] = toHex(digest, ':');
+    tpl_data['fingerprint_ni'] = cert.fingerprint_ni;
     tpl_data['fingerprint-digest'] = 'sha1';
     tpl_data['serial'] = cert.serialNumber;
     tpl_data['cert_base64'] = forge.util.encode64(certData.der);

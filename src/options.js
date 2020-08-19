@@ -79,6 +79,10 @@ $(function(){
             closeOptions();
          });
 
+        $('#announce #btn-reset-announce').click(function() {
+           DOM.qSel('#announce #message-text').value = gPref.getDef_Fingerprint();
+         });
+
 
         $('#ext_ver').text('Version: '+ Browser.api.runtime.getManifest().version);
         var url = new URL(location.href);
@@ -135,6 +139,7 @@ function closeOptions()
     }
 }
 
+
 function loadPref()
 {
     var hdr_list = [];
@@ -157,6 +162,11 @@ function loadPref()
     DOM.qSel('#az_account #c_az_account').value = gPref.getValue('ext.youid.s3_account');
     DOM.qSel('#az_account #c_az_sas_token').value = gPref.getValue('ext.youid.s3_sas_token');
 
+    var v = gPref.getValue('ext.youid.pref.ann_message');
+    if (!v || v.length < 1)
+      v = gPref.getDef_Fingerprint();
+    
+    DOM.qSel('#announce #message-text').value = v;
 }
 
 
@@ -172,6 +182,8 @@ function savePref()
 
    gPref.setValue('ext.youid.s3_account', DOM.qSel('#az_account #c_az_account').value);
    gPref.setValue('ext.youid.s3_sas_token', DOM.qSel('#az_account #c_az_sas_token').value);
+
+   gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
 
    closeOptions();
 }

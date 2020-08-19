@@ -40,16 +40,11 @@ Settings.prototype = {
 
     if (val!==null)
       return val;
-/**
     switch(id) {
-      case "ext.osds.uiterm.mode":
-          val = "ui-eav"
-          break;
-      case "ext.osds.import.url":
-          val = this.def_import_url;
+      case "ext.youid.pref.ann_message":
+          val = this.getDef_Fingerprint();
           break;
     }
-**/
     return val;
   },
 
@@ -61,6 +56,12 @@ Settings.prototype = {
     } catch(e) {
       console.log(e);
     }
+  },
+
+  getDef_Fingerprint : function () {
+    return 'Announcing a new verifiable Digital Identity for {webid} .\n'
+          +'Fingerprint URI: {ni-scheme-uri} .';
   }
+
 }
   

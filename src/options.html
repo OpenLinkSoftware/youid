@@ -349,7 +349,6 @@
                 <button id="btn-update_delegate" type="button" class="btn btn-primary ">
                   Update Delegate Profile 
                 </button>
-
               </div>
             </div>
 
@@ -433,6 +432,29 @@
             </div>
           </div>
         </form>
+        <hr>
+
+        <form id="announce" class="form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-4 control-label">Announcement Messages</label>
+          </div>
+          <div class="form-group row">
+            <div class="col-md-8">
+              <textarea id="message-text" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+              <button id="btn-reset-announce" type="button" class="btn ">
+                Revert to Defaults 
+              </button>
+              <div>
+                &#x25cf <span style="color:red">{webid}</span> token will be replaced with the WebID URI
+              </div>
+              <div>
+                &#x25cf <span style="color:red">{ni-scheme-uri}</span> token will be replaced with the Certificate Ni Fingerprint
+              </div>
+            </div>
+          </div>
+        </form>
+
         </div>
 
 
@@ -663,6 +685,7 @@
             <li><a href="#i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
             <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
             <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF/XML</a></li>
+            <li><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
           </ul>
 
           <!-- Tab panes -->
@@ -689,6 +712,10 @@
             </div>
             <div class="tab-pane" id="i_rdfxml">
               <textarea id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              </textarea>
+            </div>
+            <div class="tab-pane" id="i_ni">
+              <textarea id="text-i-ni" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:nowrap;">
               </textarea>
             </div>
           </div>
