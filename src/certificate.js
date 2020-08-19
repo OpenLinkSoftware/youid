@@ -31,7 +31,7 @@ Certificate.prototype = {
     this.YMD = dt.toISOString().substring(0, 10).replace(/-/g, '');
     this.HMS = dt.toISOString().substring(11, 19).replace(/:/g, '');
 
-    var idp = DOM.qSel('#gen-cert-dlg #c_pdp').value;
+    var idp = DOM.qSel('#gen-cert-dlg #c_idp').value;
 
     if (idp === 'azure' || idp === 'aws_s3' || idp === 'ldp_tls' || idp === 'ldp_tls_solid')
       DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + this.YMD + '_' + this.HMS;
@@ -87,7 +87,7 @@ Certificate.prototype = {
           var bucket = DOM.qSel('#gen-cert-dlg #c_bucket').value;
 
           var up = new Uploader_AWS_S3(bucket, acc_key, sec_key);
-          DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath('') + '/profile.ttl#identity';
+          DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath(cert_path) + '/profile.ttl#identity';
           DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = true;
         }
         else if (idp === 'azure') {
@@ -432,7 +432,9 @@ Certificate.prototype = {
         }
         else if (sel === 'aws_s3') {
           DOM.qSel('#gen-cert-dlg #c_bucket').value = 'youid-card-'+create_UUID();
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + self.YMD + '_' + self.HMS;
           DOM.qShow('#gen-cert-dlg #r_cert_name');
+          DOM.qShow('#gen-cert-dlg #r_cert_path');
           DOM.qShow('#gen-cert-dlg #c_aws_s3');
         }
         else if (sel === 'azure') {
@@ -488,7 +490,7 @@ Certificate.prototype = {
 
         gen.cert_dir = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
         if (gen.cert_dir.length < 1) {
-          if (gen.idp === 'azure')
+          if (gen.idp === 'azure' || gen.idp === 'aws_s3')
             gen.cert_dir = 'IDcard_' + self.YMD + '_' + self.HMS;
           else
             gen.cert_dir = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
@@ -518,6 +520,9 @@ Certificate.prototype = {
           rc = await up.checkDirExists(gen.cert_dir);
           if (rc && rc.exists) {
             alert('Dir ' + gen.cert_dir + ' exists already');
+            return;
+          } else if (rc && rc.err) {
+            alert('Error ' + rc.err);
             return;
           }
         }
@@ -553,6 +558,9 @@ Certificate.prototype = {
           if (rc && rc.exists) {
             alert('Dir ' + gen.cert_dir + ' exists already');
             return;
+          } else if (rc && rc.err) {
+            alert('Error ' + rc.err);
+            return;
           }
         }
         else if (gen.idp === 'aws_s3') 
@@ -585,21 +593,19 @@ Certificate.prototype = {
             }
           }
 
-          var up = new Uploader_AWS_S3(gen.bucket, gen.acc_key, gen.sec_key);
+          var up = new Uploader_AWS_S3(gen.bucket, gen.cert_dir, gen.acc_key, gen.sec_key);
           var lst = await up.checkCredentials();
           if (!lst) {
             alert('Wrong Access Key or Secret Key');
             return
           }
-          var exists = false;
-          for(var id of lst) {
-            if (id === gen.bucket) {
-              exists = true;
-              break;
-            }
-          }
-          if (exists) {
-            alert('Bucket ' + gen.bucket + ' exists already');
+
+          var rc = await up.checkDirExists(gen.cert_dir);
+          if (rc && rc.exists) {
+            alert('Dir ' + gen.cert_dir + ' exists already');
+            return;
+          } else if (rc && rc.err) {
+            alert('Error ' + rc.err);
             return;
           }
         }
@@ -607,7 +613,6 @@ Certificate.prototype = {
         {
           gen.account = DOM.qSel('#gen-cert-dlg #c_account').value;
           gen.account_key = DOM.qSel('#gen-cert-dlg #c_account_key').value;
-          gen.cert_path = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
 
           if (gen.account.length < 1) {
             alert('Storage Account is empty');
@@ -618,16 +623,19 @@ Certificate.prototype = {
             return
           }
 
-          var up = new Uploader_Azure(gen.cert_path, gen.account, gen.account_key);
+          var up = new Uploader_Azure(gen.cert_dir, gen.account, gen.account_key);
           var lst = await up.checkCredentials();
           if (!lst) {
             alert('Wrong Account Key or SAS Key');
             return
           }
 
-          var rc = await up.checkDirExists(gen.cert_path);
+          var rc = await up.checkDirExists(gen.cert_dir);
           if (rc && rc.exists) {
-            alert('Dir ' + gen.cert_path + ' exists already');
+            alert('Dir ' + gen.cert_dir + ' exists already');
+            return;
+          } else if (rc && rc.err) {
+            alert('Error ' + rc.err);
             return;
           }
         }
@@ -976,10 +984,10 @@ Certificate.prototype = {
           up = new Uploader_OPL_LDP(gen.uid, gen.pwd, gen.idp);
         }
         else if (gen.idp === 'aws_s3') {
-          var up = new Uploader_AWS_S3(gen.bucket, gen.acc_key, gen.sec_key);
+          var up = new Uploader_AWS_S3(gen.bucket, gen.cert_dir, gen.acc_key, gen.sec_key);
         } 
         else if (gen.idp === 'azure') {
-          var up = new Uploader_Azure(gen.cert_path, gen.account, gen.account_key);
+          var up = new Uploader_Azure(gen.cert_dir, gen.account, gen.account_key);
         } 
         else {
           return;
@@ -2259,8 +2267,12 @@ class Uploader_OPL_LDP extends Uploader {
 
 
 class Uploader_AWS_S3 extends Uploader {
-  constructor(bucket, acc_key, sec_key) {
+  constructor(bucket, path, acc_key, sec_key) {
     super();
+    if (path.endsWith('/'))
+      path = path.substring(0, path.length-1);
+
+    this.path = path;
     this.bucket = bucket;
     this.acc_key = acc_key;
     this.sec_key = sec_key;
@@ -2279,8 +2291,37 @@ class Uploader_AWS_S3 extends Uploader {
     }
   }
 
+  async checkDirExists(dir) {
+    try {
+      var lst = await this._listBuckets();
+      var exists = false;
+      for(var id of lst) {
+        if (id === this.bucket) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) {
+        exists = false;
+        lst = await this._listDirs();
+        for(var id of lst) {
+          if (id === dir) {
+            exists = true;
+            break;
+          }
+        }
+      }
+      return {exists};
+    } catch(e) {
+      return {err: e.toString()};
+    }
+  }
+
+  
   getDirPath(dir) {
-    var url = new URL(dir, new URL('https://'+this.bucket+'.s3.amazonaws.com'));
+    if (dir.startsWith('/'))
+      dir = dir.substring(1);
+    var url = new URL(dir, new URL('https://'+this.bucket+'.s3.amazonaws.com'+'/'+dir));
     var path = url.href;
     if (path.endsWith('/'))
       path = path.substring(0, path.length-1);
@@ -2289,8 +2330,20 @@ class Uploader_AWS_S3 extends Uploader {
 
   async createProfileDir(dir) {
     try {
-      var rc = await this._createBucket(this.bucket);
-      return { ok: true };
+      var lst = await this._listBuckets();
+      var exists = false;
+      for(var id of lst) {
+        if (id === this.bucket) {
+          exists = true;
+          break;
+        }
+      }
+
+      if (!exists) {  //create Blob
+        await this._createBucket(this.bucket);
+      }
+      //Don't neet create dir for AWS S3, the Dir is just a prefix for filename.
+      return {ok: true};
     } catch (e) {
       return { err: e};
     }
@@ -2299,7 +2352,7 @@ class Uploader_AWS_S3 extends Uploader {
   async uploadFile(dir, fname, data, type) {
     DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = fname;
     try {
-      var rc = await this._putObject(this.bucket, fname, data, type);
+      var rc = await this._putObject(dir, fname, data, type);
       return { ok: true };
     } catch (e) {
       return { err: e};
@@ -2326,13 +2379,38 @@ class Uploader_AWS_S3 extends Uploader {
   }
 
 
-  async _putObject(bucket, key, body, type) {
+  async _listDirs() {
     var self = this;
     return new Promise((resolve, reject) => {
       var params = {
+        Bucket: self.bucket,
+        Delimiter: '/'
+      };
+
+      self.s3.listObjectsV2(params, (err, data) => {
+        if (err)
+          reject(err);
+        else {
+          var lst = [];
+          for(var item of data.CommonPrefixes) {
+            var dir = item.Prefix;
+            lst.push(dir.substring(0, dir.length-1));
+          }
+          resolve(lst); 
+        }
+      });
+    });
+  }
+
+
+  async _putObject(dir, fname, body, type) {
+    var self = this;
+    var file_name = this.path + '/'+ fname;
+    return new Promise((resolve, reject) => {
+      var params = {
         Body: body,
-        Bucket: bucket,
-        Key: key,
+        Bucket: self.bucket,
+        Key: file_name,
         ACL: "public-read",
         ContentType: type
       };
