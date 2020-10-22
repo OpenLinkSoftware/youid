@@ -740,7 +740,8 @@ Certificate.prototype = {
         DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
         DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
         DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
-        DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni;
+        DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni+"\n\n"+certData.fingerprint_256_ni;
+        DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di+"\n\n"+certData.fingerprint_256_di;
         DOM.qShow('#gen-cert-ready-dlg #profile-card');
       } else {
 
@@ -1418,7 +1419,7 @@ INSERT {
     cert.setSubject(attrs);
     cert.setIssuer(attrs);
     cert.setExtensions([
-      { name: 'basicConstraints', cA: true, critical: true },
+//      { name: 'basicConstraints', cA: true, critical: true },
       { name: 'keyUsage', digitalSignature: true },
       { name: 'extKeyUsage', clientAuth: true },
       { name: 'nsCertType', client: true },
@@ -1448,16 +1449,25 @@ INSERT {
     var p12Der = forge.asn1.toDer(p12Asn1).getBytes();
     var p12B64 = forge.util.encode64(p12Der);
 
-    var md = forge.md.sha1.create();
-    md.start();
-    md.update(derCert);
-    var digest = md.digest();
-    var digest_b64 = forge.util.encode64(digest.data);
+    var digest = pki.getPublicKeyFingerprint(cert.publicKey, {type:'SubjectPublicKeyInfo', encoding: 'binary'});
+    var digest_b64 = forge.util.encode64(digest);
     var b64_url = digest_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var fp_ni = `ni:///sha-1;${b64_url}`;
+    var fp_di = `di:sha-1;${b64_url}`;
+
+    var digest_256 = pki.getPublicKeyFingerprint(cert.publicKey, {md: forge.md.sha256.create(), type:'SubjectPublicKeyInfo', encoding: "binary"});
+    var digest_256_b64 = forge.util.encode64(digest_256);
+    var b64_256_url = digest_256_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
+    var fp_256_ni = `ni:///sha-256;${b64_256_url}`;
+    var fp_256_di = `di:sha-256;${b64_256_url}`;
 
     return { der: derCert, pem: pemCert, pkcs12B64: p12B64, pkcs12: p12Der, cert, 
-             fingerprint_b64: digest_b64, fingerprint_ni: fp_ni};
+             fingerprint_b64: digest_b64, 
+             fingerprint_di: fp_di, 
+             fingerprint_ni: fp_ni,
+             fingerprint_256_di: fp_256_di, 
+             fingerprint_256_ni: fp_256_ni
+           };
   },
 
 
