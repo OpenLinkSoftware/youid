@@ -1455,7 +1455,7 @@ INSERT {
     var digest_hex = forge.util.binary.hex.encode(digest);
     var b64_url = digest_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var fp_ni = `ni:///sha-1;${b64_url}`;
-    var fp_di = `di:sha-1;${b64_url}`;
+    var fp_di = `di:sha1;${b64_url}`;
     var fp = `#SHA1 Fingerprint:${digest_hex}`
 
     var digest_256 = pki.getPublicKeyFingerprint(cert.publicKey, {md: forge.md.sha256.create(), type:'SubjectPublicKeyInfo', encoding: "binary"});
@@ -1463,7 +1463,7 @@ INSERT {
     var digest_256_hex = forge.util.binary.hex.encode(digest_256);
     var b64_256_url = digest_256_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var fp_256_ni = `ni:///sha-256;${b64_256_url}`;
-    var fp_256_di = `di:sha-256;${b64_256_url}`;
+    var fp_256_di = `di:sha256;${b64_256_url}`;
     var fp_256 = `#SHA256 Fingerprint:${digest_256_hex}`
 
     return { der: derCert, pem: pemCert, pkcs12B64: p12B64, pkcs12: p12Der, cert, 
