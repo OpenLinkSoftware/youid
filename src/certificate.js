@@ -1453,7 +1453,8 @@ INSERT {
     md.update(derCert);
     var digest = md.digest();
     var digest_b64 = forge.util.encode64(digest.data);
-    var fp_ni = `ni:///sha1;${digest_b64}`;
+    var b64_url = digest_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
+    var fp_ni = `ni:///sha-1;${b64_url}`;
 
     return { der: derCert, pem: pemCert, pkcs12B64: p12B64, pkcs12: p12Der, cert, 
              fingerprint_b64: digest_b64, fingerprint_ni: fp_ni};
