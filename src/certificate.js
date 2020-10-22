@@ -310,7 +310,7 @@ Certificate.prototype = {
         DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = false;
         DOM.qHide('#gen-cert-dlg #c_webdav');
         DOM.qHide('#gen-cert-dlg #c_solid_oidc');
-        DOM.qHide('#gen-cert-dlg #r_cert_name');
+//        DOM.qHide('#gen-cert-dlg #r_cert_name');
         DOM.qHide('#gen-cert-dlg #r_cert_path');
         DOM.qHide('#gen-cert-dlg #c_aws_s3');
         DOM.qHide('#gen-cert-dlg #c_azure');
@@ -742,6 +742,7 @@ Certificate.prototype = {
         DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
         DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni+"\n\n"+certData.fingerprint_256_ni;
         DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di+"\n\n"+certData.fingerprint_256_di;
+        DOM.qSel('#profile-card #text-i-fp').value = certData.fingerprint_1+"\n\n"+certData.fingerprint_256;
         DOM.qShow('#gen-cert-ready-dlg #profile-card');
       } else {
 
@@ -1451,22 +1452,28 @@ INSERT {
 
     var digest = pki.getPublicKeyFingerprint(cert.publicKey, {type:'SubjectPublicKeyInfo', encoding: 'binary'});
     var digest_b64 = forge.util.encode64(digest);
+    var digest_hex = forge.util.binary.hex.encode(digest);
     var b64_url = digest_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var fp_ni = `ni:///sha-1;${b64_url}`;
     var fp_di = `di:sha-1;${b64_url}`;
+    var fp = `#SHA1 Fingerprint:${digest_hex}`
 
     var digest_256 = pki.getPublicKeyFingerprint(cert.publicKey, {md: forge.md.sha256.create(), type:'SubjectPublicKeyInfo', encoding: "binary"});
     var digest_256_b64 = forge.util.encode64(digest_256);
+    var digest_256_hex = forge.util.binary.hex.encode(digest_256);
     var b64_256_url = digest_256_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var fp_256_ni = `ni:///sha-256;${b64_256_url}`;
     var fp_256_di = `di:sha-256;${b64_256_url}`;
+    var fp_256 = `#SHA256 Fingerprint:${digest_256_hex}`
 
     return { der: derCert, pem: pemCert, pkcs12B64: p12B64, pkcs12: p12Der, cert, 
              fingerprint_b64: digest_b64, 
              fingerprint_di: fp_di, 
              fingerprint_ni: fp_ni,
              fingerprint_256_di: fp_256_di, 
-             fingerprint_256_ni: fp_256_ni
+             fingerprint_256_ni: fp_256_ni,
+             fingerprint_1: fp,
+             fingerprint_256: fp_256,
            };
   },
 
