@@ -725,7 +725,7 @@ Certificate.prototype = {
       DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
 
-      DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Upload certificate to server';
+      DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Public Credentials';
 
       var v = DOM.qSel('#webid-cert #webid_href');
       v.href = webid;
