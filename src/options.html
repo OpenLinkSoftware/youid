@@ -38,6 +38,8 @@
     <script type="text/javascript" src="lib/oidc-web.min.js"></script>
     <script type="text/javascript" src="lib/aws-sdk.js"></script>
     <script type="text/javascript" src="lib/azure-sdk.js"></script>
+    <script type="text/javascript" src="lib/punycode.js"></script>
+    <script type="text/javascript" src="lib/emojimap.js"></script>
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
     <script type="text/javascript" src="oauth2/oauth1.js"></script>
@@ -344,7 +346,7 @@
 
               <div class="col-md-12">
                 <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
-                <textarea id="delegate-text" class="form-control" style="max-width:100%; height: 130px; overflow:scroll; white-space:nowrap;">
+                <textarea id="delegate-text" class="form-control" style="max-width:100%; height: 130px; overflow:scroll; white-space:pre;">
                 </textarea>
                 <button id="btn-update_delegate" type="button" class="btn btn-primary ">
                   Update Delegate Profile 
@@ -363,18 +365,18 @@
               <!-- Tab panes -->
               <div class="tab-content">
                 <div class="tab-pane active" id="delegator1-sparql">
-                  <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:nowrap;">
+                  <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
                   </textarea>
                   <button id="btn-update_delegator" type="button" class="btn btn-primary ">
                     Update Delegator Profile 
                   </button>
                 </div>
                 <div class="tab-pane" id="delegator1-i_ttl">
-                  <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
+                  <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
                   </textarea>
                 </div>
                 <div class="tab-pane" id="delegator1-i_jsonld">
-                  <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
+                  <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
                   </textarea>
                 </div>
               </div>
@@ -440,7 +442,7 @@
           </div>
           <div class="form-group row">
             <div class="col-md-8">
-              <textarea id="message-text" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:nowrap;">
+              <textarea id="message-text" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:pre;">
               </textarea>
               <button id="btn-reset-announce" type="button" class="btn ">
                 Revert to Defaults 
@@ -693,39 +695,39 @@
           <!-- Tab panes -->
           <div class="tab-content">
             <div class="tab-pane active" id="n_ttl">
-              <textarea id="text-n-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-n-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="n_jsonld">
-              <textarea id="text-n-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-n-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="n_rdfxml">
-              <textarea id="text-n-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-n-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_ttl">
-              <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-i-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_jsonld">
-              <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-i-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_rdfxml">
-              <textarea id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_fp">
-              <textarea id="text-i-fp" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-i-fp" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_ni">
-              <textarea id="text-i-ni" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-i-ni" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="i_di">
-              <textarea id="text-i-di" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:nowrap;">
+              <textarea readonly id="text-i-di" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
           </div>
@@ -763,7 +765,7 @@
 
             <div class="col-md-12">
               <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
-              <textarea id="delegate-text" class="form-control hidden1" style="max-width:100%; height: 130px; overflow:scroll; white-space:nowrap;">
+              <textarea id="delegate-text" class="form-control hidden1" style="max-width:100%; height: 130px; overflow:scroll; white-space:pre;">
               </textarea>
               <button id="btn-update_delegate" type="button" class="btn btn-primary ">
                 Update Delegate Profile 
@@ -782,18 +784,18 @@
           <!-- Tab panes -->
           <div class="tab-content">
             <div class="tab-pane active" id="delegator-sparql">
-              <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
               </textarea>
               <button id="btn-update_delegator" type="button" class="btn btn-primary ">
                 Update Delegator Profile 
               </button>
             </div>
             <div class="tab-pane" id="delegator-i_ttl">
-              <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
             <div class="tab-pane" id="delegator-i_jsonld">
-              <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:nowrap;">
+              <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
               </textarea>
             </div>
           </div>

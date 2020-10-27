@@ -31,25 +31,60 @@ following projects:
 		  much simpler with an easy-to-use API that works across a multitude of browsers.
 
 
-* jQuery migrate
-    Project	: https://github.com/jquery/jquery-migrate
-    License	: https://github.com/jquery/jquery-migrate/blob/master/LICENSE.txt, looks like MIT license
-    Description	: Migrate older jQuery code to jQuery 1.9+
-
-
-* jsuri.js
-    Project	: https://github.com/derek-watson/jsUri
-    License	: MIT license
-    Description	: Uri parsing and manipulation for node.js and the browser.
-
-
 * rdfstore.js
     Project	: https://github.com/antoniogarrote/rdfstore-js
     License	: MIT license
     Description	: JS RDF store with SPARQL support.
 
+* Emojisum
+    Project     : https://github.com/emojisum/emojisum
+    License	: GNU General Public License v2.0
+    Description	: Emoji that checksum!
 
+* AWS SDK
+    Project	: https://github.com/aws/aws-sdk-js
+    License	: Apache License 2.0
+    Description : AWS SDK for JavaScript in the browser and Node.js
 
+* Azure SDK
+    Project	: https://github.com/Azure/azure-sdk-for-js
+    License	: MIT License
+    Description : This repository is for active development of the Azure SDK for JavaScript (NodeJS & Browser). 
+
+* jsonld.js
+    Project	: https://github.com/digitalbazaar/jsonld.js
+    License	: New BSD License (3-clause)
+    Description : A JSON-LD Processor and API implementation in JavaScript.
+
+* RDFa.js
+    Project	: https://github.com/alexmilowski/green-turtle
+    License	: MIT license
+    Description : An RDFa 1.1. implementation for browsers.
+
+* rdflib.js
+    Project	: https://github.com/linkeddata/rdflib.js
+    License	: MIT license
+    Description : Linked Data API for JavaScript 
+
+* qrcode
+    Project	: https://github.com/kazuhikoarase/qrcode-generator
+    License	: MIT License
+    Description : QR Code Generator implementation in JavaScript, Java and more
+
+* punycode
+    Project	: https://github.com/bestiejs/punycode.js/
+    License	: MIT License
+    Description : Punycode.js is a robust Punycode converter that fully complies to RFC 3492 and RFC 5891.
+
+* forge
+    Project	: https://github.com/digitalbazaar/forge
+    License	: https://github.com/digitalbazaar/forge/blob/master/LICENSE BSD / GPL v2
+    Description : A native implementation of TLS (and various other cryptographic tools) in JavaScript.
+
+* bootstrap
+    Project	: https://github.com/twbs/bootstrap
+    License	: MIT License
+    Description : Sleek, intuitive, and powerful front-end framework for faster and easier web development.
 
 This list may not complete. If you feel any third party project is missing from this list, please
 email the current maintainer.
