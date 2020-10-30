@@ -235,7 +235,7 @@ class Uploader {
     tpl_data['pdp_add'] = '';
     tpl_data['ian'] = '';
 
-    tpl_data['modulus'] = cert.publicKey.n.toString(16).toLowerCase();
+    tpl_data['modulus'] = cert.publicKey.n.toString(16).toUpperCase();
     tpl_data['exponent'] = cert.publicKey.e.toString(10);
     tpl_data['issuer'] = toStr(cert.issuer);
     tpl_data['subject'] = toStr(cert.subject);

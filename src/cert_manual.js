@@ -27,7 +27,7 @@
     var CN = cert.subject.getField('CN');
     var commonName = CN.value;
     var exponent = cert.publicKey.e.toString(10);
-    var modulus = cert.publicKey.n.toString(16).toLowerCase();
+    var modulus = cert.publicKey.n.toString(16).toUpperCase();
     var timeCreated = cert.validity.notBefore.toISOString();
 
     var ttl = `
