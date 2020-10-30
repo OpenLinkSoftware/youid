@@ -675,6 +675,7 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-dlg #c_pwd').value = '';
     DOM.qSel('#gen-cert-dlg #c_pwd1').value = '';
     DOM.qShow('#gen-cert-ready-dlg #c_wait');
+    DOM.qHide('#gen-cert-ready-dlg #public-cred');
     DOM.qHide('#gen-cert-ready-dlg #p12-cert');
     DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').removeAttribute('href');
     DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
@@ -716,6 +717,7 @@ Certificate.prototype = {
 
       var p12Url = 'data:application/x-pkcs12;base64,' + certData.pkcs12B64;
       DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('href', p12Url);
+      DOM.qShow('#gen-cert-ready-dlg #public-cred');
       DOM.qShow('#gen-cert-ready-dlg #p12-cert');
       DOM.qHide('#gen-cert-ready-dlg #c_wait');
       DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
@@ -725,7 +727,7 @@ Certificate.prototype = {
       DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
 
-      DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Public Credentials';
+      DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Credentials';
 
       var v = DOM.qSel('#webid-cert #webid_href');
       v.href = webid;

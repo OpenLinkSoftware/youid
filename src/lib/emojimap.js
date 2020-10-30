@@ -284,19 +284,23 @@ function bin2emoj(sbin, mode)
   function byte2emo_u(i)
   {
     var rc = '';
-    var i = (i>=0 && i<=255) ? i: 0;
+    var i = (i >= 0 && i <= 255) ? i: 0;
     var code = emojimap.emojiwords[i];
-    for(var s of code) {
+    for (var s of code) {
       if (s.startsWith('U+')) {
-        var v = s.split('U+',2);
-        if (v.length == 2)
-          var vi = parseInt(v[1], 16);
-          rc = punycode.ucs2.encode([vi]);
-        break;
+        var v = s.split('U+');
+        if (v.length >= 2) {
+          for (var i = 1; i < v.length; i++) {
+            var vi = parseInt(v[i], 16);
+            rc += punycode.ucs2.encode([vi]);
+          }
+          break;
+        }
       }
     }
     return rc;
   }
+
 
 
   var rc = '';

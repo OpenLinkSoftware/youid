@@ -643,86 +643,88 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 id="title" class="modal-title">Public Credentials</h4>
+        <h4 id="title" class="modal-title">Credentials</h4>
       </div>
       <div class="modal-body">
         <div id="c_wait">
          <img src="images/throbber.gif" width="16" /> Wait...
         </div>
-        <section id="webid-cert">
-          <label class="control-label">Your WebID:&nbsp;</label> <a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
-        </section>
-        <section id="r-message">
-          <div style="display:flex; flex-direction:row; align-items: baseline;">
-             <label class="control-label">Announce your Certificate identity claims via post to </label>
-             <select name="provider" class="ml10 form-control" style="width:120px" id="c_announce">
-                <option value="pdp_linkedin">LinkedIn</option>
-                <option value="pdp_twitter" selected>Twitter</option>
-             </select>
-             <button id="btn-message" type="button" class="ml10 btn btn-primary">Send</button>
-          </div>
-        </section>
-        <p/>
-        <form class="form-horizontal">
-         <section id="profile-card">
-         <hr>
-          <ul class="nav nav-tabs">
-            <li class="active"><a href="#n_ttl" data-toggle="tab">N3/Turtle</a></li>
-            <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
-            <li><a href="#n_rdfxml" data-toggle="tab">RDF/XML</a></li>
-            <li><a href="#i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
-            <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
-            <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF/XML</a></li>
-            <li><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
-            <li><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
-            <li><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
-          </ul>
+        <div id="public-cred">
+          <label class="control-label">Public Credentials</label> 
+          <section id="webid-cert"  style="padding-left:1em">
+            Your WebID:&nbsp;<a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
+          </section>
+          <section id="r-message"  style="padding-left:1em">
+            <div style="display:flex; flex-direction:row; align-items: baseline;">
+               Announce your Certificate identity claims via post to
+               <select name="provider" class="ml10 form-control" style="width:120px" id="c_announce">
+                  <option value="pdp_linkedin">LinkedIn</option>
+                  <option value="pdp_twitter" selected>Twitter</option>
+               </select>
+               <button id="btn-message" type="button" class="ml10 btn btn-primary">Send</button>
+            </div>
+          </section>
+          <p/>
+          <form class="form-horizontal" style="padding-left:1em">
+           <section id="profile-card">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#n_ttl" data-toggle="tab">N3/Turtle</a></li>
+              <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
+              <li><a href="#n_rdfxml" data-toggle="tab">RDF/XML</a></li>
+              <li><a href="#i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
+              <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+              <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF/XML</a></li>
+              <li><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
+              <li><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
+              <li><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
+            </ul>
 
-          <!-- Tab panes -->
-          <div class="tab-content">
-            <div class="tab-pane active" id="n_ttl">
-              <textarea readonly id="text-n-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
-              </textarea>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div class="tab-pane active" id="n_ttl">
+                <textarea readonly id="text-n-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="n_jsonld">
+                <textarea readonly id="text-n-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="n_rdfxml">
+                <textarea readonly id="text-n-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_ttl">
+                <textarea readonly id="text-i-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_jsonld">
+                <textarea readonly id="text-i-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_rdfxml">
+                <textarea readonly id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_fp">
+                <textarea readonly id="text-i-fp" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_ni">
+                <textarea readonly id="text-i-ni" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_di">
+                <textarea readonly id="text-i-di" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
             </div>
-            <div class="tab-pane" id="n_jsonld">
-              <textarea readonly id="text-n-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="n_rdfxml">
-              <textarea readonly id="text-n-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="i_ttl">
-              <textarea readonly id="text-i-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="i_jsonld">
-              <textarea readonly id="text-i-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="i_rdfxml">
-              <textarea readonly id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="i_fp">
-              <textarea readonly id="text-i-fp" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="i_ni">
-              <textarea readonly id="text-i-ni" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="i_di">
-              <textarea readonly id="text-i-di" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-          </div>
-         </section>
-        </form>
-        <p/>
-        <section id="webid-card">
-          Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
-        </section>
+           </section>
+          </form>
+          <p/>
+          <section id="webid-card">
+            Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
+          </section>
+        </div>
         <p/>
         <hr/>
         <section id="p12-cert">
@@ -748,9 +750,9 @@
           </div>
         </div>
 
-        <form id="delegate-create" class="form-horizontal hidden">
+        <form id="delegate-create" class="form-horizontal hidden" style="padding-left:1em">
           <div class="form-group row">
-            <label for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;URI:</label>
+            <div for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;URI:</div>
             <div class="col-md-11" style="display:flex; flex-direction:row">
               <input type="text" class="form-control" id="delegate_uri" value="">
               <button id="btn-delegate_uri" type="button" class="btn ml10">
@@ -765,7 +767,7 @@
             </div> 
 
             <div class="col-md-12">
-              <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
+              <div for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</div>
               <textarea id="delegate-text" class="form-control hidden1" style="max-width:100%; height: 130px; overflow:scroll; white-space:pre;">
               </textarea>
               <button id="btn-update_delegate" type="button" class="btn btn-primary ">
@@ -774,34 +776,34 @@
 
             </div>
           </div>
-        <section id="section-delegator">
-          <label for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</label>
-          <ul id="delegator-text" class="nav nav-tabs">
-            <li class="active"><a href="#delegator-sparql" data-toggle="tab">SPARQL</a></li>
-            <li><a href="#delegator-i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
-            <li><a href="#delegator-i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
-          </ul>
+          <section id="section-delegator">
+            <div for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</div>
+            <ul id="delegator-text" class="nav nav-tabs">
+              <li class="active"><a href="#delegator-sparql" data-toggle="tab">SPARQL</a></li>
+              <li><a href="#delegator-i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
+              <li><a href="#delegator-i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+            </ul>
 
-          <!-- Tab panes -->
-          <div class="tab-content">
-            <div class="tab-pane active" id="delegator-sparql">
-              <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
-              </textarea>
-              <button id="btn-update_delegator" type="button" class="btn btn-primary ">
-                Update Delegator Profile 
-              </button>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div class="tab-pane active" id="delegator-sparql">
+                <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+                <button id="btn-update_delegator" type="button" class="btn btn-primary ">
+                  Update Delegator Profile 
+                </button>
+              </div>
+              <div class="tab-pane" id="delegator-i_ttl">
+                <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="delegator-i_jsonld">
+                <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
             </div>
-            <div class="tab-pane" id="delegator-i_ttl">
-              <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-            <div class="tab-pane" id="delegator-i_jsonld">
-              <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
-              </textarea>
-            </div>
-          </div>
 
-        </section>
+          </section>
 
         </form>
 
