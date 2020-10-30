@@ -185,7 +185,7 @@ function savePref()
 
    gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
 
-   closeOptions();
+//   closeOptions();
 }
 
 

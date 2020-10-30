@@ -649,26 +649,10 @@
         <div id="c_wait">
          <img src="images/throbber.gif" width="16" /> Wait...
         </div>
-        <section id="p12-cert">
-          <label for="private-cred" class="control-label"> Private Credentials</label>
-          <div style="display:flex; flex-direction:column; padding-left:1em">
-            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
-             PKCS12 Credentials Store&nbsp;&nbsp;
-             <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
-            </div>
-            <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
-            <div class="hidden" id="ready_msg" style="display:flex; flex-direction:row; align-items: baseline;">
-              Please save PKCS12 Credentials Store on local disk and click Upload.&nbsp;&nbsp;
-              <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
-            </div>
-          </div>
-          <hr>
-        </section>
         <section id="webid-cert">
           <label class="control-label">Your WebID:&nbsp;</label> <a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
         </section>
         <section id="r-message">
-          <br/>
           <div style="display:flex; flex-direction:row; align-items: baseline;">
              <label class="control-label">Announce your Certificate identity claims via post to </label>
              <select name="provider" class="ml10 form-control" style="width:120px" id="c_announce">
@@ -741,6 +725,21 @@
         </section>
         <p/>
         <hr/>
+        <section id="p12-cert">
+          <label for="private-cred" class="control-label"> Private Credentials</label>
+          <div style="display:flex; flex-direction:column; padding-left:1em">
+            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+             PKCS12 Credentials Store&nbsp;&nbsp;
+             <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+            </div>
+            <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
+            <div class="hidden" id="ready_msg" style="display:flex; flex-direction:row; align-items: baseline;">
+              Please save PKCS12 Credentials Store on local disk and click Upload.&nbsp;&nbsp;
+              <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
+            </div>
+          </div>
+          <hr>
+        </section>
 
         <div class="row" id="r-reg_delegate">
           <div class="col-md-6">
