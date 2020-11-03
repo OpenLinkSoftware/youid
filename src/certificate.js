@@ -18,6 +18,8 @@
  *
  */
 
+var QQQ = -1;
+
 Certificate = function () {
   this.gPref = new Settings();
   this.gOidc = new OidcWeb();
@@ -678,11 +680,11 @@ Certificate.prototype = {
     DOM.qHide('#gen-cert-ready-dlg #public-cred');
     DOM.qHide('#gen-cert-ready-dlg #p12-cert');
     DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').removeAttribute('href');
-    DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
+//    DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
     DOM.qHide('#gen-cert-ready-dlg #u_wait');
     DOM.qHide('#gen-cert-ready-dlg #webid-cert');
     DOM.qHide('#gen-cert-ready-dlg #webid-card');
-//    DOM.qHide('#gen-cert-ready-dlg #profile-card');
+    DOM.qHide('#gen-cert-ready-dlg #profile-card');
     DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate')
     DOM.qHide('#gen-cert-ready-dlg #r-message')
     DOM.qSel('#gen-cert-ready-dlg #delegate-text').value = '';
@@ -695,7 +697,7 @@ Certificate.prototype = {
     gen.delegate_uri = null;
     this.setDelegateText(gen, '#gen-cert-ready-dlg');
     this.setDelegatorText(gen, '#gen-cert-ready-dlg', 'delegator');
-    DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = false;
+//    DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = false;
     DOM.qHide('#gen-cert-ready-dlg #delegate-create');
 
     DOM.qSel('#gen-cert-ready-dlg #reg_delegate')
@@ -712,16 +714,32 @@ Certificate.prototype = {
        self.reset_gen_cert();
     })
 
-    setTimeout(function () {
+    setTimeout(async function () {
       certData = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, certPwd);
 
+      DOM.qHide('#gen-cert-ready-dlg #c_wait');
+
+      if (gen.idp !== 'manual') {
+        //Update card
+        DOM.qShow('#gen-cert-ready-dlg #u_wait');
+        DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Creating your identity card...';
+        var rc = await self.uploadCert(gen, webid, certData);
+        if (rc == -1) {
+          DOM.qShow('#gen-cert-ready-dlg #webid-card-upload');
+          DOM.qSel('#gen-cert-ready-dlg #btn-upload_card')
+            .onclick = async () => {
+              DOM.qShow('#gen-cert-ready-dlg #u_wait');
+              await self.uploadCert(gen, webid, certData);
+            };
+        }
+      }
+      
       var p12Url = 'data:application/x-pkcs12;base64,' + certData.pkcs12B64;
       DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('href', p12Url);
       DOM.qShow('#gen-cert-ready-dlg #public-cred');
       DOM.qShow('#gen-cert-ready-dlg #p12-cert');
-      DOM.qHide('#gen-cert-ready-dlg #c_wait');
-      DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
-      DOM.qHide('#gen-cert-ready-dlg #ready_msg');
+//      DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
+//      DOM.qHide('#gen-cert-ready-dlg #ready_msg');
       DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
       DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
       DOM.qShow('#gen-cert-ready-dlg #r-message');
@@ -735,19 +753,11 @@ Certificate.prototype = {
 
       if (gen.idp === 'manual') {
         DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
-        var s = self.genManualCard(webid, certData);
-        DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
-        DOM.qSel('#profile-card #text-n-jsonld').value = s.nano_jsonld;
-        DOM.qSel('#profile-card #text-n-rdfxml').value = s.nano_rdfxml;
-        DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
-        DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
-        DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
-        DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni_tab;
-        DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di_tab;
-        DOM.qSel('#profile-card #text-i-fp').value = certData.fingerprint_tab;
         DOM.qShow('#gen-cert-ready-dlg #profile-card');
       } else {
 
+        DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
+/**
         DOM.qShow('#gen-cert-ready-dlg #ready_msg');
         DOM.qShow('#gen-cert-ready-dlg #btn-upload_cert');
         DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert')
@@ -755,7 +765,21 @@ Certificate.prototype = {
             DOM.qShow('#gen-cert-ready-dlg #u_wait');
             await self.uploadCert(gen, webid, certData);
           };
+***/
       }
+
+      DOM.qShow('#gen-cert-ready-dlg #profile-card');
+
+      var s = self.genManualCard(webid, certData);
+      DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
+      DOM.qSel('#profile-card #text-n-jsonld').value = s.nano_jsonld;
+      DOM.qSel('#profile-card #text-n-rdfxml').value = s.nano_rdfxml;
+      DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
+      DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
+      DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
+      DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni_tab;
+      DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di_tab;
+      DOM.qSel('#profile-card #text-i-fp').value = certData.fingerprint_tab;
 
       self.prepare_delegate('#gen-cert-ready-dlg', webid, {idp: gen.idp});
 
@@ -990,13 +1014,13 @@ Certificate.prototype = {
         var rc = await up.updateProfileCard(webid, query);
         if (!rc.ok) {
           alert('Could not update profile card');
-          return;
+          return -1;
         }
 
         rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', certData.pkcs12B64, 'application/x-pkcs12');
         if (!rc.ok) {
           alert('Could not upload file ' + gen.cert_name + '.p12');
-          return;
+          return -1;
         }
       } 
       else {
@@ -1017,7 +1041,8 @@ Certificate.prototype = {
           var up = new Uploader_Azure(gen.cert_dir, gen.account, gen.account_key);
         } 
         else {
-          return;
+          done_ok = true;
+          return 0;
         }
 
         var rc = await up.createProfileDir(gen.cert_dir);
@@ -1025,31 +1050,31 @@ Certificate.prototype = {
           rc = await up.loadCardFiles();
           if (!rc) {
             alert('Could not load card template files');
-            return;
+            return -1;
           }
           rc = await up.updateTemplate(certData, webid, up.getDirPath(gen.cert_dir), gen);
           if (!rc) {
             alert('Could not update card templates');
-            return;
+            return -1;
           }
           rc = await up.uploadCardFiles(gen.cert_dir);
           if (!rc) {
             alert('Could not upload card files');
-            return;
+            return -1;
           }
           rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', certData.pkcs12B64, 'application/x-pkcs12');
           if (!rc.ok) {
             alert('Could not upload file ' + gen.cert_name + '.p12');
-            return;
+            return -1;
           }
           rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', certData.der, 'application/pkix-cert');
           if (!rc.ok) {
             alert('Could not upload file ' + gen.cert_name + '.crt');
-            return;
+            return -1;
           }
         } else {
           alert('Could not create dir ' + gen.cert_dir);
-          return;
+          return -1;
         }
       }
 
@@ -1062,7 +1087,9 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #u_wait');
       if (done_ok) {
         setTimeout(function () {
-          DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = true;
+//??          DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = true;
+          DOM.qSel('#gen-cert-ready-dlg #btn-upload_card').disabled = true;
+          DOM.qHide('#gen-cert-ready-dlg #webid-card-upload');
 
           DOM.qShow('#gen-cert-ready-dlg #webid-card');
           var v = DOM.qSel('#webid-card #card_href');
@@ -1071,7 +1098,10 @@ Certificate.prototype = {
           
           alert('Done. Profile Document was uploaded.');
         }, 500);
+      } else {
+          alert('Error. Could not create your identity card, try again.');
       }
+      return done_ok ? 0 : -1;
     }
   },
 

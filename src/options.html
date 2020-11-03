@@ -665,6 +665,16 @@
             </div>
           </section>
           <p/>
+          <section id="webid-card-upload" class="hidden" style="padding-left:1em">
+            <div class="hidden0" id="upload_msg" style="display:flex; flex-direction:row; align-items: baseline;">
+              Click button for create your identity card.&nbsp;&nbsp;
+              <button id="btn-upload_card" type="button" class="btn btn-primary hidden0">Upload</button>
+            </div>
+          </section>
+          <section id="webid-card" style="padding-left:1em">
+            Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
+          </section>
+          <p/>
           <form class="form-horizontal" style="padding-left:1em">
            <section id="profile-card">
             <ul class="nav nav-tabs">
@@ -720,10 +730,6 @@
             </div>
            </section>
           </form>
-          <p/>
-          <section id="webid-card">
-            Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
-          </section>
         </div>
         <p/>
         <hr/>
@@ -735,10 +741,12 @@
              <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
             </div>
             <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
+<!--
             <div class="hidden" id="ready_msg" style="display:flex; flex-direction:row; align-items: baseline;">
               Please save PKCS12 Credentials Store on local disk and click Upload.&nbsp;&nbsp;
               <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
             </div>
+-->
           </div>
           <hr>
         </section>

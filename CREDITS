@@ -30,6 +30,10 @@ following projects:
 		  like HTML document traversal and manipulation, event handling, animation, and Ajax
 		  much simpler with an easy-to-use API that works across a multitude of browsers.
 
+* oauth2-extensions 
+    Project	: https://github.com/borismus/oauth2-extensions
+    License	: Apache 2.0
+    Description	: This is the OAuth 2.0 library for Chrome Extensions.
 
 * rdfstore.js
     Project	: https://github.com/antoniogarrote/rdfstore-js
