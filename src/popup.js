@@ -25,6 +25,8 @@ var v_youid = null;
 
 $(document).ready(function()
 {
+  document.getElementById("c_year").innerText = new Date().getFullYear();
+
   $('#prefs_btn').click(Prefs_exec);
 
   gPref = new Settings();

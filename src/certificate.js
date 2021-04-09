@@ -18,8 +18,6 @@
  *
  */
 
-var QQQ = -1;
-
 Certificate = function () {
   this.gPref = new Settings();
   this.gOidc = new OidcWeb();

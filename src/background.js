@@ -61,6 +61,10 @@ Browser.api.runtime.onMessage.addListener(async function(request, sender, sendRe
         Browser.api.tabs.remove(curTab[0].id);
       }
     }
+    else if (request.cmd === "activate_certgen")
+    {
+       Browser.openTab("options.html#certificate");
+    }
     else
     {
       sendResponse({}); /* stop */

@@ -34,9 +34,10 @@ function recvMessage(event)
   } catch(e) {}
 
 
-  if (ev_data && ev_data.getWebId) {
-    if (Browser.isChromeWebExt) {
-       Browser.api.runtime.sendMessage({ getWebId: true},
+  if (ev_data) {
+    if (ev_data.getWebId) {
+      if (Browser.isChromeWebExt) {
+         Browser.api.runtime.sendMessage({ getWebId: true},
               function (response) {
 //                 console.log(JSON.stringify(response, undefined, 2));
 
@@ -46,8 +47,8 @@ function recvMessage(event)
                  }
 
               });
-    } else {
-      Browser.api.runtime.sendMessage({ getWebId: true})
+      } else {
+        Browser.api.runtime.sendMessage({ getWebId: true})
            .then(function (response) 
                  {
 //                 console.log(JSON.stringify(response, undefined, 2));
@@ -57,6 +58,15 @@ function recvMessage(event)
                      event.source.postMessage("youid_rc:"+msg, event.origin);
                    }
                  });
+      }
+    }
+    //detect
+    else if (ev_data.detectYouID) {
+       var msg = '{"installed": true}';
+       event.source.postMessage("youid_rc:"+msg, event.origin);
+    }
+    else if (ev_data.activate === 'certgen') {
+       Browser.api.runtime.sendMessage({ cmd: "activate_certgen"});
     }
 
   }

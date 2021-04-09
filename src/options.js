@@ -27,6 +27,8 @@ var selectedTab = null;
 $(function(){
 	gPref = new Settings();
 
+        document.getElementById("c_year").innerText = new Date().getFullYear();
+
         v_youid = new YouId_View(false);
         v_cert = new Certificate();
 
