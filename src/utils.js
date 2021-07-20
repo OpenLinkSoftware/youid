@@ -465,9 +465,8 @@ YouID_Loader.prototype = {
 
         var options = {documentIRI:baseURI};
           
-        switch(content_type)
+        if (content_type.indexOf('application/rdf+xml') != -1) 
         {
-        case 'application/rdf+xml':
           try {
             var kb = $rdf.graph();
 
@@ -483,8 +482,9 @@ YouID_Loader.prototype = {
           } catch(err) {
               reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
           }
-          break;
-        case 'application/ld+json':
+        }
+        else if (content_type.indexOf('application/ld+json') != -1) 
+        {
           try {
             var jsonld_data = JSON.parse(data);
             jsonld.expand(jsonld_data, {base:baseURI})
@@ -509,17 +509,16 @@ YouID_Loader.prototype = {
           } catch(err) {
               reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
           }
-          break;
-
-        case 'text/turtle':
-          store.load(content_type, data, options, function(err, res){
+        }
+        else if (content_type.indexOf('text/turtle') != -1) {
+          store.load('text/turtle', data, options, function(err, res){
 	    if (err)
               reject ("Could not parse profile\n\n"+err+"\n\n Profile data:\n\n"+data);
 	    resolve(store);
 	  });
-	  break;
-
-	default:
+        }
+        else 
+        {
           reject ("Unexpected content type :"+content_type);
         }
       })

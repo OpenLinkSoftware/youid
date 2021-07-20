@@ -25,7 +25,6 @@ const oidc_clients = 'oidc.clients.';
 OidcWeb = function(data) {
   this.webid = null;
   this.session = null;
-  this.fetch = fetch;
 
   const options = { solid: true };
   this.authClient = new OIDCWebClient(options);
@@ -51,7 +50,6 @@ OidcWeb.prototype = {
       await this.localStore_remove(oidc_clients+idp);
       this.webid = null;
       this.session = null;
-      this.fetch = fetch;
     }
   },
 
@@ -62,6 +60,11 @@ OidcWeb.prototype = {
      const top = window.screenY + (window.innerHeight - height) / 2;
      const settings = `width=${width},height=${height},left=${left},top=${top}`;
      window.open(this.login_url, 'Login', settings);
+  },
+
+  fetch: async function(url, options)
+  {
+    return this.authClient.authFetch(url, options);
   },
 
   checkSession: async function() 
@@ -77,7 +80,6 @@ OidcWeb.prototype = {
 
       this.session = await this.authClient.currentSession()
       this.webid = (this.session.hasCredentials()) ? this.session.idClaims.sub : null;
-      this.fetch = (this.webid) ? this.session.fetch : null;
 
     } catch(e) {
       console.log(e);
