@@ -58,35 +58,35 @@ or directly from one of the following links:
 ### Install the extension in Chrome
 To install this extension manually use the following steps:
 
-- Open the Chrome browser
-- Select from menu: **Chrome** → **Preferences** → **Extensions**
-- Tick the checkbox for **Developer mode** 
-- Choose the option **Load unpacked extension...**
-- Navigate to the folder containing the extracted source code
-- Press the **Select** button
+1. Open the Chrome browser
+1. Select from menu: **Chrome** → **Preferences** → **Extensions**
+1. Tick the checkbox for **Developer mode** 
+1. Choose the option **Load unpacked extension...**
+1. Navigate to the folder containing the extracted source code
+1. Press the **Select** button
 
 ### Install the extension in Opera
 To install this extension manually use the following steps:
 
-- Open the Opera browser
-- In address bar type in **opera:extensions**
-- Press the **Developer Mode** button
-- Choose the option **Load unpacked extension...**
-- Navigate to the folder containing the extracted source
-- Press the **Select** button
+1. Open the Opera browser
+1. In address bar type in **opera:extensions**
+1. Press the **Developer Mode** button
+1. Choose the option **Load unpacked extension...**
+1. Navigate to the folder containing the extracted source
+1. Press the **Select** button
 
 ### Install the extension in Firefox
 Download the [Firefox YouID `.zip`](https://github.com/OpenLinkSoftware/youid/releases/download/)
 file and extract the `.xpi` file.
 
 To install this extension manually in Firefox v28+, use the following steps:
-- Open the **Firefox** browser
-- In address bar type: **`about:config`**
-- Press the **I'll be careful, i promise** button
-- Search for **`xpinstall.signatures.required`**
-- Double click that line so the value is set to **`false`**
-- In address bar type: **`about:addons`**
-- Click on the Gear icon and select **Install Add-On from file...** from the menu
-- Navigate to the directory where you extracted the `YouID_FF.xpi` file, 
+1.  Open the **Firefox** browser
+1.  In address bar type: **`about:config`**
+1.  Press the **I'll be careful, i promise** button
+1.  Search for **`xpinstall.signatures.required`**
+1.  Double click that line so the value is set to **`false`**
+1.  In address bar type: **`about:addons`**
+1.  Click on the Gear icon and select **Install Add-On from file...** from the menu
+1.  Navigate to the directory where you extracted the `YouID_FF.xpi` file, 
   select this file, and press the **Open** button
-- Press the **Install** button
+1.  Press the **Install** button
