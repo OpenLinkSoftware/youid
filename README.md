@@ -24,7 +24,7 @@ Support for additional browsers like
 is under investigation.
 
 ## License
-Copyright © 2013-2017 [OpenLink Software](mailto:opensource@openlinksw.com)
+Copyright © 2013-2021 [OpenLink Software](mailto:opensource@openlinksw.com)
 
 This software is licensed under the GNU General Public License (see
 [`COPYING`](https://github.com/OpenLinkSoftware/youid/blob/master/COPYING)).
