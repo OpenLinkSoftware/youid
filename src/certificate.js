@@ -300,6 +300,7 @@ Certificate.prototype = {
           up = new Uploader_OPL_WebDav(uid, '', idp)
 
         DOM.qSel('#gen-cert-dlg #c_dav_path').value = up.getBasePath();
+        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
       };
 
     DOM.qSel('#gen-cert-dlg #c_idp')
@@ -402,10 +403,6 @@ Certificate.prototype = {
         this.gen_webid(DOM.qSel('#c_idp option:checked').value);
       };
     DOM.qSel('#gen-cert-dlg #c_dav_path')
-      .onchange = async () => {
-        this.gen_webid(DOM.qSel('#c_idp option:checked').value);
-      };
-    DOM.qSel('#gen-cert-dlg #c_dav_uid')
       .onchange = async () => {
         this.gen_webid(DOM.qSel('#c_idp option:checked').value);
       };
@@ -655,7 +652,7 @@ Certificate.prototype = {
       return
     }
     if (certPwd != certPwd1) {
-      alert('Confirm certificate password with properly value');
+      alert('Wrong repeat password');
       return
     }
 
@@ -1015,7 +1012,8 @@ Certificate.prototype = {
           return -1;
         }
 
-        rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', certData.pkcs12B64, 'application/x-pkcs12');
+        var p12data = forge.util.binary.base64.decode(certData.pkcs12B64)
+        rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', p12data, 'application/x-pkcs12');
         if (!rc.ok) {
           alert('Could not upload file ' + gen.cert_name + '.p12');
           return -1;
@@ -1060,12 +1058,14 @@ Certificate.prototype = {
             alert('Could not upload card files');
             return -1;
           }
-          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', certData.pkcs12B64, 'application/x-pkcs12');
+          var p12data = forge.util.binary.base64.decode(certData.pkcs12B64)
+          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', p12data, 'application/x-pkcs12');
           if (!rc.ok) {
             alert('Could not upload file ' + gen.cert_name + '.p12');
             return -1;
           }
-          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', certData.der, 'application/pkix-cert');
+          var der = forge.util.binary.raw.decode(certData.der)
+          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', der, 'application/pkix-cert');
           if (!rc.ok) {
             alert('Could not upload file ' + gen.cert_name + '.crt');
             return -1;
