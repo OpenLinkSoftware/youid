@@ -93,7 +93,7 @@
 
 !!{ca_cert_url}
                 <div class="caKey">
-                	<a class="aimg" href="%{ca_cert_url}"><img src="%{lock_url}" width="38" height="38" alt="Issuer Public Key"/></a>
+                	<a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="Issuer Public Key"/></a>
                         <a href="%{ca_cert_url}">Issuer Public Key</a>
                 </div>
 !!.

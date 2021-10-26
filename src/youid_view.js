@@ -28,6 +28,7 @@ YouId_View = function(is_popup) {
   this.gPref = new Settings();
   this.cur_webid;
   this.webid_list = [];
+  this.gOidc = new OidcWeb();
 }
 
 YouId_View.prototype = {
@@ -446,7 +447,7 @@ YouId_View.prototype = {
     var lst = [];
     try {
       var loader = new YouID_Loader();
-      var rc = await loader.verify_ID(uri)
+      var rc = await loader.verify_ID(uri, this.gOidc)
 
       for(var val of rc) {
         var found = -1;

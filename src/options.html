@@ -180,6 +180,17 @@
               <input type="text" class="form-control" id="c_city" />
             </div>
           </div>
+
+          <div class="form-group row">
+            <label for="c_issued" class="col-md-3 control-label">Issued By:</label>
+            <div class="col-md-6">
+              <select name="issued" class="form-control" id="c_issued">
+                <option value="self_signed" selected>Self-Signed</option>
+                <option value="local_ca">Local CA</option>
+              </select>
+            </div>
+          </div>
+        
         </form>
 
         <hr/>
@@ -202,9 +213,6 @@
                 <option value="aws_s3">Amazon S3</option>
                 <option value="azure">Azure</option>
               </select>
-<!--
-              <button id="btn-oidc-login" type="button" class="btn hidden">Login</button>
--->
             </div>
           </div>
           <section id="c_webdav" class="hidden"> 
@@ -743,12 +751,6 @@
              <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
             </div>
             <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
-<!--
-            <div class="hidden" id="ready_msg" style="display:flex; flex-direction:row; align-items: baseline;">
-              Please save PKCS12 Credentials Store on local disk and click Upload.&nbsp;&nbsp;
-              <button id="btn-upload_cert" type="button" class="btn btn-primary hidden">Upload</button>
-            </div>
--->
           </div>
           <hr>
         </section>

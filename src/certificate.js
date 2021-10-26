@@ -232,7 +232,7 @@ Certificate.prototype = {
         try {
           DOM.qShow('#gen-cert-dlg #fetch_wait');
           var loader = new YouID_Loader();
-          var ret = await loader.verify_ID(uri);
+          var ret = await loader.verify_ID(uri, this.gOidc);
               
           for(var val of ret) {
             if (val.success && !rc0)
@@ -412,6 +412,7 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
       .onclick = async () => {
         var gen = {};
+        gen.issued = DOM.qSel('#c_issued option:checked').value;
         gen.idp = DOM.qSel('#c_idp option:checked').value;
         gen.cert_name = DOM.qSel('#gen-cert-dlg #c_cert_name').value;
         if (gen.cert_name.length < 1) {
@@ -602,7 +603,7 @@ Certificate.prototype = {
 
         try {
           var youid = new YouID_Loader();
-          var rc = await youid.verify_ID(this.gOidc.webid, this.gOidc.fetch);
+          var rc = await youid.verify_ID(this.gOidc.webid, this.gOidc);
           if (rc) {
             for(var webid in rc) {
               var data = rc[webid];
@@ -675,7 +676,6 @@ Certificate.prototype = {
     DOM.qHide('#gen-cert-ready-dlg #public-cred');
     DOM.qHide('#gen-cert-ready-dlg #p12-cert');
     DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').removeAttribute('href');
-//    DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
     DOM.qHide('#gen-cert-ready-dlg #u_wait');
     DOM.qHide('#gen-cert-ready-dlg #webid-cert');
     DOM.qHide('#gen-cert-ready-dlg #webid-card');
@@ -692,7 +692,7 @@ Certificate.prototype = {
     gen.delegate_uri = null;
     this.setDelegateText(gen, '#gen-cert-ready-dlg');
     this.setDelegatorText(gen, '#gen-cert-ready-dlg', 'delegator');
-//    DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = false;
+
     DOM.qHide('#gen-cert-ready-dlg #delegate-create');
 
     DOM.qSel('#gen-cert-ready-dlg #reg_delegate')
@@ -710,9 +710,27 @@ Certificate.prototype = {
     })
 
     setTimeout(async function () {
-      certData = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, certPwd);
+      if (gen.issued === "local_ca") {
+        var csr = self.genCSR(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid);
+        var rc = await self.uploadCSR(csr.pem);
+        DOM.qHide('#gen-cert-ready-dlg #c_wait');
 
-      DOM.qHide('#gen-cert-ready-dlg #c_wait');
+        if (rc.retcode !== '0') {
+          alert('Error: '+rc.error);
+          return;
+        }
+
+        certData = self.genCertInfo(decodeURIComponent(rc.data), null, csr.privateKey, name, certPwd)
+        certData.ca_pem = decodeURIComponent(rc.ca_data)
+        certData.ca_fname = 'OpenLinkLocalCA.pem'
+
+      } 
+      else {
+        var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid);
+        certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
+        DOM.qHide('#gen-cert-ready-dlg #c_wait');
+      }
+
 
       if (gen.idp !== 'manual') {
         //Update card
@@ -733,8 +751,6 @@ Certificate.prototype = {
       DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('href', p12Url);
       DOM.qShow('#gen-cert-ready-dlg #public-cred');
       DOM.qShow('#gen-cert-ready-dlg #p12-cert');
-//      DOM.qHide('#gen-cert-ready-dlg #btn-upload_cert');
-//      DOM.qHide('#gen-cert-ready-dlg #ready_msg');
       DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
       DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
       DOM.qShow('#gen-cert-ready-dlg #r-message');
@@ -752,15 +768,6 @@ Certificate.prototype = {
       } else {
 
         DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
-/**
-        DOM.qShow('#gen-cert-ready-dlg #ready_msg');
-        DOM.qShow('#gen-cert-ready-dlg #btn-upload_cert');
-        DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert')
-          .onclick = async () => {
-            DOM.qShow('#gen-cert-ready-dlg #u_wait');
-            await self.uploadCert(gen, webid, certData);
-          };
-***/
       }
 
       DOM.qShow('#gen-cert-ready-dlg #profile-card');
@@ -997,6 +1004,30 @@ Certificate.prototype = {
 
   },
 
+  uploadCSR: async function(pem) {
+    var rc;
+    var url = "http://id.myopenlink.net/YouidSave/idhCsr"
+
+    var options = {
+      method: 'POST',
+      body: new URLSearchParams({
+        'csr': pem,
+        'cip': 'sha256' // "sha512"
+      })
+    }
+
+    try {
+      var resp = await fetch(url, options);
+      if (resp.ok) {
+        var rc = await resp.json();  // recode  error  data  ca_data
+        return rc;
+      }
+      return { ok: resp.ok, code: resp.status, err: resp.statusText };
+    } catch (e) {
+      return {retcode:'0', error: ''+e};
+    }
+  },
+
   uploadCert: async function (gen, webid, certData) {
     var done_ok = false;
     try {
@@ -1070,6 +1101,13 @@ Certificate.prototype = {
             alert('Could not upload file ' + gen.cert_name + '.crt');
             return -1;
           }
+
+          if (certData.ca_pem && certData.ca_fname) {
+            rc = await up.uploadFile(gen.cert_dir, certData.ca_fname, certData.ca_pem, 'application/x-pem-file');
+            if (!rc.ok) 
+              return {rc:0, error:'Could not upload file ' + certData.ca_fname};
+          }
+
         } else {
           alert('Could not create dir ' + gen.cert_dir);
           return -1;
@@ -1108,7 +1146,7 @@ Certificate.prototype = {
     DOM.qShow(`${parent} #delegate_wait`);
     var uri = DOM.qSel(`${parent} #delegate_uri`).value;
     try {
-      var rc = await (new YouID_Loader()).verify_ID(uri);
+      var rc = await (new YouID_Loader()).verify_ID(uri, this.gOidc);
       if (rc) {
         for(var data of rc) {
           if (data.success && data.id.startsWith(uri)) {
@@ -1273,7 +1311,6 @@ INSERT {
       alert('Delegate query is empty');
       return;
     }
-    var _fetch = (gen.idp === 'solid_oidc') ? this.gOidc.fetch : fetch;
 
     var options = {
       method: 'PATCH',
@@ -1287,7 +1324,7 @@ INSERT {
     DOM.qSel(`${parent} #u_msg`).innerText = 'Updating Delegate profile';
     DOM.qShow(`${parent} #u_wait`);
     try {
-      var resp = await _fetch(url.href, options);
+      var resp = await this.gOidc.fetch(url.href, options);
       if (!resp.ok) {
         alert('Could not update Delegate profile HTTP=' + resp.status + '  ' + resp.statusText)
       } else {
@@ -1312,7 +1349,6 @@ INSERT {
       alert('Delegator query is empty');
       return;
     }
-    var _fetch = (gen.idp === 'solid_oidc') ? this.gOidc.fetch : fetch;
 
     var options = {
       method: 'PATCH',
@@ -1326,7 +1362,7 @@ INSERT {
     DOM.qSel(`${parent} #u_msg`).innerText = 'Updating Delegator profile';
     DOM.qShow(`${parent} #u_wait`);
     try {
-      var resp = await _fetch(url.href, options);
+      var resp = await this.gOidc.fetch(url.href, options);
       if (!resp.ok) {
         alert('Could not update Delegator profile HTTP=' + resp.status + '  ' + resp.statusText)
       } else {
@@ -1395,13 +1431,12 @@ INSERT {
   },
 
 
-  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, pwd) {
+  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId) {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
       return result;
     }
-
 
     var pki = forge.pki;
 
@@ -1449,28 +1484,161 @@ INSERT {
 
     cert.setSubject(attrs);
     cert.setIssuer(attrs);
-    cert.setExtensions([
+    if (certEmail && certEmail.length > 0) {
+      cert.setExtensions([
 //      { name: 'basicConstraints', cA: true, critical: true },
-      { name: 'keyUsage', digitalSignature: true },
-      { name: 'extKeyUsage', clientAuth: true },
-      { name: 'nsCertType', client: true },
-      {
-        name: 'subjectAltName',
-        altNames: [{
-          type: 6, // URI
-          value: webId
-        }]
-      },
-      { name: 'subjectKeyIdentifier' }
-    ])
+        { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },  
+        { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
+        { name: 'nsCertType', client: true, email: true },
+        {
+          name: 'subjectAltName',
+          altNames: [{
+            type: 6, // URI
+            value: webId
+          }]
+        },
+        { name: 'subjectKeyIdentifier' }
+      ])
+    }
+    else {
+      cert.setExtensions([
+//      { name: 'basicConstraints', cA: true, critical: true },
+        { name: 'keyUsage', digitalSignature: true},  
+        { name: 'extKeyUsage', clientAuth: true},
+        { name: 'nsCertType', client: true},
+        {
+          name: 'subjectAltName',
+          altNames: [{
+            type: 6, // URI
+            value: webId
+          }]
+        },
+        { name: 'subjectKeyIdentifier' }
+      ])
+    }
 
     cert.sign(keys.privateKey, forge.md.sha512.create());
+
+    return { 
+      privateKey: keys.privateKey,
+      publicKey: keys.publicKey,
+      cert
+    };
+  },
+
+
+  genCSR: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId) {
+    function addDays(date, days) {
+      var result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    }
+
+    var pki = forge.pki;
+
+    // generate a keypair and create an X.509v3 certificate
+    var keys = pki.rsa.generateKeyPair(2048);
+    var csr = pki.createCertificationRequest();
+
+    csr.publicKey = keys.publicKey;
+
+    var attrs = [];
+    if (certName && certName.length > 1) {
+      attrs.push({ name: 'commonName', value: certName });
+    }
+
+    if (certCountry && certCountry.length > 1) {
+      attrs.push({ name: 'countryName', value: certCountry });
+    }
+
+    if (certState && certState.length > 1) {
+      attrs.push({ shortName: 'ST', value: certState });
+    }
+    if (certCity && certCity.length > 1) {
+      attrs.push({ name: 'localityName', value: certCity });
+    }
+    if (certOrgUnit && certOrgUnit.length > 1) {
+      attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
+    }
+
+    if (certOrg && certOrg.length > 1) {
+      attrs.push({ name: 'organizationName', value: certOrg });
+    } else {
+      attrs.push({ name: 'organizationName', value: 'WebID' });
+    }
+    if (certEmail && certEmail.length > 1) {
+      attrs.push({ name: 'emailAddress', value: certEmail });
+    }
+
+    csr.setSubject(attrs);
+    if (certEmail && certEmail.length > 0) {
+
+      csr.setAttributes([
+        {
+        name: 'extensionRequest',
+        extensions: [
+//        { name: 'basicConstraints', cA: true, critical: true },
+          { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },  
+          { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
+          { name: 'nsCertType', client: true, email: true },
+          {
+            name: 'subjectAltName',
+            altNames: [{
+              type: 6, // URI
+              value: webId
+            }]
+          },
+//          { name: 'subjectKeyIdentifier' }
+        ]
+      }]);
+
+    }
+    else {
+
+      csr.setAttributes([
+        {
+        name: 'extensionRequest',
+        extensions: [
+//        { name: 'basicConstraints', cA: true, critical: true },
+          { name: 'keyUsage', digitalSignature: true },  
+          { name: 'extKeyUsage', clientAuth: true },
+          { name: 'nsCertType', client: true },
+          {
+            name: 'subjectAltName',
+            altNames: [{
+              type: 6, // URI
+              value: webId
+            }]
+          },
+//          { name: 'subjectKeyIdentifier' }
+        ]
+      }]);
+    
+    }
+
+    csr.sign(keys.privateKey, forge.md.sha512.create());
+
+    return  {
+      privateKey: keys.privateKey, //pki.privateKeyToPem(keys.privateKey),
+      publicKey: keys.publicKey, // pki.publicKeyToPem(keys.publicKey),
+      pem: pki.certificationRequestToPem(csr)
+    };
+  },
+
+
+  genCertInfo: function(certPEM, cert, privateKey, certName, pwd)
+  {
+    var pki = forge.pki;
+
+    if (certPEM && !cert) {
+      cert =  pki.certificateFromPem(certPEM);
+    }
 
     var pemCert = pki.certificateToPem(cert);
     var derCert = forge.asn1.toDer(pki.certificateToAsn1(cert)).getBytes();
 
     var key_name = (certName && certName.length>0)?certName:"";
-    var p12Asn1 = forge.pkcs12.toPkcs12Asn1(keys.privateKey, [cert], pwd,
+    var p12Asn1 = forge.pkcs12.toPkcs12Asn1(privateKey, [cert], pwd,
       {
         generateLocalKeyId: true,
         friendlyName: key_name+'-key',
@@ -1534,8 +1702,8 @@ INSERT {
              fingerprint_ni_tab: fp_ni_tab,
              fingerprint_di_tab: fp_di_tab,
            };
-  },
 
+  },
 
 }
 

@@ -116,7 +116,7 @@ YouID_Loader.prototype = {
   },
 
 
-  verify_ID : async function(uri, oidc_fetch) {
+  verify_ID : async function(uri, oidc) {
     var self = this;
     var baseURI = new URL(uri);
         baseURI.hash = '';
@@ -126,7 +126,7 @@ YouID_Loader.prototype = {
     var data, content_type;
 
     if (url_lower.endsWith(".html") || url_lower.endsWith(".htm")) {
-      var rc = await fetch(baseURI, {credentials: 'include'});
+      var rc = await oidc.fetch(baseURI, {credentials: 'include'});
       if (!rc.ok) {
         throw new Error("Could not load data from: "+baseURI);
       }
@@ -134,7 +134,7 @@ YouID_Loader.prototype = {
       content_type = 'text/html';
     }
     else if (url_lower.endsWith(".txt")) {
-      var rc = await fetch(baseURI, {credentials: 'include'});
+      var rc = await oidc.fetch(baseURI, {credentials: 'include'});
       if (!rc.ok) {
         throw new Error("Could not load data from: "+baseURI);
       }
@@ -143,7 +143,7 @@ YouID_Loader.prototype = {
     }
     else {
       var get_url = uri + ((/\?/).test(uri) ? "&" : "?") + (new Date()).getTime();
-      var rc = await (this.getProfile(get_url, oidc_fetch)
+      var rc = await (this.getProfile(get_url, oidc)
             .catch(err => {
               throw new Error("Could not load data from: "+uri+"\nError: "+err);
             }));
@@ -426,8 +426,7 @@ YouID_Loader.prototype = {
   },
 
 
-  getProfile : function(url, oidc_fetch) {
-    var _fetch = oidc_fetch || fetch;
+  getProfile : function(url, oidc) {
     return new Promise( (resolve, reject) => {
       var options = {
         method: 'GET',
@@ -436,7 +435,7 @@ YouID_Loader.prototype = {
         }
       }
 
-      _fetch(url, options)
+      oidc.fetch(url, options)
         .then(function(response) {
           if (!response.ok) {
             var err = 'HTTP ' + response.status + ' ' + response.statusText;

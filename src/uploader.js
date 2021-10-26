@@ -226,6 +226,10 @@ class Uploader {
       return rval;
     }
 
+    if (certData.ca_fname && certData.ca_fname.length > 0) {
+      var ca_cert_url = dir_url + certData.ca_fname+'#this';
+      tpl_data['ca_cert_url'] = ca_cert_url;
+    }
 
     tpl_data['qr_card_img'] = this.create_qrcode(dir_url + this.files["index.html"].fname);
     tpl_data['qr_rdfa_img'] = this.create_qrcode(dir_url + this.files["profile_rdfa.html"].fname);
@@ -326,7 +330,6 @@ class Uploader_Solid_OIDC extends Uploader {
   constructor(oidc, base_path) {
     super();
     this.gOidc = oidc;
-    this.fetch = this.gOidc.fetch;
     this.base_path = base_path;
   }
 
@@ -346,7 +349,7 @@ class Uploader_Solid_OIDC extends Uploader {
 
     DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = fname;
     try {
-      var resp = await this.fetch(url, options);
+      var resp = await this.gOidc.fetch(url, options);
       return { ok: resp.ok, code: resp.status, err: resp.statusText };
     } catch (e) {
       console.log(e);
@@ -373,7 +376,7 @@ class Uploader_Solid_OIDC extends Uploader {
 
     DOM.qSel('#gen-cert-ready-dlg #u_msg').innerText = 'Updating Solid profile...';
     try {
-      var resp = await this.fetch(url, options);
+      var resp = await this.gOidc.fetch(url, options);
       return { ok: resp.ok, code: resp.status, err: resp.statusText };
     } catch (e) {
       console.log(e);
