@@ -138,46 +138,19 @@ class YouId_View {
                         val);
     }
 
-    if (youid.coin == 1) 
-      return `
-       <table ${cls} id="data" mdata="${mdata}" > 
-         <tr> 
-           <td style="width:20px">  </td> 
-           <td class="ltext">${youid.name} </td> 
-         </tr> 
-         <tr> 
-           <td style="width:21px"> </td> 
-           <td class="itext"> ${uri} </td> 
-         </tr> 
-         <tr> 
-           <td> 
-             <input type="image" class="remove_youid" src="lib/css/img/trash.png" width="21" height="21" title="Drop YouID item from list"> 
-           </td> 
-           <td class="dtext"> 
-             <input type="image" class="det_btn" src="lib/css/img/plus.png" width="12" height="12" title="Show details"> 
-             Details 
-           </td> 
-         </tr> 
-         <tr class="det_data hidden"> 
-           <td> </td> 
-           <td> 
-             <table class="dettable" > 
-              ${det} 
-             </table> 
-           </td> 
-         </tr> 
-       </table>`;
-    else
-      return `
+    var refresh_btn = '<input type="image" class="refresh_youid" src="lib/css/img/refresh.png" width="21" height="21" title="Refresh YouID details"> ';
+
+    if (youid.coin == 1)
+      refresh_btn = ''; 
+
+    return `
        <table ${cls} id="data" mdata="${mdata}" > 
          <tr> 
            <td style="width:20px"> <input id="chk" class="youid_chk" type="checkbox" ${checked}>  </td> 
            <td class="ltext">${youid.name} </td> 
          </tr> 
          <tr> 
-           <td> 
-             <input type="image" class="refresh_youid" src="lib/css/img/refresh.png" width="21" height="21" title="Refresh YouID details"> 
-           </td> 
+           <td style="width:21px"> ${refresh_btn} </td> 
            <td class="itext"> ${uri} </td> 
          </tr> 
          <tr> 
