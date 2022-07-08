@@ -1354,6 +1354,25 @@ function hash_keccak256(v)
   return keccak_256(arr);
 }
 
+// address must wihtout prefix 0x
+function eth_toChecksumAddress(address) 
+{
+  address = address.toLowerCase();
+  var hash = keccak_256(address);
+  var ret = '';
+  for (var i = 0; i < address.length; i++) {
+      if (parseInt(hash[i], 16) >= 8) {
+          ret += address[i].toUpperCase();
+      }
+      else {
+          ret += address[i];
+      }
+  }
+  return ret;
+}
+
+
+
 
 
 function bip_decode_wif_key(v)
@@ -1487,7 +1506,7 @@ function eth_gen_x509_san_from_pkey(priv_hex)
   const pub = forge.util.hexToBytes(pub_hex);
 
   const addr = hash_keccak256(pub.substring(1)).substring(24);
-  const san = 'ethereum:0x' + addr;
+  const san = 'ethereum:0x' + eth_toChecksumAddress(addr);
 
   return {pub, san, pub_hex};
 }
