@@ -8,6 +8,7 @@
     rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
     xhv: http://www.w3.org/1999/xhtml/vocab#
     xsd: http://www.w3.org/2001/XMLSchema#
+   xsig: http://www.w3.org/2000/09/xmldsig#
     schema: http://schema.org/"
   >
 
@@ -16,6 +17,10 @@
       <div typeof="cert:RSAPublicKey" about="%{rdfa_pubkey_url}#PublicKey">
         <div property="cert:exponent" datatype="xsd:int" content="%{exponent}"></div>
         <div property="cert:modulus" datatype="xsd:hexBinary" content="%{modulus}"></div>
+
+        <div rel="owl:sameAs" resource="%{fingerprint_ni}"></div>
+        <div rel="owl:sameAs" resource="%{fingerprint_di}"></div>
+
       </div>
     </div>
   </div>
@@ -25,8 +30,6 @@
   </div>
 
  <div typeof="oplcert:Certificate" about="%{rdfa_cert_url}#cert">
-    <div property="oplcert:fingerprint" content="%{fingerprint}"></div>
-    <div property="oplcert:fingerprint-digest" content="%{fingerprint-digest}"></div>
     <div property="oplcert:subject" content="%{subject}"></div>
     <div property="oplcert:issuer" content="%{issuer}"></div>
     <div property="oplcert:notBefore" datatype="xsd:dateTime" content="%{date_before}"></div>
@@ -35,7 +38,9 @@
     <div rel="oplcert:SAN" resource="%{rdfa_prof_url}#identity"></div>
 !{ca_cert_url}    <div rel="oplcert:IAN" resource="%{ca_cert_url}"></div>
     <div rel="oplcert:hasPublicKey" resource="%{rdfa_pubkey_url}#PublicKey"></div>
-    <div rel="oplcert:signature" resource="%{signature}"></div>
+    <div property="oplcert:fingerprint" content="%{fingerprint_hex}"></div>
+    <div property="oplcert:fingerprint-digest" datatype="xsig:sha1" content="%{fingerprint_hex}"></div>
+    <div property="oplcert:fingerprint-digest" datatype="xsig:sha256" content="%{fingerprint_256_hex}"></div>
   </div>
 
 !!{pdp_url}

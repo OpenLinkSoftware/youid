@@ -38,6 +38,7 @@
   @prefix dcterms: <http://purl.org/dc/terms/>.
   @prefix foaf: <http://xmlns.com/foaf/0.1/>.
   @prefix schema: <http://schema.org/>.
+  @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 
   <>
     a foaf:PersonalProfileDocument ;
@@ -57,12 +58,14 @@
     dcterms:title "Created by YouID";
     rdfs:label "${commonName}";
     cert:exponent "${exponent}"^^xsd:int;
-    cert:modulus "${modulus}"^^xsd:hexBinary.
+    cert:modulus "${modulus}"^^xsd:hexBinary;
+    owl:sameAs <${certData.fingerprint_ni}>, <${certData.fingerprint_di}> . 
   `;
   
     var jsonld = `
   {
     "@context": {
+      "owl": "http://www.w3.org/2002/07/owl#", 
       "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
       "foaf": "http://xmlns.com/foaf/0.1/",
       "schema": "http://schema.org/",
@@ -110,7 +113,15 @@
         "cert:modulus": {
           "@type": "xsd:hexBinary",
           "@value": "${modulus}"
-        }
+        },
+        "owl:sameAs": [
+          {
+           "@id": "${certData.fingerprint_ni}"
+          },
+          {
+           "@id": "${certData.fingerprint_di}"
+          }
+        ]
       }
     ]
   }
@@ -119,27 +130,30 @@
     var rdfxml = `
   <rdf:RDF
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:n0="http://xmlns.com/foaf/0.1/"
+   xmlns:owl: http://www.w3.org/2002/07/owl#
+   xmlns:foaf="http://xmlns.com/foaf/0.1/"
    xmlns:cert="http://www.w3.org/ns/auth/cert#"
    xmlns:dcterms="http://purl.org/dc/terms/"
    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
    xmlns:schema="http://schema.org/">
       <rdf:Description rdf:about="">
           <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/PersonalProfileDocument"/>
-          <n0:maker rdf:resource="${webid}"/>
-          <n0:primaryTopic rdf:resource="${webid}"/>
+          <foaf:maker rdf:resource="${webid}"/>
+          <foaf:primaryTopic rdf:resource="${webid}"/>
       </rdf:Description>
       <rdf:Description rdf:about="${webid}">
           <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
           <rdf:type rdf:resource="http://schema.org/Person"/>
           <cert:key rdf:resource="${keyUri}"/>
-          <n0:name>${commonName}</n0:name>
+          <foaf:name>${commonName}</foaf:name>
       </rdf:Description>
       <rdf:Description rdf:about="${keyUri}">
           <dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">${timeCreated}</dcterms:created>
           <dcterms:title>Created by YouID</dcterms:title>
           <rdf:type rdf:resource="http://www.w3.org/ns/auth/cert#RSAPublicKey"/>
           <rdfs:label>"${commonName}"</rdfs:label>
+          <owl:sameAs rdf:resource="${certData.fingerprint_ni}"/>
+          <owl:sameAs rdf:resource="${certData.fingerprint_di}"/>
           <cert:exponent rdf:datatype="http://www.w3.org/2001/XMLSchema#int">${exponent}</cert:exponent>
           <cert:modulus rdf:datatype="http://www.w3.org/2001/XMLSchema#hexBinary">${modulus}</cert:modulus>
       </rdf:Description>

@@ -7,6 +7,7 @@
         "foaf": "http://xmlns.com/foaf/0.1/", 
         "xhv": "http://www.w3.org/1999/xhtml/vocab#", 
         "xsd": "http://www.w3.org/2001/XMLSchema#", 
+       "xsig": "http://www.w3.org/2000/09/xmldsig#",
         "oplcert:signature": {
             "@type": "@id"
         }, 
@@ -51,9 +52,7 @@
       "@id": "%{jsonld_cert_url}#cert",
       "@type": "oplcert:Certificate",%{ian}
       "oplcert:SAN": "%{jsonld_prof_url}#identity",
-      "oplcert:fingerprint": "%{fingerprint}",
-      "oplcert:fingerprint-digest": "%{fingerprint-digest}",
-      "oplcert:hasPublicKey": "%{jsonld_pubkey_url}#PublicKey",
+!{ca_cert_url}      "oplcert:IAN": { "@id" : "%{ca_cert_url}"},
       "oplcert:issuer": "%{issuer}",
       "oplcert:notAfter": {
         "@value": "%{date_after}",
@@ -64,8 +63,19 @@
         "@type": "xsd:dateTime"
       },
       "oplcert:serial": "%{serial}",
-      "oplcert:signature": "%{signature}",
-      "oplcert:subject": "%{subject}"
+      "oplcert:subject": "%{subject}",
+      "oplcert:hasPublicKey": "%{jsonld_pubkey_url}#PublicKey",
+      "oplcert:fingerprint": "%{fingerprint_hex}",
+      "oplcert:fingerprint-digest": [
+        {
+          "@type": "xsig:sha1",
+          "@value": "%{fingerprint_hex}"
+        },
+        {
+          "@type": "xsig:sha256",
+          "@value": "%{fingerprint_256_hex}"
+        }
+      ]
     },
     {
       "@id": "%{jsonld_prof_url}#identity",

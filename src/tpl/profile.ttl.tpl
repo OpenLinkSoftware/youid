@@ -7,16 +7,16 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 @prefix schema: <http://schema.org/> .
+@prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . 
 
 <%{prof_url}#identity>    cert:key <%{pubkey_url}#PublicKey> . 
 <%{pubkey_url}#PublicKey>    a cert:RSAPublicKey ; 
          cert:modulus "%{modulus}"^^xsd:hexBinary ; 
-         cert:exponent "%{exponent}"^^xsd:int . 
+         cert:exponent "%{exponent}"^^xsd:int ;
+         owl:sameAs <%{fingerprint_ni}>, <%{fingerprint_di}> . 
 
 <%{prof_url}#identity> oplcert:hasCertificate <%{cert_url}#cert> . 
 <%{cert_url}#cert>     a oplcert:Certificate ; 
-         oplcert:fingerprint "%{fingerprint}" ; 
-         oplcert:fingerprint-digest "%{fingerprint-digest}" ; 
          oplcert:subject "%{subject}" ; 
          oplcert:issuer "%{issuer}" ; 
          oplcert:notBefore "%{date_before}"^^xsd:dateTime ; 
@@ -24,8 +24,10 @@
          oplcert:serial "%{serial}" ; 
          oplcert:SAN <%{prof_url}#identity> ;
 !{ca_cert_url}         oplcert:IAN <%{ca_cert_url}> ;
-         oplcert:hasPublicKey <%{pubkey_url}#PublicKey> ;  
-         oplcert:signature <%{signature}> . 
+         oplcert:hasPublicKey <%{pubkey_url}#PublicKey> ;
+         oplcert:fingerprint "%{fingerprint_hex}" ; 
+         oplcert:fingerprint-digest "%{fingerprint_hex}"^^xsig:sha1, "%{fingerprint_256_hex}"^^xsig:sha256 .
+         
 
 !!{pdp_url}
 <%{pdp_url}> a <http://schema.org/Person> ; 

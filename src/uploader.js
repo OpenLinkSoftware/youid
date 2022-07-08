@@ -298,14 +298,22 @@ class Uploader {
     digest = md.digest();
     tpl_data['fingerprint'] = toHex(digest);
     tpl_data['fingerprint_colon'] = toHex(digest, ':');
-    tpl_data['fingerprint_ni'] = cert.fingerprint_ni;
-    tpl_data['fingerprint-digest'] = 'sha1';
+//    tpl_data['fingerprint_ni'] = cert.fingerprint_ni;
+//    tpl_data['fingerprint-digest'] = 'sha1';
     tpl_data['serial'] = cert.serialNumber;
     tpl_data['cert_base64'] = forge.util.encode64(certData.der);
 
-    var signName = forge.pki.oids[cert.signatureOid];
-    var sign = forge.util.encode64(cert.signature).replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
-    tpl_data['signature'] = 'ni:///' + signName + ';' + sign;
+    tpl_data['fingerprint_di'] = certData.fingerprint_di;
+    tpl_data['fingerprint_ni'] = certData.fingerprint_ni;
+    tpl_data['fingerprint_256_di'] = certData.fingerprint_256_di;
+    tpl_data['fingerprint_256_ni'] = certData.fingerprint_256_ni;
+
+    tpl_data['fingerprint_hex'] = certData.fingerprint_hex;
+    tpl_data['fingerprint_256_hex'] = certData.fingerprint_256_hex;
+
+//    var signName = forge.pki.oids[cert.signatureOid];
+//    var sign = forge.util.encode64(cert.signature).replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
+//    tpl_data['signature'] = 'ni:///' + signName + ';' + sign;
 
     md = forge.md.sha256.create();
     md.start();

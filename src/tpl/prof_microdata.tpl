@@ -3,6 +3,8 @@
     <div itemprop="http://www.w3.org/ns/auth/cert#key" itemtype="http://www.w3.org/ns/auth/cert#RSAPublicKey" itemid="%{pubkey_url}#PublicKey" itemscope>
       <meta itemprop="exponent" content="%{exponent}" />
       <meta itemprop="modulus" content="%{modulus}" />
+      <link itemprop="http://schema.org/sameAs" href="%{fingerprint_ni}" />
+      <link itemprop="http://schema.org/sameAs" href="%{fingerprint_di}" />
     </div>
   </div>
 
@@ -11,8 +13,6 @@
   </div>
 
   <div itemtype="http://www.openlinksw.com/schemas/cert#Certificate" itemid="%{cert_url}#cert" itemscope>
-    <meta itemprop="fingerprint" content="%{fingerprint}" />
-    <meta itemprop="fingerprint-digest" content="%{fingerprint-digest}" />
     <meta itemprop="subject" content="%{subject}" />
     <meta itemprop="issuer" content="%{issuer}" />
     <meta itemprop="notBefore" content="%{date_before}" />
@@ -21,7 +21,9 @@
     <link itemprop="SAN" href="%{prof_url}#identity" />
 !{ca_cert_url}    <link itemprop="http://www.openlinksw.com/schemas/cert#IAN" href="%{ca_cert_url}" />
     <link itemprop="hasPublicKey" href="%{pubkey_url}#PublicKey" />
-    <link itemprop="signature" href="%{signature}" />
+    <meta itemprop="fingerprint" content="%{fingerprint_hex}" />
+    <meta itemprop="fingerprint-digest" content="%{fingerprint_hex}" />
+    <meta itemprop="fingerprint-digest" content="%{fingerprint_256_hex}" />
   </div>
 
 !!{pdp_url}

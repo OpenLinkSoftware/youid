@@ -66,7 +66,15 @@
       "cert:modulus": {
         "@value": "%{modulus}",
         "@type": "xsd:hexBinary"
-      }
+      },
+      "owl:sameAs": [
+        {
+         "@id": "%{fingerprint_ni}"
+        },
+        {
+         "@id": "%{fingerprint_di}"
+        }
+      ]
     }
   ]
 }

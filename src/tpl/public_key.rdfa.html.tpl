@@ -9,6 +9,7 @@
 
 <div xmlns="http://www.w3.org/1999/xhtml"
   prefix="
+    owl: http://www.w3.org/2002/07/owl#
     cert: http://www.w3.org/ns/auth/cert#
     rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
     oplcert: http://www.openlinksw.com/schemas/cert#
@@ -20,6 +21,8 @@
       <div typeof="cert:RSAPublicKey" about="%{rdfa_pubkey_url}#PublicKey">
         <div property="cert:modulus" datatype="xsd:hexBinary" content="%{modulus}"></div>
         <div property="cert:exponent" datatype="xsd:int" content="%{exponent}"></div>
+        <div rel="owl:sameAs" resource="%{fingerprint_ni}"></div>
+        <div rel="owl:sameAs" resource="%{fingerprint_di}"></div>
       </div>
     </div>
   </div>

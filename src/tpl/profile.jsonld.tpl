@@ -1,66 +1,93 @@
-[
+{
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "schema": "http://schema.org/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "cert": "http://www.w3.org/ns/auth/cert#",
+    "oplcert": "http://www.openlinksw.com/schemas/cert#",
+    "xhv": "http://www.w3.org/1999/xhtml/vocab#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "xsig": "http://www.w3.org/2000/09/xmldsig#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+  },
+  "@graph": [
     {
       "@id": "%{jsonld_prof_url}#identity",
-      "http://www.w3.org/ns/auth/cert#key": {
+      "cert:key": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
       }
     },
     {
       "@id": "%{jsonld_pubkey_url}#PublicKey",
-      "@type": "http://www.w3.org/ns/auth/cert#RSAPublicKey",
-      "http://www.w3.org/ns/auth/cert#exponent": {
-        "@type": "http://www.w3.org/2001/XMLSchema#int",
+      "@type": "cert:RSAPublicKey",
+      "cert:exponent": {
+        "@type": "xsd:int",
         "@value": "%{exponent}"
       },
-      "http://www.w3.org/ns/auth/cert#modulus": {
-        "@type": "http://www.w3.org/2001/XMLSchema#hexBinary",
+      "cert:modulus": {
+        "@type": "xsd:hexBinary",
         "@value": "%{modulus}"
-      }
+      },
+      "owl:sameAs": [
+        {
+         "@id": "%{fingerprint_ni}"
+        },
+        {
+         "@id": "%{fingerprint_di}"
+        }
+      ]
     },
 
     {
       "@id": "%{jsonld_prof_url}#identity",
-      "http://www.openlinksw.com/schemas/cert#hasCertificate": {
+      "oplcert:hasCertificate": {
         "@id": "%{jsonld_cert_url}#cert"
       }
     },
 
     {
       "@id": "%{jsonld_cert_url}#cert",
-      "@type": "http://www.openlinksw.com/schemas/cert#Certificate",
-      "http://www.openlinksw.com/schemas/cert#fingerprint": "%{fingerprint}",
-      "http://www.openlinksw.com/schemas/cert#fingerprint-digest": "%{fingerprint-digest}",
-      "http://www.openlinksw.com/schemas/cert#subject": "%{subject}",
-      "http://www.openlinksw.com/schemas/cert#issuer": "%{issuer}",
-      "http://www.openlinksw.com/schemas/cert#notBefore": {
-        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+      "@type": "oplcert:Certificate",
+      "oplcert:subject": "%{subject}",
+      "oplcert:issuer": "%{issuer}",
+      "oplcert:notBefore": {
+        "@type": "xsd:dateTime",
         "@value": "%{date_before}"
       },
-      "http://www.openlinksw.com/schemas/cert#notAfter": {
-        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+      "oplcert:notAfter": {
+        "@type": "xsd:dateTime",
         "@value": "%{date_after}"
       },
-      "http://www.openlinksw.com/schemas/cert#serial": "%{serial}",
-!{ca_cert_url}      "http://www.openlinksw.com/schemas/cert#IAN": { "@id" : "%{ca_cert_url}"},
-      "http://www.openlinksw.com/schemas/cert#SAN": {
+      "oplcert:serial": "%{serial}",
+!{ca_cert_url}      "oplcert:IAN": { "@id" : "%{ca_cert_url}"},
+      "oplcert:SAN": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://www.openlinksw.com/schemas/cert#hasPublicKey": {
+      "oplcert:hasPublicKey": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
       },
-      "http://www.openlinksw.com/schemas/cert#signature": {
-        "@id": "%{signature}"
-      }
+      "oplcert:fingerprint": "%{fingerprint_hex}",
+      "oplcert:fingerprint-digest": [
+        {
+          "@type": "xsig:sha1",
+          "@value": "%{fingerprint_hex}"
+        },
+        {
+          "@type": "xsig:sha256",
+          "@value": "%{fingerprint_256_hex}"
+        }
+      ]
     },
 
 !!{pdp_url}
     {
       "@id": "%{pdp_url}",
-      "@type": "http://schema.org/Person",
-      "http://www.openlinksw.com/schemas/cert#owns": {
+      "@type": "schema:Person",
+      "oplcert:owns": {
         "@id": "%{jsonld_cert_url}#cert"
       },
-      "http://schema.org/sameAs": {
+      "schema:sameAs": {
         "@id": "%{jsonld_prof_url}"
       }
     },
@@ -68,45 +95,45 @@
     {
       "@id": "%{jsonld_prof_url}#identity",
       "@type": [
-        "http://schema.org/CreativeWork",
-        "http://www.openlinksw.com/schemas/cert#Certificate",
-        "http://schema.org/WebPage"
+        "schema:CreativeWork",
+        "oplcert:Certificate",
+        "schema:WebPage"
       ],
-      "http://schema.org/additionalType": [
+      "schema:additionalType": [
         {
-          "@id": "http://www.openlinksw.com/schemas/cert#Certificate"
+          "@id": "oplcert:Certificate"
         },
         {
-          "@id": "http://schema.org/CreativeWork"
+          "@id": "schema:CreativeWork"
         },
         {
-          "@id": "http://schema.org/WebPage"
+          "@id": "schema:WebPage"
         }
       ],
-      "http://schema.org/url": {
-        "@id": "#this"
+      "schema:url": {
+???        "@id": "#this"
       },
-      "http://schema.org/name": "%{subj_name}",
-      "http://schema.org/author": {
+      "schema:name": "%{subj_name}",
+      "schema:author": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://schema.org/mainEntity": {
+      "schema:mainEntity": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://www.openlinksw.com/schemas/cert#SAN": {
+      "oplcert:SAN": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://www.openlinksw.com/schemas/cert#hasPublicKey": {
+      "oplcert:hasPublicKey": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
       },
-      "http://www.w3.org/ns/auth/cert#key": {
+      "cert:key": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
       }
     },
 
     {
       "@id": "%{jsonld_prof_url}#identity",
-      "http://schema.org/isRelatedTo": [
+      "schema:isRelatedTo": [
         {
           "@id": "%{card_url}#identity"
         },
@@ -121,7 +148,7 @@
 
     {
       "@id": "%{card_url}#identity",
-      "http://www.w3.org/2002/07/owl#sameAs": [
+      "owl:sameAs": [
         {
           "@id": "%{jsonld_prof_url}#identity"
         },
@@ -136,47 +163,44 @@
 
     {
       "@id": "%{jsonld_prof_url}#identity",
-      "http://schema.org/isRelatedTo": {
+      "schema:isRelatedTo": {
         "@id": "%{jsonld_cert_url}#cert"
       }
     },
 
     {
       "@id": "%{card_url}",
-      "@type": "http://schema.org/WebPage",
-      "http://schema.org/mainEntity": {
+      "@type": "schema:WebPage",
+      "schema:mainEntity": {
         "@id": "%{card_url}#identity"
       }
     },
 
     {
       "@id": "%{card_url}#identity",
-      "@type": "http://schema.org/Person",
-!{subj_email}      "http://schema.org/email": "%{subj_email}",
-!{subj_email}      "http://xmlns.com/foaf/0.1/mbox": {  "@id": "mailto:%{subj_email}"  },
-      "http://schema.org/worksFor": {
-        "@type": "http://schema.org/Organization",
-        "http://schema.org/name": "%{subj_org}"
-      },
-      "http://schema.org/address": {
-        "@type": "http://schema.org/Place",
-!{subj_country}        "http://schema.org/addressCountry": "%{subj_country}",
-!{subj_state}        "http://schema.org/addressRegion": "%{subj_state}"
+      "@type": "schema:Person",
+!{subj_email}      "schema:email": "%{subj_email}",
+!{subj_email}      "foaf:mbox": {  "@id": "mailto:%{subj_email}"  },
+!{subj_org}      "schema:worksFor": { "@type": "schema:Organization", "schema:name": "%{subj_org}" },
+      "schema:address": {
+        "@type": "schema:Place",
+!{subj_country}        "schema:addressCountry": "%{subj_country}",
+!{subj_state}        "schema:addressRegion": "%{subj_state}"
 
       },
-      "http://schema.org/name": "%{subj_name}",
-      "http://www.w3.org/2002/07/owl#sameAs": {
+      "schema:name": "%{subj_name}",
+      "owl:sameAs": {
         "@id": "%{pdp_url}#this"
       },
-      "http://schema.org/sameAs": {
+      "schema:sameAs": {
         "@id": "%{pdp_url}"
       }
     },
 
     {
       "@id": "%{prof_url}#identity",
-      "@type": "http://schema.org/Person",
-      "http://schema.org/sameAs": [
+      "@type": "schema:Person",
+      "schema:sameAs": [
         {
           "@id": "%{rdfa_prof_url}"
         },
@@ -193,12 +217,12 @@
 !!{pdp_mail}
     {
       "@id": "%{jsonld_prof_url}#identity",
-      "@type": "http://xmlns.com/foaf/0.1/Agent",
-      "http://xmlns.com/foaf/0.1/mbox": {
+      "@type": "foaf:Agent",
+      "foaf:mbox": {
         "@id": "mailto:%{pdp_mail}"
       },
-      "http://xmlns.com/foaf/0.1/mbox_sha1sum": "%{pdp_mail_sha1}",
-      "http://www.openlinksw.com/schemas/cert#owns": {
+      "foaf:mbox_sha1sum": "%{pdp_mail_sha1}",
+      "oplcert:owns": {
         "@id": "%{jsonld_cert_url}#cert"
       }
     },
@@ -207,30 +231,30 @@
     {
       "@id": "%{card_url}",
       "@type": [
-        "http://xmlns.com/foaf/0.1/profileDocument",
-        "http://www.openlinksw.com/schemas/cert#Certificate"
+        "foaf:profileDocument",
+        "oplcert:Certificate"
       ],
-      "http://www.w3.org/2000/01/rdf-schema#label": "Profile Document Subject:  %{subj_name}",
-      "http://schema.org/about": {
+      "rdfs:label": "Profile Document Subject:  %{subj_name}",
+      "schema:about": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://xmlns.com/foaf/0.1/primaryTopic": {
+      "foaf:primaryTopic": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://www.openlinksw.com/schemas/cert#SAN": {
+      "oplcert:SAN": {
         "@id": "%{jsonld_prof_url}#identity"
       },
-      "http://www.openlinksw.com/schemas/cert#hasPublicKey": {
+      "oplcert:hasPublicKey": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
       },
-      "http://www.w3.org/ns/auth/cert#key": {
+      "cert:key": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
       }
     },
 
     {
       "@id": "%{card_url}#identity",
-      "http://www.w3.org/1999/xhtml/vocab#alternate": [
+      "xhv:alternate": [
         {
           "@id": "%{prof_url}#identity"
         },
@@ -245,7 +269,7 @@
 
     {
       "@id": "%{card_url}#identity",
-      "http://www.w3.org/2002/07/owl#sameAs": [
+      "owl:sameAs": [
         {
           "@id": "%{jsonld_prof_url}#identity"
         },
@@ -260,8 +284,9 @@
 
     {
       "@id": "%{jsonld_prof_url}#identity",
-      "http://www.w3.org/1999/xhtml/vocab#alt": {
+      "xhv:alt": {
         "@id": "%{jsonld_cert_url}#cert"
       }
     }
-]
+  ]
+}
