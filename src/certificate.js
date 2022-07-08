@@ -1647,13 +1647,8 @@ INSERT {
 
     var p12Der = forge.asn1.toDer(p12Asn1).getBytes();
     var p12B64 = forge.util.encode64(p12Der);
-    var md;
 
-    md = forge.md.sha1.create();
-    md.start();
-    md.update(derCert);
-
-    var digest = md.digest();
+    var digest = pki.getPublicKeyFingerprint(cert.publicKey);
     var digest_b64 = forge.util.encode64(digest.data);
     var digest_hex = forge.util.binary.hex.encode(digest.data).toUpperCase();
     var digest_emo_w = bin2emoj(digest.data, 'word');
@@ -1663,11 +1658,7 @@ INSERT {
     var fp_di = `di:sha1;${b64_url}`;
     var fp = `#SHA1 Fingerprint:${digest_hex}`
 
-    md = forge.md.sha256.create();
-    md.start();
-    md.update(derCert);
-
-    var digest_256 = md.digest();
+    var digest_256 = pki.getPublicKeyFingerprint(cert.publicKey, {md: forge.md.sha256.create()});
     var digest_256_b64 = forge.util.encode64(digest_256.data);
     var digest_256_hex = forge.util.binary.hex.encode(digest_256.data).toUpperCase();
     var digest_256_emo_w = bin2emoj(digest_256.data, 'word');
