@@ -25,6 +25,11 @@ var prevSelectedTab = null;
 var selectedTab = null;
 
 $(function(){
+  init();
+});
+
+async function init()
+{
 	gPref = new Settings();
 
         document.getElementById("c_year").innerText = new Date().getFullYear();
@@ -132,7 +137,7 @@ function selectTab(tab)
 
 function closeOptions()
 {
-    if (Browser.isFirefoxWebExt) {
+    if (Browser.is_ff) {
       Browser.api.tabs.getCurrent(function(tab) {
         Browser.api.tabs.remove(tab.id);
       });
@@ -142,14 +147,15 @@ function closeOptions()
 }
 
 
-function loadPref()
+
+async function loadPref()
 {
     var hdr_list = [];
 
-    v_youid.load_youid_list();
+    await v_youid.load_youid_list();
 
     try {
-      var v = gPref.getValue('ext.youid.pref.hdr_list');
+      var v = await gPref.getValue('ext.youid.pref.hdr_list');
       if (v)
         hdr_list = JSON.parse(v);
     } catch(e){}
@@ -157,14 +163,14 @@ function loadPref()
     load_hdr_list(hdr_list);
 
     
-    DOM.qSel('#s3_account #c_s3_access_key').value = gPref.getValue('ext.youid.s3_access_key');
-    DOM.qSel('#s3_account #c_s3_secret_key').value = gPref.getValue('ext.youid.s3_secret_key');
-    DOM.qSel('#s3_account #c_s3_bucket').value = gPref.getValue('ext.youid.s3_bucket');
+    DOM.qSel('#s3_account #c_s3_access_key').value = await gPref.getValue('ext.youid.s3_access_key');
+    DOM.qSel('#s3_account #c_s3_secret_key').value = await gPref.getValue('ext.youid.s3_secret_key');
+    DOM.qSel('#s3_account #c_s3_bucket').value = await gPref.getValue('ext.youid.s3_bucket');
 
-    DOM.qSel('#az_account #c_az_account').value = gPref.getValue('ext.youid.s3_account');
-    DOM.qSel('#az_account #c_az_sas_token').value = gPref.getValue('ext.youid.s3_sas_token');
+    DOM.qSel('#az_account #c_az_account').value = await gPref.getValue('ext.youid.s3_account');
+    DOM.qSel('#az_account #c_az_sas_token').value = await gPref.getValue('ext.youid.s3_sas_token');
 
-    var v = gPref.getValue('ext.youid.pref.ann_message');
+    var v = await gPref.getValue('ext.youid.pref.ann_message');
     if (!v || v.length < 1)
       v = gPref.getDef_Fingerprint();
     
@@ -173,19 +179,19 @@ function loadPref()
 
 
 
-function savePref()
+async function savePref()
 {
    v_youid.save_youid_data();
-   save_hdr_list();
+   await save_hdr_list();
 
-   gPref.setValue('ext.youid.s3_access_key', DOM.qSel('#s3_account #c_s3_access_key').value);
-   gPref.setValue('ext.youid.s3_secret_key', DOM.qSel('#s3_account #c_s3_secret_key').value);
-   gPref.setValue('ext.youid.s3_bucket', DOM.qSel('#s3_account #c_s3_bucket').value);
+   await gPref.setValue('ext.youid.s3_access_key', DOM.qSel('#s3_account #c_s3_access_key').value);
+   await gPref.setValue('ext.youid.s3_secret_key', DOM.qSel('#s3_account #c_s3_secret_key').value);
+   await gPref.setValue('ext.youid.s3_bucket', DOM.qSel('#s3_account #c_s3_bucket').value);
 
-   gPref.setValue('ext.youid.s3_account', DOM.qSel('#az_account #c_az_account').value);
-   gPref.setValue('ext.youid.s3_sas_token', DOM.qSel('#az_account #c_az_sas_token').value);
+   await gPref.setValue('ext.youid.s3_account', DOM.qSel('#az_account #c_az_account').value);
+   await gPref.setValue('ext.youid.s3_sas_token', DOM.qSel('#az_account #c_az_sas_token').value);
 
-   gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
+   await gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
 
 //   closeOptions();
 }
@@ -243,7 +249,8 @@ function load_hdr_list(params)
     hdr_add();
 }
 
-function save_hdr_list()
+
+async function save_hdr_list()
 {
   var list = [];
   var tbody = DOM.qSel('#hdr_tbl tbody')
@@ -257,7 +264,7 @@ function save_hdr_list()
        list.push({hdr:h, val:v});
   }
 
-  gPref.setValue('ext.youid.pref.hdr_list', JSON.stringify(list, undefined, 2));
+  await gPref.setValue('ext.youid.pref.hdr_list', JSON.stringify(list, undefined, 2));
 }
 
 

@@ -38,7 +38,7 @@ $(document).ready(function()
   document.querySelector('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
   document.querySelector('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
 
-  load_popup();
+  load_youid_list();
 });
 
 
@@ -48,8 +48,8 @@ function Prefs_exec()
   return false;
 }
 
-function load_popup()
+async function load_popup()
 {
-    v_youid.load_youid_list();
+    await v_youid.load_youid_list();
 }
 

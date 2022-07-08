@@ -22,7 +22,7 @@
 
 async function getCurWin()
 {
-  if (Browser.isChromeWebExt) {
+  if (Browser.is_chrome) {
     return new Promise(function (resolve, reject) {
       Browser.api.windows.getCurrent({}, (w) => {
         resolve(w)
@@ -35,7 +35,7 @@ async function getCurWin()
 
 async function getCurTab()
 {
-  if (Browser.isChromeWebExt) {
+  if (Browser.is_chrome) {
     return new Promise(function (resolve, reject) {
       Browser.api.tabs.query({active:true, currentWindow:true}, (t) => {
         resolve(t)

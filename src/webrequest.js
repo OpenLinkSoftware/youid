@@ -23,18 +23,18 @@
   var setting = new Settings();
 
   Browser.api.webRequest.onBeforeSendHeaders.addListener(
-        function(details) 
+        async function(details) 
         {
           var pref_youid = null;
           var hdr_list = [];
           try {
-            var v = setting.getValue("ext.youid.pref.id");
+            var v = await setting.getValue("ext.youid.pref.id");
             if (v)
               pref_youid = JSON.parse(v);
           } catch(e){}
 
           try {
-            var v = setting.getValue("ext.youid.pref.hdr_list");
+            var v = await setting.getValue("ext.youid.pref.hdr_list");
             if (v && v.length>0)
               hdr_list = hdr_list.concat(JSON.parse(v));
           } catch(e){}
@@ -73,11 +73,11 @@
 
 
   // iterace with YouID content script
-  Browser.api.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  Browser.api.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
       if (request.getWebId) {
         var pref_youid;
         try {
-          var v = setting.getValue("ext.youid.pref.id");
+          var v = await setting.getValue("ext.youid.pref.id");
           if (v)
             pref_youid = JSON.parse(v);
         } catch(e){}
@@ -90,9 +90,9 @@
 
 
   Browser.api.runtime.onMessageExternal.addListener(
-    function(request, sender, sendResponse) {
+    async function(request, sender, sendResponse) {
       if (request.getWebId) {
-        var v = setting.getValue("ext.youid.pref.id");
+        var v = await setting.getValue("ext.youid.pref.id");
         sendResponse({webid: v});
       }
     });

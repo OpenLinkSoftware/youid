@@ -120,11 +120,15 @@ Certificate.prototype = {
         var sel = DOM.qSel('#c_pdp option:checked').value;
         DOM.qHide('#gen-cert-dlg #r_pdp-webid');
         DOM.qHide('#gen-cert-dlg #btn-fetch-pdp');
+        DOM.qHide('#gen-cert-dlg #r_pdp-btc');
+        DOM.qHide('#gen-cert-dlg #r_pdp-eth');
 
-        if (sel === 'pdp_webid') {
-          DOM.qShow('#gen-cert-dlg #r_pdp-webid');
-        } else {
-          DOM.qShow('#gen-cert-dlg #btn-fetch-pdp');
+        switch(sel)
+        {
+          case 'pdp_btc':  DOM.qShow('#gen-cert-dlg #r_pdp-btc'); DOM.iSel('c_name').value = 'BTC Wallet Proxy'; break;
+          case 'pdp_eth':  DOM.qShow('#gen-cert-dlg #r_pdp-eth'); DOM.iSel('c_name').value = 'ETH Wallet Proxy'; break
+          case 'pdp_webid': DOM.qShow('#gen-cert-dlg #r_pdp-webid'); break;
+          default:  DOM.qShow('#gen-cert-dlg #btn-fetch-pdp'); break;
         }
       };
 
@@ -408,12 +412,59 @@ Certificate.prototype = {
       };
 
 
+    DOM.qSel('#gen-cert-dlg #c_btc_adr')
+      .onchange = async () => {
+        DOM.qSel('#gen-cert-dlg #c_webid').value = 'bitcoin:'+DOM.qSel('#gen-cert-dlg #c_btc_adr').value;
+      };
+
+    DOM.qSel('#gen-cert-dlg #c_eth_adr')
+      .onchange = async () => {
+        DOM.qSel('#gen-cert-dlg #c_webid').value = 'ethereum:'+DOM.qSel('#gen-cert-dlg #c_eth_adr').value;
+      };
+
 
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
       .onclick = async () => {
         var gen = {};
         gen.issued = DOM.qSel('#c_issued option:checked').value;
         gen.idp = DOM.qSel('#c_idp option:checked').value;
+        gen.pdp = DOM.qSel('#c_pdp option:checked').value;
+
+        if (gen.pdp === 'pdp_btc') {
+          gen.btc = {};
+          gen.btc.adr = DOM.qSel('#gen-cert-dlg #c_btc_adr').value;
+          gen.btc.p2pkh = DOM.qSel('#gen-cert-dlg #c_btc_p2pkh').value;
+
+          if (gen.btc.p2pkh.startsWith('0x') || gen.btc.p2pkh.startsWith('0X'))
+            gen.btc.p2pkh = gen.btc.p2pkh.substring(2);
+
+          if (gen.btc.adr.length < 1) {
+            alert('Bitcoin address is empty');
+            return;
+          }
+          if (gen.btc.p2pkh.length < 1) {
+            alert('Bitcoin P2PKH is empty');
+            return;
+          }
+        } 
+        else if (gen.pdp === 'pdp_eth') {
+          gen.eth = {};
+          gen.eth.adr = DOM.qSel('#gen-cert-dlg #c_eth_adr').value;
+          gen.eth.adr = DOM.qSel('#gen-cert-dlg #c_eth_pkey').value;
+
+          if (gen.eth.pkey.startsWith('0x') || gen.eth.pkey.startsWith('0X'))
+            gen.eth.pkey = gen.eth.pkey.substring(2);
+
+          if (gen.eth.adr.length < 1) {
+            alert('Ethereum address is empty');
+            return;
+          }
+          if (gen.eth.pkey.length < 1) {
+            alert('Ethereum Public Key is empty');
+            return;
+          }
+        }
+
         gen.cert_name = DOM.qSel('#gen-cert-dlg #c_cert_name').value;
         if (gen.cert_name.length < 1) {
           gen.cert_name = 'cert_' + self.YMD + '_' + self.HMS;
@@ -665,6 +716,7 @@ Certificate.prototype = {
       alert('Name is empty');
       return
     }
+
     if (webid.length < 1) {
       alert('WebId is empty');
       return
@@ -711,7 +763,7 @@ Certificate.prototype = {
 
     setTimeout(async function () {
       if (gen.issued === "local_ca") {
-        var csr = self.genCSR(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid);
+        var csr = self.genCSR(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
         var rc = await self.uploadCSR(csr.pem);
         DOM.qHide('#gen-cert-ready-dlg #c_wait');
 
@@ -726,7 +778,7 @@ Certificate.prototype = {
 
       } 
       else {
-        var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid);
+        var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
         certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
         DOM.qHide('#gen-cert-ready-dlg #c_wait');
       }
@@ -786,9 +838,9 @@ Certificate.prototype = {
       self.prepare_delegate('#gen-cert-ready-dlg', webid, {idp: gen.idp});
 
       DOM.qSel('#gen-cert-ready-dlg #btn-message')
-        .onclick = () => {
+        .onclick = async () => {
           var sel = DOM.qSel('#c_announce option:checked').value;
-          var fmt = self.gPref.getValue('ext.youid.pref.ann_message');
+          var fmt = await self.gPref.getValue('ext.youid.pref.ann_message');
           var msg = fmt.replace(/{webid}/g, webid).replace(/{ni-scheme-uri}/g, certData.fingerprint_ni);
                                           
           if (sel === 'pdp_twitter') 
@@ -1501,7 +1553,8 @@ INSERT {
   },
 
 
-  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId) {
+
+  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -1552,11 +1605,63 @@ INSERT {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 
+    var sanId = webId;
+    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.adr) {
+      sanId = 'bitcoin:'+gen.btc.adr;
+    }
+    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.adr) {
+      sanId = 'ethereum:'+gen.eth.adr;
+    }
+
     cert.setSubject(attrs);
     cert.setIssuer(attrs);
+
+//      { name: 'basicConstraints', cA: true, critical: true },
+    var extList = [{ name: 'basicConstraints', cA: false, critical: false }];
+
+    if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
+
+      extList.push({ name: 'keyUsage', digitalSignature: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true });
+      extList.push({ name: 'nsCertType', client: true });
+
+      var pubKey = null;
+      if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
+        pubKey = forge.util.hexToBytes(gen.btc.p2pkh);
+      else if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
+        pubKey = forge.util.hexToBytes(gen.eth.pkey);
+
+      if (pubKey) {
+        var pub_value = forge.asn1.create(forge.asn1.Class.UNIVERSAL, forge.asn1.Type.OCTETSTRING, false, pubKey);
+        extList.push({ id: '2.16.840.1.2381.2',  value: pub_value});
+      }
+    } 
+    else 
+    if (certEmail && certEmail.length > 0) {
+      extList.push({ name: 'keyUsage', digitalSignature: true, keyEncipherment: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true, emailProtection: true });
+      extList.push({ name: 'nsCertType', client: true, email: true });
+    }
+    else {
+      extList.push({ name: 'keyUsage', digitalSignature: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true });
+      extList.push({ name: 'nsCertType', client: true });
+    }
+
+    extList.push({ name: 'subjectAltName',
+        altNames: [{
+          type: 6, // URI
+          value: sanId
+        }]
+      });
+    extList.push({ name: 'subjectKeyIdentifier' });
+
+    cert.setExtensions(extList);
+
+/**
     if (certEmail && certEmail.length > 0) {
       cert.setExtensions([
-//      { name: 'basicConstraints', cA: true, critical: true },
+        { name: 'basicConstraints', cA: false, critical: false },
         { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },  
         { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
         { name: 'nsCertType', client: true, email: true },
@@ -1564,7 +1669,7 @@ INSERT {
           name: 'subjectAltName',
           altNames: [{
             type: 6, // URI
-            value: webId
+            value: sanId
           }]
         },
         { name: 'subjectKeyIdentifier' }
@@ -1573,6 +1678,7 @@ INSERT {
     else {
       cert.setExtensions([
 //      { name: 'basicConstraints', cA: true, critical: true },
+        { name: 'basicConstraints', cA: false, critical: false },
         { name: 'keyUsage', digitalSignature: true},  
         { name: 'extKeyUsage', clientAuth: true},
         { name: 'nsCertType', client: true},
@@ -1580,12 +1686,13 @@ INSERT {
           name: 'subjectAltName',
           altNames: [{
             type: 6, // URI
-            value: webId
+            value: sanId
           }]
         },
         { name: 'subjectKeyIdentifier' }
       ])
     }
+**/
 
     cert.sign(keys.privateKey, forge.md.sha512.create());
 
@@ -1597,7 +1704,8 @@ INSERT {
   },
 
 
-  genCSR: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId) {
+
+  genCSR: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -1641,6 +1749,60 @@ INSERT {
     }
 
     csr.setSubject(attrs);
+
+    var sanId = webId;
+    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.adr) {
+      sanId = 'bitcoin:'+gen.btc.adr;
+    }
+    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.adr) {
+      sanId = 'ethereum:'+gen.eth.adr;
+    }
+
+    var extList = [{ name: 'basicConstraints', cA: false, critical: false }];
+
+    if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
+
+      extList.push({ name: 'keyUsage', digitalSignature: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true });
+      extList.push({ name: 'nsCertType', client: true });
+
+      var pubKey = null;
+      if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
+        pubKey = forge.util.hexToBytes(gen.btc.p2pkh);
+      else if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
+        pubKey = forge.util.hexToBytes(gen.eth.pkey);
+
+      if (pubKey) {
+        var pub_value = forge.asn1.create(forge.asn1.Class.UNIVERSAL, forge.asn1.Type.OCTETSTRING, false, pubKey);
+        extList.push({ id: '2.16.840.1.2381.2',  value: pub_value});
+      }
+    } 
+    else 
+    if (certEmail && certEmail.length > 0) {
+      extList.push({ name: 'keyUsage', digitalSignature: true, keyEncipherment: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true, emailProtection: true });
+      extList.push({ name: 'nsCertType', client: true, email: true });
+    }
+    else {
+      extList.push({ name: 'keyUsage', digitalSignature: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true });
+      extList.push({ name: 'nsCertType', client: true });
+    }
+
+    extList.push({ name: 'subjectAltName',
+        altNames: [{
+          type: 6, // URI
+          value: sanId
+        }]
+      });
+
+    csr.setAttributes([
+        {
+        name: 'extensionRequest',
+        extensions: extList
+        }]);
+
+/****
     if (certEmail && certEmail.length > 0) {
 
       csr.setAttributes([
@@ -1685,7 +1847,7 @@ INSERT {
       }]);
     
     }
-
+***/
     csr.sign(keys.privateKey, forge.md.sha512.create());
 
     return  {

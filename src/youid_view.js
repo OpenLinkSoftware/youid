@@ -164,20 +164,21 @@ YouId_View.prototype = {
     return item;
   },
 
-  load_youid_list: function ()
+
+  load_youid_list: async function ()
   {
     var pref_youid = null;
     var list = [];
     var self = this;
 
     try {
-      var v = this.gPref.getValue("ext.youid.pref.id");
+      var v = await this.gPref.getValue("ext.youid.pref.id");
       if (v)
         pref_youid = JSON.parse(v);
     } catch(e){}
 
     try {
-      var v = this.gPref.getValue("ext.youid.pref.list");
+      var v = await this.gPref.getValue("ext.youid.pref.list");
       if (v)
         list = JSON.parse(v);
     } catch(e){}
@@ -209,20 +210,21 @@ YouId_View.prototype = {
     r.innerHTML = '<td>'+s+'</td>';
 
     r.querySelector('.det_btn').onclick = (e) => { self.click_det(e); };
-    r.querySelector('.youid_chk').onclick = (e) =>{ return self.select_youid_item(e); };
+    r.querySelector('.youid_chk').onclick = async (e) =>{ return await self.select_youid_item(e); };
     r.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
-    r.querySelector('.remove_youid').onclick = (e) => { return self.click_remove_youid(e);};
+    r.querySelector('.remove_youid').onclick = async (e) => { return await self.click_remove_youid(e);};
     r.querySelector('.refresh_youid').onclick = (e) => { return self.click_refresh_youid(e);}
 
   },
 
-  updateYouIdItem: function (row, youid)
+
+  updateYouIdItem: async function (row, youid)
   {
     var self = this;
     var pref_youid = null;
 
     try {
-      var v = this.gPref.getValue("ext.youid.pref.id");
+      var v = await this.gPref.getValue("ext.youid.pref.id");
       if (v)
         pref_youid = JSON.parse(v);
     } catch(e){}
@@ -234,9 +236,9 @@ YouId_View.prototype = {
     td.innerHTML = s;
 
     row.querySelector('.det_btn').onclick = (e) => { self.click_det(e); };
-    row.querySelector('.youid_chk').onclick = (e) =>{ return self.select_youid_item(e); };
+    row.querySelector('.youid_chk').onclick = async (e) =>{ return await self.select_youid_item(e); };
     row.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
-    row.querySelector('.remove_youid').onclick = (e) => { return self.click_remove_youid(e);};
+    row.querySelector('.remove_youid').onclick = async (e) => { return await self.click_remove_youid(e);};
     row.querySelector('.refresh_youid').onclick = (e) => { return self.click_refresh_youid(e);}
   },
 
@@ -255,7 +257,7 @@ YouId_View.prototype = {
   },
 
 
-  select_youid_item: function (ev)
+  select_youid_item: async function (ev)
   {
     var chk = ev.target;
 
@@ -288,7 +290,7 @@ YouId_View.prototype = {
     }
 
     if (this.is_popup) {
-      this.save_youid_data();
+      await this.save_youid_data();
     }
   },
 
@@ -300,7 +302,8 @@ YouId_View.prototype = {
     return false;
   },
 
-  click_remove_youid: function (e)
+
+  click_remove_youid: async function (e)
   {
     var self = this;
     var row = e.target.closest('table').closest('tr');
@@ -314,7 +317,7 @@ YouId_View.prototype = {
     }
 
     if (youid!=null) {
-       Msg.showYN("Do you want to drop YouID item ?",youid.name, function(){
+       Msg.showYN("Do you want to drop YouID item ?",youid.name, async function(){
           row.remove();
           for(var i=0; i < self.webid_list.length; i++) {
             if (youid.id === self.webid_list[i]) {
@@ -323,7 +326,7 @@ YouId_View.prototype = {
             }
           }
           if (self.is_popup)
-            self.save_youid_data();
+            await self.save_youid_data();
        });
     }
 
@@ -379,7 +382,7 @@ YouId_View.prototype = {
   },
 
 
-  save_youid_data: function ()
+  save_youid_data: async function ()
   {
     var pref_youid = "";
     var list = [];
@@ -406,8 +409,8 @@ YouId_View.prototype = {
       }
 
     }
-    this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
-    this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
+    await this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
+    await this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
   },
 
 
@@ -426,15 +429,15 @@ YouId_View.prototype = {
     $("#verify1-dlg #verify-pkey-lst").hide();
 
     var btnOk = DOM.qSel('#verify1-dlg #btn-ok');
-    btnOk.onclick =  () =>
+    btnOk.onclick = async () =>
        {
          if (_success) {
            if (row)
-             self.updateYouIdItem(row, _webid);
+             await self.updateYouIdItem(row, _webid);
            else
              self.addYouIdItem(_webid, false);
            if (self.is_popup)
-             self.save_youid_data();
+             await self.save_youid_data();
          }
      
          $('#verify1-dlg').modal('hide');

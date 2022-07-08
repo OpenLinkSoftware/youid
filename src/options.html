@@ -113,6 +113,8 @@
                 <option value="pdp_twitter">Twitter</option>
                 <option value="pdp_win_azure">Windows Azure</option>
                 <option value="pdp_win_live">Windows Live</option>
+                <option value="pdp_btc">Bitcoin</option>
+                <option value="pdp_eth">Ethereum</option>
               </select>
               &nbsp;&nbsp;&nbsp;
               <button id="btn-fetch-pdp" type="button" class="btn btn-primary hidden">
@@ -131,7 +133,35 @@
               </button>
             </div>
           </div>
+          <div id="r_pdp-btc" class="hidden">
+            <div class="form-group row">
+              <label for="c_btc_adr" class="col-md-3 control-label">Address:</label>
+              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+                <input type="text" class="form-control" id="c_btc_adr" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_btc_p2pkh" class="col-md-3 control-label">P2PKH:</label>
+              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+                <input type="text" class="form-control" id="c_btc_p2pkh" value="">
+              </div>
+            </div>
+          </div>
 
+          <div id="r_pdp-eth" class="hidden">
+            <div class="form-group row">
+              <label for="c_eth_adr" class="col-md-3 control-label">Address:</label>
+              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+                <input type="text" class="form-control" id="c_eth_adr" value="">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_eth_pkey" class="col-md-3 control-label">Public Key:</label>
+              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+                <input type="text" class="form-control" id="c_eth_pkey" value="">
+              </div>
+            </div>
+          </div>
           <hr/>
 
           <div class="form-group row">

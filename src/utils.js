@@ -591,6 +591,8 @@ YouID_Loader.prototype = {
         var pkey = r.pubkey.value;
         try {
           pkey = r.pubkey.token==='blank' ? r.pubkey.value : (new URL(r.pubkey.value)).hash;
+          if (!pkey)
+            pkey = r.pubkey.value;
         } catch(e) {
         }
 
@@ -824,7 +826,7 @@ DOM.iSetValue = function (sel, val)
 
 async function getCurWin()
 {
-  if (Browser.isChromeWebExt) {
+  if (Browser.is_chrome) {
     return new Promise(function (resolve, reject) {
       Browser.api.windows.getCurrent({}, (w) => {
         resolve(w)
@@ -837,7 +839,7 @@ async function getCurWin()
 
 async function getCurTab()
 {
-  if (Browser.isChromeWebExt) {
+  if (Browser.is_chrome) {
     return new Promise(function (resolve, reject) {
       Browser.api.tabs.query({active:true, currentWindow:true}, (t) => {
         resolve(t)
@@ -850,7 +852,7 @@ async function getCurTab()
 
 async function getTabFrames(tab)
 {
-  if (Browser.isChromeWebExt) {
+  if (Browser.is_chrome) {
     return new Promise(function (resolve, reject) {
       Browser.api.webNavigation.getAllFrames({tabId:tab}, (t) => {
         resolve(t)

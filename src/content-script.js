@@ -36,7 +36,7 @@ function recvMessage(event)
 
   if (ev_data) {
     if (ev_data.getWebId) {
-      if (Browser.isChromeWebExt) {
+      if (Browser.is_chrome) {
          Browser.api.runtime.sendMessage({ getWebId: true},
               function (response) {
 //                 console.log(JSON.stringify(response, undefined, 2));
