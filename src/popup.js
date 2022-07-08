@@ -25,18 +25,19 @@ var v_youid = null;
 
 $(document).ready(function()
 {
-  document.getElementById("c_year").innerText = new Date().getFullYear();
+  DOM.iSel("c_year").innerText = new Date().getFullYear();
 
-  $('#prefs_btn').click(Prefs_exec);
+  DOM.qSel('#prefs_btn').onclick = (e) => { Prefs_exec(); }
 
   gPref = new Settings();
   v_youid = new YouId_View(true);
 
-  $('#ext_ver').text('version: '+ Browser.api.runtime.getManifest().version);
+  DOM.qSel('#ext_ver').innerText = 'Version: '+ Browser.api.runtime.getManifest().version;
 
-  document.querySelector('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
-  document.querySelector('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
-  document.querySelector('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
+  DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
+  DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
+  DOM.qSel('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
+  DOM.qSel('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
 
   load_popup();
 });

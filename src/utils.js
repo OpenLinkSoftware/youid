@@ -1599,6 +1599,8 @@ Coin.coin_cert_check = function (cert)
     var ext = cert.getExtension({id: '2.16.840.1.2381.2'});
     if (ext)
       pub = ext.value;
+    else
+      return {rc:0, err: "Could not found Coin PublicKey data in Certificate"}
 
     ext = cert.getExtension('subjectAltName');
     if (ext) {
@@ -1622,6 +1624,8 @@ Coin.coin_cert_check = function (cert)
         rc = Coin.eth_check(pub, san);
         addr = san.substring(9);
       }
+      else
+      return {rc:0, err: "Could not found Coin Address in Certificate"}
     }
 
     return {

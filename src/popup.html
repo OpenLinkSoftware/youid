@@ -31,6 +31,12 @@
         <script type="text/javascript" src="lib/purify.min.js"></script>
         <script type="text/javascript" src="lib/oidc-web.min.js"></script>
 
+        <script type="text/javascript" src="lib/forge.bundle.js"></script>
+        <script type="text/javascript" src="lib/ripemd160.js"></script>
+        <script type="text/javascript" src="lib/bn.js"></script>
+        <script type="text/javascript" src="lib/secp256k1.js"></script>
+        <script type="text/javascript" src="lib/sha3.js"></script>
+
         <script type="text/javascript" src="OidcWebid.js"></script>
         <script type="text/javascript" src="browser.js"></script>
         <script type="text/javascript" src="settings.js"></script>
@@ -47,6 +53,7 @@
       <div id="pulldown" class="content_scroll">
        <div class="grid_buttons">
        <button id="add_youid" type="button" class="btn btn-primary" title="Register a NetID with your Browser">Add&nbspNetID</button>
+       <button id="add_certid" type="button" class="btn btn-primary" title="Add via Secure Credentials File">Add&nbspCertificate</button>
        <button id="btn-gen-cert" type="button" class="btn btn-primary" title="Generate an X.509 Certificate for tokenizing your Credentials">Cenerate&nbsp;Certificate</button>
        <button id="btn-delegate" type="button" class="btn btn-primary" title="Associate your NetID with a Credentials Authentication Delegate">Add Delegate</button>
        </div>
@@ -116,6 +123,9 @@
         <div id="verify_progress">
           <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID-Profile Document
         </div>
+        <div id="verify_cert_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID Certificate
+        </div>
         <p id="verify-msg"></p>
         <form id="verify-webid-lst" class="form-horizontal">
           <div class="form-group row">
@@ -175,5 +185,40 @@
   </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal" id="add-certid-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add via Secure Credentials File</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+         <tr id="cert-file">
+          <td> Certificate:&nbsp;</td>
+          <td> <input id="file_data" type="file" style="WIDTH: 480px" value="" title="Certificate that identifies an Agent."> </td>
+         </tr>
+         </p>
+         <tr id="cert-pwd" class="hidden">
+          <td style="padding-top:10px"> Password:&nbsp;</td>
+          <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
     </body>
 </html>

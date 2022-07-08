@@ -32,20 +32,13 @@ async function init()
 {
 	gPref = new Settings();
 
-        document.getElementById("c_year").innerText = new Date().getFullYear();
+        DOM.iSel("c_year").innerText = new Date().getFullYear();
 
         v_youid = new YouId_View(false);
         v_cert = new Certificate();
 
-        $('#add_youid')
-          .click((e) => {
-             v_youid.click_add_youid(e);
-          });
-
-        $('#add_certid')
-          .click((e) => {
-             v_youid.click_add_certid(e);
-          });
+        DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
+        DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
 
 
         $('#hdr_add').click(hdr_add);
@@ -96,7 +89,7 @@ async function init()
          });
 
 
-        $('#ext_ver').text('Version: '+ Browser.api.runtime.getManifest().version);
+        DOM.qSel('#ext_ver').innerText = 'Version: '+ Browser.api.runtime.getManifest().version;
         var url = new URL(location.href);
 
         if (url.hash == '#certificate') {

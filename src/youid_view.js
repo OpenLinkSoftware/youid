@@ -584,7 +584,6 @@ class YouId_View {
         }
 
         if (val.success && val.keys.length > 0) {
-//!!        if (val.success) {
           if (found == -1) {
             lst.push(val);
           } else {
@@ -693,7 +692,7 @@ class YouId_View {
     }
   }
 
-//?????????????????????????????????????????????????
+
   async verify1_cert_exec(cert, row)
   {
     var self = this;
@@ -738,7 +737,7 @@ class YouId_View {
 
     if (rc.rc!= 1) {
        $('#verify1-dlg').modal('hide');
-       Msg.showInfo(rc.err.message);
+       Msg.showInfo(rc.err);
        return;
     }
 
