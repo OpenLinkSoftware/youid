@@ -476,8 +476,8 @@ YouID_Loader.prototype = {
     out += `<tr id="row"><td>Modulus</td><td id="pkey_mod">${data.mod}</td></tr>`;
     out += `<tr id="row"><td>Exponent</td><td id="pkey_exp">${data.exp}</td></tr>`;
 
-    out += `<tr id="row"><td>Coin Address</td><td id="c_addr">${data.coin_addr}</td></tr>`;
-    out += `<tr id="row"><td>Coin PublicKey</td><td id="c_pub">${data.coin_pub}</td></tr>`;
+    out += `<tr id="row"><td>Account Address</td><td id="c_addr">${data.coin_addr}</td></tr>`;
+    out += `<tr id="row"><td>Account PublicKey</td><td id="c_pub">${data.coin_pub}</td></tr>`;
 
     out += `</tbody></table>`;
 
@@ -1625,7 +1625,7 @@ Coin.coin_cert_check = function (cert)
         addr = san.substring(9);
       }
       else
-      return {rc:0, err: "Could not found Coin Address in Certificate"}
+      return {rc:0, err: "Could not found Account Address in Certificate"}
     }
 
     return {

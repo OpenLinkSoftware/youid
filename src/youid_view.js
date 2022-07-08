@@ -89,15 +89,15 @@ class YouId_View {
     if (youid.coin == 1) {
       if (youid.id.startsWith('bitcoin:'))
         det += mk_row_href('http://www.openlinksw.com/schemas/pki#PublicKey#P2PKHaddress',
-                         'Coin Address',
+                         'Account Address',
                          youid.coin_addr);
       else
         det += mk_row_href('http://www.openlinksw.com/schemas/pki#PublicKey#Address',
-                         'Coin Address',
+                         'Account Address',
                          youid.coin_addr);
 
       det += mk_row_href('http://www.openlinksw.com/schemas/pki#PublicKey',
-                         'Coin PublicKey',
+                         'Account PublicKey',
                          youid.coin_pub);
     }
 
