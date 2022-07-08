@@ -88,6 +88,8 @@ YouID_Loader = function () {
   PREFIX foaf: <http://xmlns.com/foaf/0.1/> 
   PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
   PREFIX schema: <http://schema.org/> 
+  PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+  PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
 
   SELECT * WHERE 
     { 
@@ -100,9 +102,40 @@ YouID_Loader = function () {
        OPTIONAL { ?pubkey dcterms:created ?key_cr_dt . }
        OPTIONAL { ?pubkey dcterms:title   ?key_cr_title . }
        OPTIONAL { ?pubkey rdfs:label ?key_label . }
+       OPTIONAL { ?pubkey owl:sameAs ?fp_uri . }
+       OPTIONAL { 
+         <#{webid}> oplcert:hasCertificate ?cert .
+         ?cert oplcert:fingerprint ?fp ;
+               oplcert:fingerprint-digest ?fp_dg .
+       }
+    }`;
+
+  this.load_pubkey_fp = `
+  PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+
+  SELECT * WHERE 
+    { 
+       <#{pubkey}> owl:sameAs ?fp_uri . 
+    }`;
+
+  this.load_cert_fp = `
+  PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
+
+  SELECT * WHERE 
+    { 
+         <#{webid}> oplcert:hasCertificate ?cert .
+         ?cert oplcert:fingerprint ?fp ;
+               oplcert:fingerprint-digest ?fp_dg .
     }`;
 
 };
+/**
+       OPTIONAL { 
+         <#{webid}> oplcert:hasCertificate ?cert .
+         ?cert oplcert:fingerprint ?fp ;
+               oplcert:fingerprint-digest ?fp_dg .
+       }
+***/
 
 YouID_Loader.prototype = {
   parse_data: async function(data, content_type, baseURI)
@@ -552,7 +585,7 @@ YouID_Loader.prototype = {
     } 
     else if (!rc.err && rc.results && rc.results.length > 0) 
     {
-      var ret = [];
+      var pkeys = {};
       for (var i=0; i < rc.results.length; i++) {
         var r = rc.results[i];
         var pkey = r.pubkey.value;
@@ -561,22 +594,106 @@ YouID_Loader.prototype = {
         } catch(e) {
         }
 
-        var v = {pkey, pubkey_uri:r.pubkey.value,  alg:r.alg.value,  mod:r.cert_mod.value, exp:r.cert_exp.value};
-        if (r.key_cr_dt) 
-          v["key_created"] = r.key_cr_dt.value;
-        if (r.key_cr_title) 
-          v["key_title"] = r.key_cr_title.value;
-        if (r.key_label) 
-          v["key_label"] = r.key_label.value;
+        var v = {pkey, pubkey_uri:r.pubkey.value,  alg:r.alg.value,  mod:r.cert_mod.value, exp:r.cert_exp.value, fp_uri:[]};
 
-        ret.push(v);
+        if (!pkeys[v.pubkey_uri])
+          pkeys[v.pubkey_uri] = v;
+
+        if (r.key_cr_dt) 
+          pkeys[v.pubkey_uri]["key_created"] = r.key_cr_dt.value;
+        if (r.key_cr_title) 
+          pkeys[v.pubkey_uri]["key_title"] = r.key_cr_title.value;
+        if (r.key_label) 
+          pkeys[v.pubkey_uri]["key_label"] = r.key_label.value;
       }
+      var ret = Object.values(pkeys)
+
+      for(var i=0; i < ret.length; i++) {
+        var lst = await self.loadPKey_Fp(store, ret[i].pubkey_uri);
+        if (!lst.error && lst.fp)
+          ret[i].fp_uri = lst.fp;
+      }
+
       return {keys: ret};
    }
    else {
       return { "error": 'No data'};
    }
   } ,
+
+
+  loadPKey_Fp : async function(store, pkey) {
+    var self = this;
+    var store;
+
+    var query = self.load_pubkey_fp.replace(/#\{pubkey\}/g, pkey);
+
+    var rc;
+    try {
+      rc = await this.exec_query(store, query);
+    } catch(err) {
+      return { "error": err};
+    }
+    if (rc.err) {
+      return { "error": rc.err};
+    } 
+    else if (!rc.err && rc.results && rc.results.length > 0) 
+    {
+      var fp = [];
+      for (var i=0; i < rc.results.length; i++) {
+        var r = rc.results[i];
+
+        if (r.fp_uri)
+          fp.push(r.fp_uri.value)
+      }
+      return {fp: fp};
+   }
+   else {
+      return { "error": 'No data'};
+   }
+  } ,
+
+
+  loadCert_Fp : async function(store, webid) {
+    var self = this;
+    var store;
+
+    var query = self.load_cert_fp.replace(/#\{webid\}/g, webid);
+
+    var rc;
+    try {
+      rc = await this.exec_query(store, query);
+    } catch(err) {
+      return { "error": err};
+    }
+    if (rc.err) {
+      return { "error": rc.err};
+    } 
+    else if (!rc.err && rc.results && rc.results.length > 0) 
+    {
+      var certs = {};
+      for (var i=0; i < rc.results.length; i++) {
+        var r = rc.results[i];
+
+        var v = {cert: r.cert.value, fp_dg:[]};
+        if (r.fp)
+          v["fp"] = r.fp.value;
+
+        if (!certs[v.cert])
+          certs[v.cert] = v;
+
+        if(r.fp_dg)
+          certs[v.cert].fp_dg.push(r.fp_dg.value);
+      }
+      var ret = Object.values(pkeys)
+
+      return ret.length > 0 ? ret[0] : null;
+   }
+   else {
+      return { "error": 'No data'};
+   }
+  } ,
+
 
 }
 

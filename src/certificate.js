@@ -994,7 +994,11 @@ Certificate.prototype = {
             var k = keys[i];
             gen.delegate_key_exp = k.exp;
             gen.delegate_key_mod = k.mod;
+            gen.delegate_fp_uri = k.fp_uri;
+            gen.delegate_pubkey_uri = k.pubkey_uri;
             gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
+
+            this.setDelegateText(gen, parent);
             this.setDelegatorText(gen, parent, tabPrefix);
             $('#cert-key-dlg').modal('hide');
             break;
@@ -1166,6 +1170,8 @@ Certificate.prototype = {
             var k = gen.delegate_keys[0];
             gen.delegate_key_exp = k.exp;
             gen.delegate_key_mod = k.mod;
+            gen.delegate_fp_uri = k.fp_uri;
+            gen.delegate_pubkey_uri = k.pubkey_uri;
             gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
 
             gen.delegator_webid = webid;
@@ -1189,12 +1195,50 @@ Certificate.prototype = {
   setDelegateText: function(gen, parent) {
     var s = '';
     if (gen.delegate_uri && gen.delegator_webid) {
-        s = '@prefix oplcert: <http://www.openlinksw.com/schemas/cert#> . \n\n';
+        s  = '@prefix oplcert: <http://www.openlinksw.com/schemas/cert#> . \n';
+        s += '@prefix cert: <http://www.w3.org/ns/auth/cert#> . \n';
+        s += '@prefix owl:  <http://www.w3.org/2002/07/owl#> . \n';
+        s += '@prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . \n\n';
+
         // delegate  -> delegator
         s += `INSERT { \n`;
         s += `<${gen.delegate_uri}> \n`;
-        s += `            oplcert:onBehalfOf <${gen.delegator_webid}> .\n`;
+        s += `            oplcert:onBehalfOf <${gen.delegator_webid}> .\n\n`;
+
+      if (gen.delegate_fp_uri && gen.delegate_fp_uri.length > 0 && gen.delegate_pubkey_uri) {
+        s += `<${gen.delegate_uri}> oplcert:hasPublicKey <${gen.delegate_pubkey_uri}> . \n`;
+        s += `<${gen.delegate_pubkey_uri}>  cert:RSAPublicKey; \n`;
+        for(var i=0; i < gen.delegate_fp_uri.length; i++) {
+          s += `         owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
+        }
+        s += `         cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
+        s += `         cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary . \n`;
+      }
         s += ` }\n`;
+/**
+@prefix : <#> . 
+@prefix oplcert: <http://www.openlinksw.com/schemas/cert#>
+@prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . 
+
+:delegate oplcert:hasCertificate :cert . 
+:cert oplcert:fingerprint "E5B5BDFB6983A9C902D95BDA2D86FBACE5EF9ED3679472C9E3C627D6FBBC790A"^^xsd:hexBinary ;
+      oplcert:fingerprint-digest <%{SHA1-in-hexedcimal}>^^xsig:sha1, <%{SHA256-in-hexedcimal}>^^xsig:sha256 .
+
+------
+@prefix : <#> . 
+@prefix oplcert: <http://www.openlinksw.com/schemas/cert#>
+@prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . 
+
+:delegate 
+oplcert:hasCertificate :cert . 
+
+:cert oplcert:hasPublicKey :publicKey .
+
+:publicKey  oplcert:RSAPublicKey ; 
+            cert:modulus xx ; 
+            cert:exponent ee ;
+            owl:sameAs <%{di-scheme-uri-for-spki-digest-of-public-ksy}>, <%{ni-scheme-uri-for-spki-digest-of-public-ksy}> 
+**/
     }
 
     DOM.qSel(`${parent} #delegate-text`).value = s;
@@ -1205,6 +1249,7 @@ Certificate.prototype = {
     var s_ttl = ''
     var s_json = '';
     if (gen.delegator_webid && gen.delegate_uri) {
+
         s = `@prefix acl: <http://www.w3.org/ns/auth/acl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix cert: <http://www.w3.org/ns/auth/cert#> .
@@ -1215,12 +1260,17 @@ INSERT {
 
 <${gen.delegate_uri}> 
    cert:key [ 
-             a cert:RSAPublicKey;
-             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;
-             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary
-            ] .
- }`;
+             a cert:RSAPublicKey;\n`;
 
+        for(var i=0; i < gen.delegate_fp_uri.length; i++) {
+          s += `             owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
+        }
+
+        s += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
+        s += `             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary \n`;
+        s += '            ] . \n';
+        s += ' }';
+    
 
         s_ttl = `<script type="text/turtle">
 
@@ -1233,12 +1283,17 @@ INSERT {
 
 <${gen.delegate_uri}> 
    cert:key [ 
-             a cert:RSAPublicKey;
-             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int;
-             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary
-            ] .
-</script>
- `;
+             a cert:RSAPublicKey;\n`;
+
+        for(var i=0; i < gen.delegate_fp_uri.length; i++) {
+          s_ttl += `             owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
+        }
+
+        s_ttl += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
+        s_ttl += `             cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary; \n`;
+        s_ttl += `            ] . \n`;
+        s_ttl += `</script> \n`;
+
 
         s_json = `<script type="application/ld+json">
 
@@ -1252,8 +1307,24 @@ INSERT {
   "@graph": [
     {
       "@id": "_:b2_b1",
-      "@type": "cert:RSAPublicKey",
-      "cert:exponent": {
+      "@type": "cert:RSAPublicKey", \n`;
+
+      if (gen.delegate_fp_uri && gen.delegate_fp_uri.length > 0) {
+        s_json += `      "owl:sameAs": [\n`
+        for(var i=0; i < gen.delegate_fp_uri.length; i++) 
+        {
+          s_json += `        { \n`
+          s_json += `         "@id": "${gen.delegate_fp_uri[i]}" \n`
+          if (i < gen.delegate_fp_uri.length-1)
+            s_json += `        }, \n`
+          else
+            s_json += `        } \n`
+        }
+        s_json += `      ], \n`
+      }
+
+        s_json +=
+`      "cert:exponent": {
         "@type": "xsd:int",
         "@value": "${gen.delegate_key_exp}"
       },
@@ -1278,7 +1349,6 @@ INSERT {
 }
 </script>
  `;
-
     }
 
     DOM.qSel(`${parent} #${tabPrefix}-sparql #text-sparql`).value = s;
