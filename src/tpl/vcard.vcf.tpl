@@ -13,6 +13,6 @@ item2.X-ABLabel:Digest URI
 item3.URL:%{pubkey_pem_url}
 item3.X-ABLabel:Certificate URL
 item4.URL:%{webid}
-item4.X-ABLabel:webid
+item4.X-ABLabel:NetID
 PHOTO;ENCODING=b;TYPE=JPEG:%{photo_base64}
 END:VCARD

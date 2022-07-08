@@ -43,6 +43,7 @@
     <script type="text/javascript" src="lib/ripemd160.js"></script>
     <script type="text/javascript" src="lib/bn.js"></script>
     <script type="text/javascript" src="lib/secp256k1.js"></script>
+    <script type="text/javascript" src="lib/sha3.js"></script>
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
     <script type="text/javascript" src="oauth2/oauth1.js"></script>
@@ -75,9 +76,9 @@
      <div style="WIDTH: 1200px;">      
       <div id="header">
         <ul id="tabs">
-          <li><a href="#webid" title="Register a WebID with your Browser">WebID&nbsp;List</a></li>
+          <li><a href="#webid" title="Register a NetID with your Browser">NetID&nbsp;List</a></li>
           <li><a href="#certificate" title="Generate an X.509 Certificate for tokenizing your Credentials">Certificate</a></li>
-          <li><a href="#delegate" title="Associate your WebID with a Credentials Authentication Delegate">Delegation</a></li>
+          <li><a href="#delegate" title="Associate your NetID with a Credentials Authentication Delegate">Delegation</a></li>
           <li><a href="#accounts" title="Settings for IdP accounts">Storage Provider Settings</a></li>
           <li><a href="#headers">Header&nbsp;Settings</a></li>
           <li><a href="#about"  >About</a></li>
@@ -90,7 +91,7 @@
           <table>
            <tr>
              <div class="grid_buttons" width="100%">
-               <button id="add_youid" type="button" class="btn btn-primary">Add&nbspWebID</button>
+               <button id="add_youid" type="button" class="btn btn-primary">Add&nbspNetID</button>
              </div>
              </br>
              <table id="youid_tbl" class="footable">
@@ -109,7 +110,7 @@
             <label for="c_pdp" class="col-md-3 control-label">Profile Data Provider:</label>
             <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
               <select name="provider" class="form-control" id="c_pdp">
-                <option value="pdp_webid" selected>WebID-Profile Document</option>
+                <option value="pdp_webid" selected>NetID-Profile Document</option>
                 <option value="pdp_amazon">Amazon</option>
                 <option value="pdp_facebook">Facebook</option>
                 <option value="pdp_google">Google</option>
@@ -118,9 +119,7 @@
                 <option value="pdp_win_azure">Windows Azure</option>
                 <option value="pdp_win_live">Windows Live</option>
                 <option value="pdp_btc">Bitcoin</option>
-<!--
                 <option value="pdp_eth">Ethereum</option>
--->
               </select>
               &nbsp;&nbsp;&nbsp;
               <button id="btn-fetch-pdp" type="button" class="btn btn-primary hidden">
@@ -150,13 +149,7 @@
 
           <div id="r_pdp-eth" class="hidden">
             <div class="form-group row">
-              <label for="c_eth_adr" class="col-md-3 control-label">Address:</label>
-              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
-                <input type="text" class="form-control" id="c_eth_adr" value="">
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="c_eth_pkey" class="col-md-3 control-label">Public Key:</label>
+              <label for="c_eth_pkey" class="col-md-3 control-label">Private Key (hex):</label>
               <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
                 <input type="text" class="form-control" id="c_eth_pkey" value="">
               </div>
@@ -227,7 +220,7 @@
 
           <div class="form-group" row id="r_idp">
             <hr/>
-            <label for="c_idp" class="col-md-3 control-label">WebID-Profile Storage Providers:</label>
+            <label for="c_idp" class="col-md-3 control-label">NetID-Profile Storage Providers:</label>
             <div class="col-md-6">
               <select name="profile" class="form-control" id="c_idp">
                 <option value="manual" selected>Manual</option>
@@ -322,7 +315,7 @@
             </div>
           </div>
           <div class="form-group row hidden" id="r_webid">
-            <label for="c_webid" class="col-md-3 control-label">WebId:</label>
+            <label for="c_webid" class="col-md-3 control-label">NetId:</label>
             <div class="col-md-9">
               <input type="text" class="form-control" id="c_webid" value="">
             </div>
@@ -362,7 +355,7 @@
 
           <form id="delegate-tab" class="form-horizontal">
             <div class="form-group row">
-              <label for="webid_uri" class="col-md-1 control-label">WebID&nbsp;URI:</label>
+              <label for="webid_uri" class="col-md-1 control-label">NetID&nbsp;URI:</label>
               <div class="col-md-10" style="display:flex; flex-direction:row">
                 <input type="text" class="form-control" id="webid_uri" value="">
               </div>
@@ -488,7 +481,7 @@
                 Revert to Defaults 
               </button>
               <div>
-                &#x25cf <span style="color:red">{webid}</span> token will be replaced with the WebID URI
+                &#x25cf <span style="color:red">{webid}</span> token will be replaced with the NetID URI
               </div>
               <div>
                 &#x25cf <span style="color:red">{ni-scheme-uri}</span> token will be replaced with the Certificate Ni Fingerprint
@@ -582,16 +575,16 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Verifying WebID</h4>
+        <h4 class="modal-title">Verifying NetID</h4>
       </div>
       <div class="modal-body">
         <div id="verify_progress">
-          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID-Profile Document
         </div>
         <p id="verify-msg"></p>
         <form id="verify-webid-lst" class="form-horizontal">
           <div class="form-group row">
-            <label for="c_webid_lst" class="col-md-1 control-label">WebId:</label>
+            <label for="c_webid_lst" class="col-md-1 control-label">NetId:</label>
             <div class="col-md-11">
               <select class="form-control" id="c_webid_lst">
               </select>
@@ -626,15 +619,15 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h5 class="modal-title">Add WebID</h5>
+        <h5 class="modal-title">Add NetID</h5>
       </div>
       <div class="modal-body">
         <p/>
         <table style="font-size: 14px;">
 
          <tr id="uri-link">
-          <td> WebID:&nbsp;</td>
-          <td> <input id="uri" style="WIDTH: 480px" value="" title="A WebID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
+          <td> NetID:&nbsp;</td>
+          <td> <input id="uri" style="WIDTH: 480px" value="" title="A NetID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
          </tr>
 
         </table>
@@ -692,7 +685,7 @@
         <div id="public-cred">
           <label class="control-label">Public Credentials</label> 
           <section id="webid-cert"  style="padding-left:1em">
-            Your WebID:&nbsp;<a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
+            Your NetID:&nbsp;<a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
           </section>
           <section id="r-message"  style="padding-left:1em">
             <div style="display:flex; flex-direction:row; align-items: baseline;">

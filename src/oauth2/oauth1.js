@@ -12,10 +12,15 @@ var OAuth1 = function(adapterName, config) {
 
       var data = that.get();
       data.consumerKey = config.consumerKey;
-//      data.clientSecret = {consumerSec:config.consumerSec, tokenSec:''};
+
+      if (!data.clientSecret)
+        data.clientSecret = {};
+
       data.clientSecret.consumerSec = config.consumerSec;
+
       if (!data.clientSecret.tokenSec)
         data.clientSecret.tokenSec = '';
+
       data.supportMessages = config.supportMessages;
       that.setSource(data);
     }

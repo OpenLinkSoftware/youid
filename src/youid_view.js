@@ -199,7 +199,7 @@ YouId_View.prototype = {
     var self = this;
     for(var i=0; i < self.webid_list.length; i++) {
       if (youid.id === self.webid_list[i]) {
-        alert("WebID: "+youid.id+" existed already in the list.");
+        alert("NetID: "+youid.id+" existed already in the list.");
         return;
       }
     }
@@ -317,7 +317,7 @@ YouId_View.prototype = {
     }
 
     if (youid!=null) {
-       Msg.showYN("Do you want to drop YouID item ?",youid.name, async function(){
+       Msg.showYN("Do you want to drop NetID item ?",youid.name, async function(){
           row.remove();
           for(var i=0; i < self.webid_list.length; i++) {
             if (youid.id === self.webid_list[i]) {
@@ -562,7 +562,7 @@ YouId_View.prototype = {
           $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(html));
        } else {
          $('#verify1-dlg').modal('hide');
-         Msg.showInfo("Couldn't find any relations associating this WebID with a Public Key.");
+         Msg.showInfo("Couldn't find any relations associating this NetID with a Public Key.");
        }
 
     } catch(err) {

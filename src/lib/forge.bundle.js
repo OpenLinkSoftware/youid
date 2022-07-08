@@ -1186,7 +1186,8 @@ function DataBuffer(b, options) {
   this.write = 0;
 
   if(b !== null && b !== undefined) {
-    this.putBytes(b);
+    var encoding = options.encoding || 'binary';
+    this.putBytes(b, encoding);
   }
 
   if('writeOffset' in options) {

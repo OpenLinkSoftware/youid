@@ -452,18 +452,13 @@ Certificate.prototype = {
         } 
         else if (gen.pdp === 'pdp_eth') {
           gen.eth = {};
-          gen.eth.adr = DOM.qSel('#gen-cert-dlg #c_eth_adr').value;
-          gen.eth.adr = DOM.qSel('#gen-cert-dlg #c_eth_pkey').value;
+          gen.eth.pkey = DOM.qSel('#gen-cert-dlg #c_eth_pkey').value;
 
           if (gen.eth.pkey.startsWith('0x') || gen.eth.pkey.startsWith('0X'))
             gen.eth.pkey = gen.eth.pkey.substring(2);
 
-          if (gen.eth.adr.length < 1) {
-            alert('Ethereum address is empty');
-            return;
-          }
           if (gen.eth.pkey.length < 1) {
-            alert('Ethereum Public Key is empty');
+            alert('Ethereum Private Key is empty');
             return;
           }
         }
@@ -731,6 +726,14 @@ Certificate.prototype = {
        }
     } 
     else if (gen.pdp === 'pdp_eth') {
+       try {
+         var rc = eth_gen_x509_san_from_pkey(gen.eth.pkey);
+         gen.eth.pub = rc.pub;
+         gen.eth.san = rc.san;
+       } catch (e) {
+         alert(e);
+         return;
+       }
     }
     else if (webid.length < 1) {
       alert('WebId is empty');
@@ -1626,7 +1629,7 @@ INSERT {
     if (certOrg && certOrg.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
-      attrs.push({ name: 'organizationName', value: 'WebID' });
+      attrs.push({ name: 'organizationName', value: 'NetID' });
     }
     if (certEmail && certEmail.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
@@ -1636,8 +1639,8 @@ INSERT {
     if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.san) {
       sanId = gen.btc.san;
     }
-    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.adr) {
-      sanId = 'ethereum:'+gen.eth.adr;
+    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.san) {
+      sanId = gen.eth.san;
     }
 
     cert.setSubject(attrs);
@@ -1655,8 +1658,8 @@ INSERT {
       var pubKey = null;
       if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.pub)
         pubKey = gen.btc.pub;
-      else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.p2pkh)
-        pubKey = forge.util.hexToBytes(gen.eth.p2pkh);
+      else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.pub)
+        pubKey = gen.eth.pub;
 
       if (pubKey)
         extList.push({ id: '2.16.840.1.2381.2',  value: pubKey});
@@ -1767,7 +1770,7 @@ INSERT {
     if (certOrg && certOrg.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
-      attrs.push({ name: 'organizationName', value: 'WebID' });
+      attrs.push({ name: 'organizationName', value: 'NetID' });
     }
     if (certEmail && certEmail.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
@@ -1779,8 +1782,8 @@ INSERT {
     if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.san) {
       sanId = gen.btc.san;
     }
-    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.adr) {
-      sanId = 'ethereum:'+gen.eth.adr;
+    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.san) {
+      sanId = gen.eth.san;
     }
 
     var extList = [{ name: 'basicConstraints', cA: false, critical: true }];
@@ -1794,8 +1797,8 @@ INSERT {
       var pubKey = null;
       if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.pub)
         pubKey = gen.btc.pub;
-      else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.p2pkh)
-        pubKey = forge.util.hexToBytes(gen.eth.p2pkh);
+      else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.pub)
+        pubKey = gen.eth.pub;
 
       if (pubKey)
         extList.push({ id: '2.16.840.1.2381.2',  value: pubKey});

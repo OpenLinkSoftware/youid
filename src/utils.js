@@ -395,7 +395,7 @@ YouID_Loader.prototype = {
         youid.msg = 'Successfully verified.';
         youid.success = true;
       } else {
-        youid.msg = 'Failed, could not verify WebID.';
+        youid.msg = 'Failed, could not verify NetID.';
         youid.success = false;
       }
     }
@@ -408,7 +408,7 @@ YouID_Loader.prototype = {
     var out;
     out = `<table class="footable verify-tbl"><tbody id="verify-data">`;
 
-    out += `<tr id="row"><td>WebID</td><td>${data.id}</td></tr>`;
+    out += `<tr id="row"><td>NetID</td><td>${data.id}</td></tr>`;
     out += `<tr id="row"><td>Name</td><td>${data.name}</td></tr>`;
 
     if (!data.keys || data.keys.length == 0) {
@@ -1348,10 +1348,20 @@ function hash_ripemd160(v)
   return md.update(v, 'binary').digest('binary');
 }
 
+function hash_keccak256(v)
+{
+  const arr = str_uint8array(v);
+  return keccak_256(arr);
+}
+
+
 
 function bip_decode_wif_key(v)
 {
   var decoded = decode_b58(v);
+  if (!decoded)
+    throw new Error('Wrong Bitcoin Private Key value');
+
   var len = decoded.length;
   var key_data = decoded.substring(0, len - 4);
   len = len - 4;
@@ -1378,6 +1388,7 @@ function bip_import_wif_key_secp256k1(wif_key)
   var prv = bip_decode_wif_key(wif_key);
   return prv;
 }
+
 
 
 function str_uint8array(str) {
@@ -1463,66 +1474,22 @@ function btc_gen_x509_wif_san_from_pub(pub_hex)
   return {pub, san};
 }
 
-/***
-function my_test1()
+
+function eth_gen_x509_san_from_pkey(priv_hex)
 {
-  var pkey_value = 'L45kw5gAUXr8VeAhSiEK4fuGZ9L6ww1yrfJtRLTRasG7pyHtVeRF';
-//  var pkey_value = 'KyvxsoNwWWJPqwgk2CxFGb6HSzBUqNXHEGQLta8tLLQDMmTPVNpt';
-  var z = btc_gen_x509_wif_san_from_pkey(pkey_value)
-  console.log(z);
+  const prv = forge.util.hexToBytes(priv_hex);
+
+  const privateKey = Secp256k1.uint256( str_uint8array(prv), 16)
+  const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey, 1)
+  // 04 -  uncompressed value
+  const pub_hex = '04' + publicKey.x + publicKey.y;
+
+  const pub = forge.util.hexToBytes(pub_hex);
+
+  const addr = hash_keccak256(pub.substring(1)).substring(24);
+  const san = 'ethereum:0x' + addr;
+
+  return {pub, san, pub_hex};
 }
-
-***/
-
-/***
-async function my_test()
-{
- try {
-  var pkey_value = 'L45kw5gAUXr8VeAhSiEK4fuGZ9L6ww1yrfJtRLTRasG7pyHtVeRF';
-
-  var prv = bip_import_wif_key_secp256k1 (pkey_value);
-
-//??test OK  var zz = forge.util.binary.base64.encode( forge.util.binary.raw.decode(prv) )
-
-//??  -- 0x302e0201010420 && 0xa00706052b8104000a are use to make ASN.1 - secp256k1
-//??  forge.util.binary.base64.encode('302e0201010420' + forge.util.bytesToHex(prv) + 'a00706052b8104000a');
-
-//??  var key_hex = '302e0201010420' + forge.util.bytesToHex(prv) + 'a00706052b8104000a';
-  var key_hex = forge.util.bytesToHex(prv);
-     
-//   var key_bin = forge.util.hexToBytes(key_hex);
-   var key_uint8 = forge.util.binary.hex.decode(key_hex);
-
-//  var key_hex = forge.util.bytesToHex(prv);
-//  var key_uint8 = forge.util.binary.hex.decode(key_hex);
-
-
-const _privateKey = Secp256k1.uint256(key_uint8, 16)
-const _publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(_privateKey)
-
-var x_uint8 = forge.util.binary.hex.decode(_publicKey.x);
-
-var zz = forge.util.binary.base64.encode( forge.util.binary.raw.decode(prv) )
-
-
-
-const privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32))
-const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
-
-// Generating public key
-const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
-const pubX = Secp256k1.uint256(publicKey.x, 16)
-const pubY = Secp256k1.uint256(publicKey.y, 16)
-
- } catch(e) {
-   console.log(e);
- }
-}
-
-****/
-
-
-
-
 
 

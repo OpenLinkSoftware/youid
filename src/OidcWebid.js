@@ -105,17 +105,6 @@ class OidcWeb {
     }
   }
 
-//??
-/***
-  login0() {
-     const width = 650;
-     const height = 400;
-     const left = window.screenX + (window.innerWidth - width) / 2;
-     const top = window.screenY + (window.innerHeight - height) / 2;
-     const settings = `width=${width},height=${height},left=${left},top=${top}`;
-     window.open(this.login_url, 'Login', settings);	
-  }
-**/
 
   login() {
      const width = 650;
