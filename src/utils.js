@@ -18,6 +18,11 @@
  *
  */
 
+const ttl_nano_pattern = /(## (Nanotation|Turtle) +Start ##)((.|\n|\r)*?)(## (Nanotation|Turtle) +(End|Stop) ##)(.*)/gmi;
+const jsonld_nano_pattern = /(## JSON-LD +Start ##)((.|\n|\r)*?)((## JSON-LD +(End|Stop) ##))(.*)/gmi;
+const rdf_nano_pattern = /(## RDF(\/|-)XML +Start ##)((.|\n|\r)*?)((## RDF(\/|-)XML +(End|Stop) ##))(.*)/gmi;
+
+
 YouID_Loader = function () {
 
   this.load_webid = `
@@ -459,6 +464,27 @@ YouID_Loader.prototype = {
   },
 
 
+  genHTML_cert_view : function(data)
+  {
+    var out;
+    out = `<table class="footable verify-tbl"><tbody id="verify-data">`;
+
+    out += `<tr id="row"><td>NetID</td><td>${data.id}</td></tr>`;
+    out += `<tr id="row"><td>Name</td><td>${data.name}</td></tr>`;
+
+    out += `<tr id="row"><td>Algorithm</td><td id="pkey_alg">${data.alg}</td></tr>`;
+    out += `<tr id="row"><td>Modulus</td><td id="pkey_mod">${data.mod}</td></tr>`;
+    out += `<tr id="row"><td>Exponent</td><td id="pkey_exp">${data.exp}</td></tr>`;
+
+    out += `<tr id="row"><td>Coin Address</td><td id="c_addr">${data.coin_addr}</td></tr>`;
+    out += `<tr id="row"><td>Coin PublicKey</td><td id="c_pub">${data.coin_pub}</td></tr>`;
+
+    out += `</tbody></table>`;
+
+    return out;
+  },
+
+
   getProfile : function(url, oidc) {
     return new Promise( (resolve, reject) => {
       var options = {
@@ -699,6 +725,21 @@ YouID_Loader.prototype = {
 
 }
 
+
+
+function loadBinaryFile(file)
+{
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      resolve(e.target.result);
+    };
+    reader.onerror = function(e) {
+       reject('Error: '+ e.type);
+    };
+    reader.readAsBinaryString(file);
+  });
+}
 
 
 SPARQL = function () {
@@ -1208,7 +1249,11 @@ function get_rdfa_data(doc)
 }
 
 
-function encode_base58(input, maxline) 
+
+
+var Coin = {};
+
+Coin.encode_base58 = function (input, maxline) 
 {
   // base58 characters (Bitcoin alphabet)
   const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -1272,7 +1317,8 @@ function encode_base58(input, maxline)
  */
 const _reverseAlphabets = {};
 
-function decode_b58(input) {
+Coin.decode_b58 = function (input) 
+{
   // base58 characters (Bitcoin alphabet)
   const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
@@ -1333,7 +1379,7 @@ function decode_b58(input) {
 }
 
 
-function hash_sha256(v)
+Coin.hash_sha256 = function(v)
 {
   var md = forge.md.sha256.create();
   md.start();
@@ -1342,20 +1388,20 @@ function hash_sha256(v)
 }
 
 
-function hash_ripemd160(v)
-{
+Coin.hash_ripemd160 = function(v)
+{                                                                                        	
   var md = new RIPEMD160();
   return md.update(v, 'binary').digest('binary');
 }
 
-function hash_keccak256(v)
+Coin.hash_keccak256 = function (v)
 {
-  const arr = str_uint8array(v);
+  const arr = Coin.str_uint8array(v);
   return keccak_256(arr);
 }
 
 // address must wihtout prefix 0x
-function eth_toChecksumAddress(address) 
+Coin.eth_toChecksumAddress = function (address) 
 {
   address = address.toLowerCase();
   var hash = keccak_256(address);
@@ -1375,9 +1421,9 @@ function eth_toChecksumAddress(address)
 
 
 
-function bip_decode_wif_key(v)
+Coin.bip_decode_wif_key = function (v)
 {
-  var decoded = decode_b58(v);
+  var decoded = Coin.decode_b58(v);
   if (!decoded)
     throw new Error('Wrong Bitcoin Private Key value');
 
@@ -1386,8 +1432,8 @@ function bip_decode_wif_key(v)
   len = len - 4;
   var ck0 = decoded.substring(len);
 
-  var digest_256 = hash_sha256(key_data);
-  var ck1 = hash_sha256(digest_256).substring(0, 4);
+  var digest_256 = Coin.hash_sha256(key_data);
+  var ck1 = Coin.hash_sha256(digest_256).substring(0, 4);
 
   if (ck1 !== ck0)
     throw new Error("WIF checksum failed");
@@ -1402,15 +1448,16 @@ function bip_decode_wif_key(v)
 }
 
 
-function bip_import_wif_key_secp256k1(wif_key)
+Coin.bip_import_wif_key_secp256k1 = function (wif_key)
 {
-  var prv = bip_decode_wif_key(wif_key);
+  var prv = Coin.bip_decode_wif_key(wif_key);
   return prv;
 }
 
 
 
-function str_uint8array(str) {
+Coin.str_uint8array = function (str) 
+{
   const len = str.length;
   const buf = new Uint8Array(len);
   for (var i = 0; i < len; i++) {
@@ -1419,12 +1466,12 @@ function str_uint8array(str) {
   return buf;
 }
 
-function bin_hex(str) {
-  return forge.util.bytesToHex(hash0);
+Coin.bin_hex = function (v) {
+  return forge.util.bytesToHex(v);
 }
 
 
-function bip_p2pkh_address_from_pub(pkey, test_net, p2sh_p2pkh)
+Coin.bip_p2pkh_address_from_pub = function (pkey, test_net, p2sh_p2pkh)
 {
   var plen = pkey.length;
   var xcoord = pkey.substring(1, 33);
@@ -1437,29 +1484,29 @@ function bip_p2pkh_address_from_pub(pkey, test_net, p2sh_p2pkh)
   else
     zpub = String.fromCharCode(0x02) + xcoord
 
-  var hash0 = hash_sha256(zpub);
-  var hash2 = hash_ripemd160(hash0);
+  var hash0 = Coin.hash_sha256(zpub);
+  var hash2 = Coin.hash_ripemd160(hash0);
 
   if (test_net)
     pref = String.fromCharCode(0x6F);
   else
     pref = String.fromCharCode(0x00);
 
-  var ck = hash_sha256(hash_sha256(pref + hash2)).substring(0, 4);
-  var p2pkh_address = encode_base58 (str_uint8array(pref + hash2 + ck));
+  var ck = Coin.hash_sha256(Coin.hash_sha256(pref + hash2)).substring(0, 4);
+  var p2pkh_address = Coin.encode_base58 (Coin.str_uint8array(pref + hash2 + ck));
 
   if (p2sh_p2pkh)
     {
-      hash0 = hash_sha256(String.fromCharCode(0x00)+String.fromCharCode(0x14) + hash2);
-      hash2 = hash_ripemd160(hash0);
+      hash0 = Coin.hash_sha256(String.fromCharCode(0x00)+String.fromCharCode(0x14) + hash2);
+      hash2 = Coin.hash_ripemd160(hash0);
 
       if (test_net)
         pref = String.fromCharCode(0xC4);
       else
         pref = String.fromCharCode(0x05);
 
-      ck = hash_sha256(hash_sha256(pref + hash2)).substring(0, 4);
-      p2sh_p2pkh_address = encode_base58 (pref + hash2 + ck);
+      ck = Coin.hash_sha256(Coin.hash_sha256(pref + hash2)).substring(0, 4);
+      p2sh_p2pkh_address = Coin.encode_base58 (pref + hash2 + ck);
       return p2sh_p2pkh_address;
     }
 
@@ -1467,48 +1514,126 @@ function bip_p2pkh_address_from_pub(pkey, test_net, p2sh_p2pkh)
 }
 
 
-function btc_gen_x509_wif_san_from_pkey(pkey_value)
+Coin.btc_gen_x509_wif_san_from_pkey = function (pkey_value)
 {
-  const prv = bip_import_wif_key_secp256k1(pkey_value);
+  const prv = Coin.bip_import_wif_key_secp256k1(pkey_value);
 
-  const privateKey = Secp256k1.uint256( str_uint8array(prv), 16)
+  const privateKey = Secp256k1.uint256( Coin.str_uint8array(prv), 16)
   const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
   // 04 -  uncompressed value
   const pub_hex = '04' + publicKey.x + publicKey.y;
   const pub = forge.util.hexToBytes(pub_hex);
 
-  const addr = bip_p2pkh_address_from_pub(pub);
+  const addr = Coin.bip_p2pkh_address_from_pub(pub);
   const san = 'bitcoin:' + addr;
 
   return {pub, san, pub_hex};
 }
 
 
-function btc_gen_x509_wif_san_from_pub(pub_hex)
+Coin.btc_gen_x509_wif_san_from_pub = function (pub_hex)
 {
   const pub = forge.util.hexToBytes(pub_hex);
-  const addr = bip_p2pkh_address_from_pub(pub);
+  const addr = Coin.bip_p2pkh_address_from_pub(pub);
   const san = 'bitcoin:' + addr;
 
   return {pub, san};
 }
 
 
-function eth_gen_x509_san_from_pkey(priv_hex)
+Coin.eth_gen_x509_san_from_pkey = function (priv_hex)
 {
   const prv = forge.util.hexToBytes(priv_hex);
 
-  const privateKey = Secp256k1.uint256( str_uint8array(prv), 16)
+  const privateKey = Secp256k1.uint256( Coin.str_uint8array(prv), 16)
   const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey, 1)
   // 04 -  uncompressed value
   const pub_hex = '04' + publicKey.x + publicKey.y;
 
   const pub = forge.util.hexToBytes(pub_hex);
 
-  const addr = hash_keccak256(pub.substring(1)).substring(24);
-  const san = 'ethereum:0x' + eth_toChecksumAddress(addr);
+  const addr = Coin.hash_keccak256(pub.substring(1)).substring(24);
+  const san = 'ethereum:0x' + Coin.eth_toChecksumAddress(addr);
 
   return {pub, san, pub_hex};
 }
 
 
+Coin.btc_check = function (pub, addr)
+{
+  if (!addr.startsWith('bitcoin:'))
+    return 0;
+
+  const addr1 = addr.substring(8);
+
+  if (!pub)
+    return 0;
+
+  const addr0 = Coin.bip_p2pkh_address_from_pub(pub);
+  
+  return (addr0 === addr1) ? 1 : 0;
+}
+
+Coin.eth_check = function(pub, addr)
+{
+  if (!addr.startsWith('ethereum:'))
+    return 0;
+
+  const addr1 = addr.substring(9);
+
+  if (!pub)
+    return 0;
+
+  var addr0 = Coin.hash_keccak256(pub.substring(1)).substring(24);
+  addr0 = '0x' + Coin.eth_toChecksumAddress(addr0);
+
+  return (addr0 === addr1) ? 1 : 0;
+}
+
+
+Coin.coin_cert_check = function (cert)
+{
+  try {
+    var pub, san, addr;
+
+    var ext = cert.getExtension({id: '2.16.840.1.2381.2'});
+    if (ext)
+      pub = ext.value;
+
+    ext = cert.getExtension('subjectAltName');
+    if (ext) {
+      for(var nm of ext.altNames)
+        if (nm.type == 6)
+          san = nm.value;
+    }
+
+    var rc = 0;
+
+    const CN = cert.subject.getField('CN');
+    const name = CN.value;
+
+
+    if (san) {
+      if (san.startsWith('bitcoin:')) {
+        rc = Coin.btc_check(pub, san);
+        addr = san.substring(8);
+      }
+      else if (san.startsWith('ethereum:')) {
+        rc = Coin.eth_check(pub, san);
+        addr = san.substring(9);
+      }
+    }
+
+    return {
+             rc, san, addr, name,
+             pub: Coin.bin_hex(pub), 
+             exp: cert.publicKey.e.toString(10), 
+             mod: cert.publicKey.n.toString(16).toUpperCase()
+           };
+
+  } catch(e) {
+    console.log(e);
+    return {rc:0, err: e.message};
+  }
+
+}

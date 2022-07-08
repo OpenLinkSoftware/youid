@@ -38,7 +38,7 @@ $(document).ready(function()
   document.querySelector('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
   document.querySelector('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
 
-  load_youid_list();
+  load_popup();
 });
 
 

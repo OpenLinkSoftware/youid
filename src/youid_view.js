@@ -18,21 +18,18 @@
  *
  */
 
-var ttl_nano_pattern = /(## (Nanotation|Turtle) +Start ##)((.|\n|\r)*?)(## (Nanotation|Turtle) +(End|Stop) ##)(.*)/gmi;
-var jsonld_nano_pattern = /(## JSON-LD +Start ##)((.|\n|\r)*?)((## JSON-LD +(End|Stop) ##))(.*)/gmi;
-var rdf_nano_pattern = /(## RDF(\/|-)XML +Start ##)((.|\n|\r)*?)((## RDF(\/|-)XML +(End|Stop) ##))(.*)/gmi;
 
+class YouId_View {
+  constructor(is_popup) 
+  {
+    this.is_popup = is_popup;
+    this.gPref = new Settings();
+    this.cur_webid;
+    this.webid_list = [];
+    this.gOidc = new OidcWeb();
+  }
 
-YouId_View = function(is_popup) {
-  this.is_popup = is_popup;
-  this.gPref = new Settings();
-  this.cur_webid;
-  this.webid_list = [];
-  this.gOidc = new OidcWeb();
-}
-
-YouId_View.prototype = {
-  create_youid_item: function (youid, sel)
+  create_youid_item(youid, sel)
   {
     function mk_row_str(_name_href, _name, _str)
     {
@@ -89,6 +86,22 @@ YouId_View.prototype = {
                          'Inbox',
                          youid.inbox);
 
+    if (youid.coin == 1) {
+      if (youid.id.startsWith('bitcoin:'))
+        det += mk_row_href('http://www.openlinksw.com/schemas/pki#PublicKey#P2PKHaddress',
+                         'Coin Address',
+                         youid.coin_addr);
+      else
+        det += mk_row_href('http://www.openlinksw.com/schemas/pki#PublicKey#Address',
+                         'Coin Address',
+                         youid.coin_addr);
+
+      det += mk_row_href('http://www.openlinksw.com/schemas/pki#PublicKey',
+                         'Coin PublicKey',
+                         youid.coin_pub);
+    }
+
+
     if (youid.behalfOf && youid.behalfOf.length>0) {
       var val = ""
       for(var i=0; i< youid.behalfOf.length; i++) {
@@ -125,47 +138,70 @@ YouId_View.prototype = {
                         val);
     }
 
-    var item = `
-     <table ${cls} id="data" mdata="${mdata}" > 
-       <tr> 
-         <td style="width:20px">
-           <input id="chk" class="youid_chk" type="checkbox" ${checked}>
-         </td> 
-         <td class="ltext">${youid.name}
-         </td> 
-       </tr> 
-       <tr> 
-         <td> 
-           <input type="image" class="refresh_youid" src="lib/css/img/refresh.png" width="21" height="21" title="Refresh YouID details"> 
-         </td> 
-         <td class="itext">
-           ${uri}
-         </td> 
-       </tr> 
-       <tr> 
-         <td> 
-           <input type="image" class="remove_youid" src="lib/css/img/trash.png" width="21" height="21" title="Drop YouID item from list"> 
-         </td> 
-         <td class="dtext"> 
-           <input type="image" class="det_btn" src="lib/css/img/plus.png" width="12" height="12" title="Show details"> 
-           Details 
-         </td> 
-       </tr> 
-       <tr class="det_data hidden"> 
-         <td>
-         </td> 
-         <td> 
-           <table class="dettable" > 
-            ${det} 
-           </table> 
-         </td> 
-       </tr> 
-     </table>`;
-    return item;
-  },
+    if (youid.coin == 1) 
+      return `
+       <table ${cls} id="data" mdata="${mdata}" > 
+         <tr> 
+           <td style="width:20px">  </td> 
+           <td class="ltext">${youid.name} </td> 
+         </tr> 
+         <tr> 
+           <td style="width:21px"> </td> 
+           <td class="itext"> ${uri} </td> 
+         </tr> 
+         <tr> 
+           <td> 
+             <input type="image" class="remove_youid" src="lib/css/img/trash.png" width="21" height="21" title="Drop YouID item from list"> 
+           </td> 
+           <td class="dtext"> 
+             <input type="image" class="det_btn" src="lib/css/img/plus.png" width="12" height="12" title="Show details"> 
+             Details 
+           </td> 
+         </tr> 
+         <tr class="det_data hidden"> 
+           <td> </td> 
+           <td> 
+             <table class="dettable" > 
+              ${det} 
+             </table> 
+           </td> 
+         </tr> 
+       </table>`;
+    else
+      return `
+       <table ${cls} id="data" mdata="${mdata}" > 
+         <tr> 
+           <td style="width:20px"> <input id="chk" class="youid_chk" type="checkbox" ${checked}>  </td> 
+           <td class="ltext">${youid.name} </td> 
+         </tr> 
+         <tr> 
+           <td> 
+             <input type="image" class="refresh_youid" src="lib/css/img/refresh.png" width="21" height="21" title="Refresh YouID details"> 
+           </td> 
+           <td class="itext"> ${uri} </td> 
+         </tr> 
+         <tr> 
+           <td> 
+             <input type="image" class="remove_youid" src="lib/css/img/trash.png" width="21" height="21" title="Drop YouID item from list"> 
+           </td> 
+           <td class="dtext"> 
+             <input type="image" class="det_btn" src="lib/css/img/plus.png" width="12" height="12" title="Show details"> 
+             Details 
+           </td> 
+         </tr> 
+         <tr class="det_data hidden"> 
+           <td> </td> 
+           <td> 
+             <table class="dettable" > 
+              ${det} 
+             </table> 
+           </td> 
+         </tr> 
+       </table>`;
+  }
 
 
-  load_youid_list: async function ()
+  async load_youid_list()
   {
     var pref_youid = null;
     var list = [];
@@ -192,9 +228,9 @@ YouId_View.prototype = {
 
     if (pref_youid && pref_youid.id)
       this.cur_webid = pref_youid.id;
-  },
+  }
 
-  addYouIdItem: function (youid, sel)
+  addYouIdItem(youid, sel)
   {
     var self = this;
     for(var i=0; i < self.webid_list.length; i++) {
@@ -210,15 +246,22 @@ YouId_View.prototype = {
     r.innerHTML = '<td>'+s+'</td>';
 
     r.querySelector('.det_btn').onclick = (e) => { self.click_det(e); };
-    r.querySelector('.youid_chk').onclick = async (e) =>{ return await self.select_youid_item(e); };
+
+    var el = r.querySelector('.youid_chk');
+    if (el)
+      el.onclick = async (e) =>{ return await self.select_youid_item(e); };
+
     r.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
     r.querySelector('.remove_youid').onclick = async (e) => { return await self.click_remove_youid(e);};
-    r.querySelector('.refresh_youid').onclick = (e) => { return self.click_refresh_youid(e);}
 
-  },
+    el = r.querySelector('.refresh_youid');
+    if (el)
+      el.onclick = (e) => { return self.click_refresh_youid(e);}
+
+  }
 
 
-  updateYouIdItem: async function (row, youid)
+  async updateYouIdItem(row, youid)
   {
     var self = this;
     var pref_youid = null;
@@ -240,9 +283,9 @@ YouId_View.prototype = {
     row.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
     row.querySelector('.remove_youid').onclick = async (e) => { return await self.click_remove_youid(e);};
     row.querySelector('.refresh_youid').onclick = (e) => { return self.click_refresh_youid(e);}
-  },
+  }
 
-  click_det: function (e)
+  click_det(e)
   {
     var el = e.target;
     var det_data = el.closest('table.youid_item').querySelector('tr.det_data');
@@ -254,10 +297,10 @@ YouId_View.prototype = {
       el.src = "lib/css/img/minus.png"
 
     return false;
-  },
+  }
 
 
-  select_youid_item: async function (ev)
+  async select_youid_item(ev)
   {
     var chk = ev.target;
 
@@ -292,18 +335,18 @@ YouId_View.prototype = {
     if (this.is_popup) {
       await this.save_youid_data();
     }
-  },
+  }
 
-  click_uri: function (e)
+  click_uri(e)
   {
     var href = e.target.href;
     if (href)
       Browser.openTab(href);
     return false;
-  },
+  }
 
 
-  click_remove_youid: async function (e)
+  async click_remove_youid(e)
   {
     var self = this;
     var row = e.target.closest('table').closest('tr');
@@ -331,16 +374,9 @@ YouId_View.prototype = {
     }
 
     return true;
-  },
+  }
 
-  load_data_from_uri: async function(uri, row)
-  {
-    $('#add-dlg').modal('hide');
-    this.verify1_youid_exec(uri, row);
-  },
-
-
-  click_refresh_youid: function (e)
+  click_refresh_youid(e)
   {
     var self = this;
     var row = e.target.closest('table').closest('tr');
@@ -360,10 +396,17 @@ YouId_View.prototype = {
     }
 
     return true;
-  },
+  }
 
 
-  click_add_youid: function ()
+  async load_data_from_uri(uri, row)
+  {
+    $('#add-dlg').modal('hide');
+    this.verify1_youid_exec(uri, row);
+  }
+
+
+  click_add_youid()
   {
     var self = this;
 
@@ -379,10 +422,86 @@ YouId_View.prototype = {
     $('#add-dlg').modal('show');
 
     return false;
-  },
+  }
 
 
-  save_youid_data: async function ()
+  async load_data_from_cert(cert)
+  {
+    $('#add-certid-dlg').modal('hide');
+    this.verify1_cert_exec(cert);
+  }
+
+
+  async click_add_certid()
+  {
+    var self = this;
+    var cert_file = null;
+
+    DOM.qSel('#add-certid-dlg #file_data').onchange = async (e) => {
+      if (e.target.files.length > 0) {
+        cert_file = e.target.files[0];
+        const file = e.target.files[0];
+        const ftype = file.type; 
+        //p12  application/x-pkcs12
+        //pem  application/x-x509-ca-cert
+        //der  application/pkix-cert'
+
+        if (ftype === 'application/x-pkcs12')
+          DOM.qShow('#add-certid-dlg #cert-pwd');
+        else
+          DOM.qHide('#add-certid-dlg #cert-pwd');
+      }
+    };
+
+
+
+    var btnOk = DOM.qSel('#add-certid-dlg #btn-ok');
+    btnOk.onclick = async () =>
+       {
+         if (cert_file) {
+           try {
+           var data = await loadBinaryFile(cert_file);
+
+             if (cert_file.type === 'application/x-pkcs12') {
+               //PKCS12
+               var bdata = forge.asn1.fromDer(data);
+               var pwd = DOM.qSel('#add-certid-dlg #file_pwd').value;
+               var pkcs = forge.pkcs12.pkcs12FromAsn1(bdata, true, pwd);
+               var bags = pkcs.getBags({bagType: forge.pki.oids.certBag});
+               var bag = bags[forge.pki.oids.certBag][0];
+               self.load_data_from_cert(bag.cert);
+             } 
+             else if (cert_file.type === 'application/x-x509-ca-cert') {
+                //PEM
+               var cert = forge.pki.certificateFromPem(data);
+               self.load_data_from_cert(cert);
+             }
+             else if (cert_file.type === 'application/pkix-cert') {
+               //DER
+               var bdata = forge.asn1.fromDer(data);
+               var cert = forge.pki.certificateFromAsn1(bdata, true);
+               self.load_data_from_cert(cert);
+             }
+             else {
+               alert('Unsupported file type');
+               return;
+             }
+           } catch(e) {
+             console.log(e);
+             alert(e);
+           }
+         }
+       };
+
+    var dlg = $('#add-certid-dlg .modal-content');
+    dlg.width(620);
+    $('#add-certid-dlg').modal('show');
+
+    return false;
+  }
+
+
+  async save_youid_data()
   {
     var pref_youid = "";
     var list = [];
@@ -392,7 +511,9 @@ YouId_View.prototype = {
     
     for (var i=0; i < lst.length; i++) {
       var r = lst[i];
-      var checked = r.querySelector('.youid_chk').checked;
+      var el = r.querySelector('.youid_chk');
+      var checked = el && el.checked ? true : false;
+
 
       var youid = null;
       try {
@@ -411,16 +532,17 @@ YouId_View.prototype = {
     }
     await this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
     await this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
-  },
+  }
 
 
 
-  verify1_youid_exec: async function (uri, row)
+  async verify1_youid_exec(uri, row)
   {
     var self = this;
     var _webid;
     var _success = false;
 
+    $("#verify1-dlg #verify_cert_progress").hide();
     $("#verify1-dlg #verify_progress").show();
     $("#verify1-dlg #verify-msg").prop("textContent","");
     $('#verify1-dlg #verify-tbl-place').children().remove();
@@ -569,11 +691,81 @@ YouId_View.prototype = {
        $('#verify1-dlg').modal('hide');
        Msg.showInfo(err.message);
     }
-  },
+  }
+
+//?????????????????????????????????????????????????
+  async verify1_cert_exec(cert, row)
+  {
+    var self = this;
+    var _certid;
+    var _success = false;
+
+    $("#verify1-dlg #verify_progress").hide();
+    $("#verify1-dlg #verify_cert_progress").show();
+    $("#verify1-dlg #verify-msg").prop("textContent","");
+    $('#verify1-dlg #verify-tbl-place').children().remove();
+    $("#verify1-dlg #btn-ok").hide();
+    $("#verify1-dlg #verify-webid-lst").hide();
+    $("#verify1-dlg #verify-pkey-lst").hide();
 
 
+    var btnOk = DOM.qSel('#verify1-dlg #btn-ok');
+    btnOk.onclick = async () =>
+       {
+         if (_success) {
+           self.addYouIdItem(_certid, false);
+
+           if (self.is_popup)
+             await self.save_youid_data();
+         }
+     
+         $('#verify1-dlg').modal('hide');
+       };
 
 
+    var dlg = $('#verify1-dlg .modal-content');
+    dlg.width(630);
+    $('#verify1-dlg').modal('show');
 
+    var rc;
+    try {
+      rc = Coin.coin_cert_check(cert);
+    } catch(e) {
+       $('#verify1-dlg').modal('hide');
+       Msg.showInfo(e.message);
+       return;
+    }
+
+    if (rc.rc!= 1) {
+       $('#verify1-dlg').modal('hide');
+       Msg.showInfo(rc.err.message);
+       return;
+    }
+
+    _success = true;
+    _certid = {};
+
+    _certid.name = rc.name;
+    _certid.id = rc.san;
+    _certid.alg = 'http://www.w3.org/ns/auth/cert#RSAPublicKey';
+    _certid.mod = rc.mod;
+    _certid.exp = rc.exp;
+    _certid.coin = 1;
+    _certid.coin_pub = rc.pub;
+    _certid.coin_addr = rc.addr;
+
+    try {
+      $("#verify1-dlg #btn-ok").show();
+      $("#verify1-dlg #verify_cert_progress").hide();
+      $("#verify1-dlg #verify-msg").prop("textContent", 'Successfully verified.');
+      $('#verify1-dlg #verify-tbl-place').children().remove();
+      var html = new YouID_Loader().genHTML_cert_view(_certid);
+      $('#verify1-dlg #verify-tbl-place').append(DOMPurify.sanitize(html));
+
+    } catch(err) {
+       $('#verify1-dlg').modal('hide');
+       Msg.showInfo(err.message);
+    }
+  }
 }
 

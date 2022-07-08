@@ -92,6 +92,7 @@
            <tr>
              <div class="grid_buttons" width="100%">
                <button id="add_youid" type="button" class="btn btn-primary">Add&nbspNetID</button>
+               <button id="add_certid" type="button" class="btn btn-primary">Add&nbspCert</button>
              </div>
              </br>
              <table id="youid_tbl" class="footable">
@@ -581,6 +582,9 @@
         <div id="verify_progress">
           <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID-Profile Document
         </div>
+        <div id="verify_cert_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID Certificate
+        </div>
         <p id="verify-msg"></p>
         <form id="verify-webid-lst" class="form-horizontal">
           <div class="form-group row">
@@ -628,6 +632,40 @@
          <tr id="uri-link">
           <td> NetID:&nbsp;</td>
           <td> <input id="uri" style="WIDTH: 480px" value="" title="A NetID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-certid-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add NetID</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+         <tr id="cert-file">
+          <td> Certificate:&nbsp;</td>
+          <td> <input id="file_data" type="file" style="WIDTH: 480px" value="" title="Certificate that identifies an Agent."> </td>
+         </tr>
+         </p>
+         <tr id="cert-pwd" class="hidden">
+          <td style="padding-top:10px"> Password:&nbsp;</td>
+          <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
          </tr>
 
         </table>

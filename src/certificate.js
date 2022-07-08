@@ -717,7 +717,7 @@ Certificate.prototype = {
 
     if (gen.pdp === 'pdp_btc') {
        try {
-         var rc = btc_gen_x509_wif_san_from_pkey(gen.btc.pkey);
+         var rc = Coin.btc_gen_x509_wif_san_from_pkey(gen.btc.pkey);
          gen.btc.pub = rc.pub;
          gen.btc.san = rc.san;
        } catch (e) {
@@ -727,7 +727,7 @@ Certificate.prototype = {
     } 
     else if (gen.pdp === 'pdp_eth') {
        try {
-         var rc = eth_gen_x509_san_from_pkey(gen.eth.pkey);
+         var rc = Coin.eth_gen_x509_san_from_pkey(gen.eth.pkey);
          gen.eth.pub = rc.pub;
          gen.eth.san = rc.san;
        } catch (e) {

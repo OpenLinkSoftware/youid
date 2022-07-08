@@ -42,6 +42,11 @@ async function init()
              v_youid.click_add_youid(e);
           });
 
+        $('#add_certid')
+          .click((e) => {
+             v_youid.click_add_certid(e);
+          });
+
 
         $('#hdr_add').click(hdr_add);
         $('#hdr_add').button({
