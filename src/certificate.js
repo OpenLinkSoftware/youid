@@ -122,13 +122,29 @@ Certificate.prototype = {
         DOM.qHide('#gen-cert-dlg #btn-fetch-pdp');
         DOM.qHide('#gen-cert-dlg #r_pdp-btc');
         DOM.qHide('#gen-cert-dlg #r_pdp-eth');
+        DOM.qShow('#gen-cert-dlg #r_webid'); 
+        DOM.qShow('#gen-cert-dlg #r_idp'); 
 
         switch(sel)
         {
-          case 'pdp_btc':  DOM.qShow('#gen-cert-dlg #r_pdp-btc'); DOM.iSel('c_name').value = 'BTC Wallet Proxy'; break;
-          case 'pdp_eth':  DOM.qShow('#gen-cert-dlg #r_pdp-eth'); DOM.iSel('c_name').value = 'ETH Wallet Proxy'; break
-          case 'pdp_webid': DOM.qShow('#gen-cert-dlg #r_pdp-webid'); break;
-          default:  DOM.qShow('#gen-cert-dlg #btn-fetch-pdp'); break;
+          case 'pdp_btc':  
+              DOM.qShow('#gen-cert-dlg #r_pdp-btc'); 
+              DOM.iSel('c_name').value = 'BTC Wallet Proxy'; 
+              DOM.qHide('#gen-cert-dlg #r_webid'); 
+              DOM.qHide('#gen-cert-dlg #r_idp'); 
+              break;
+          case 'pdp_eth':  
+              DOM.qShow('#gen-cert-dlg #r_pdp-eth'); 
+              DOM.iSel('c_name').value = 'ETH Wallet Proxy'; 
+              DOM.qHide('#gen-cert-dlg #r_webid'); 
+              DOM.qHide('#gen-cert-dlg #r_idp'); 
+              break;
+          case 'pdp_webid': 
+              DOM.qShow('#gen-cert-dlg #r_pdp-webid'); 
+              break;
+          default:  
+              DOM.qShow('#gen-cert-dlg #btn-fetch-pdp'); 
+              break;
         }
       };
 
@@ -412,17 +428,6 @@ Certificate.prototype = {
       };
 
 
-    DOM.qSel('#gen-cert-dlg #c_btc_adr')
-      .onchange = async () => {
-        DOM.qSel('#gen-cert-dlg #c_webid').value = 'bitcoin:'+DOM.qSel('#gen-cert-dlg #c_btc_adr').value;
-      };
-
-    DOM.qSel('#gen-cert-dlg #c_eth_adr')
-      .onchange = async () => {
-        DOM.qSel('#gen-cert-dlg #c_webid').value = 'ethereum:'+DOM.qSel('#gen-cert-dlg #c_eth_adr').value;
-      };
-
-
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
       .onclick = async () => {
         var gen = {};
@@ -432,18 +437,16 @@ Certificate.prototype = {
 
         if (gen.pdp === 'pdp_btc') {
           gen.btc = {};
-          gen.btc.adr = DOM.qSel('#gen-cert-dlg #c_btc_adr').value;
-          gen.btc.p2pkh = DOM.qSel('#gen-cert-dlg #c_btc_p2pkh').value;
+          gen.btc.pkey = DOM.qSel('#gen-cert-dlg #c_btc_pkey').value;
+          var v = gen.btc.pkey.toLowerCase();
 
-          if (gen.btc.p2pkh.startsWith('0x') || gen.btc.p2pkh.startsWith('0X'))
-            gen.btc.p2pkh = gen.btc.p2pkh.substring(2);
+          if (v.startsWith('p2wpkh:'))
+            gen.btc.pkey = gen.btc.pkey.substring(7);
+          else if (v.startsWith('p2pkh:'))
+            gen.btc.pkey = gen.btc.pkey.substring(6);
 
-          if (gen.btc.adr.length < 1) {
-            alert('Bitcoin address is empty');
-            return;
-          }
-          if (gen.btc.p2pkh.length < 1) {
-            alert('Bitcoin P2PKH is empty');
+          if (gen.btc.pkey.length < 1) {
+            alert('Bitcoin Private Key is empty');
             return;
           }
         } 
@@ -717,10 +720,23 @@ Certificate.prototype = {
       return
     }
 
-    if (webid.length < 1) {
+    if (gen.pdp === 'pdp_btc') {
+       try {
+         var rc = btc_gen_x509_wif_san_from_pkey(gen.btc.pkey);
+         gen.btc.pub = rc.pub;
+         gen.btc.san = rc.san;
+       } catch (e) {
+         alert(e);
+         return;
+       }
+    } 
+    else if (gen.pdp === 'pdp_eth') {
+    }
+    else if (webid.length < 1) {
       alert('WebId is empty');
       return
     }
+
 
     DOM.qSel('#gen-cert-dlg #c_pwd').value = '';
     DOM.qSel('#gen-cert-dlg #c_pwd1').value = '';
@@ -801,12 +817,20 @@ Certificate.prototype = {
       
       var p12Url = 'data:application/x-pkcs12;base64,' + certData.pkcs12B64;
       DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('href', p12Url);
-      DOM.qShow('#gen-cert-ready-dlg #public-cred');
       DOM.qShow('#gen-cert-ready-dlg #p12-cert');
       DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
-      DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
       DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
+
+      if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
+        DOM.qHide('#gen-cert-ready-dlg #public-cred');
+        DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate');
+      }
+      else {
+        DOM.qShow('#gen-cert-ready-dlg #public-cred');
+        DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
+      }
+
 
       DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Credentials';
 
@@ -824,47 +848,50 @@ Certificate.prototype = {
 
       DOM.qShow('#gen-cert-ready-dlg #profile-card');
 
-      var s = self.genManualCard(webid, certData);
-      DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
-      DOM.qSel('#profile-card #text-n-jsonld').value = s.nano_jsonld;
-      DOM.qSel('#profile-card #text-n-rdfxml').value = s.nano_rdfxml;
-      DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
-      DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
-      DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
-      DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni_tab;
-      DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di_tab;
-      DOM.qSel('#profile-card #text-i-fp').value = certData.fingerprint_tab;
+      if (gen.pdp !== 'pdp_btc' && gen.pdp !== 'gen.eth') {
+        var s = self.genManualCard(webid, certData);
+        DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
+        DOM.qSel('#profile-card #text-n-jsonld').value = s.nano_jsonld;
+        DOM.qSel('#profile-card #text-n-rdfxml').value = s.nano_rdfxml;
+        DOM.qSel('#profile-card #text-i-ttl').value = s.i_ttl;
+        DOM.qSel('#profile-card #text-i-jsonld').value = s.i_jsonld;
+        DOM.qSel('#profile-card #text-i-rdfxml').value = s.i_rdfxml;
+        DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni_tab;
+        DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di_tab;
+        DOM.qSel('#profile-card #text-i-fp').value = certData.fingerprint_tab;
 
-      self.prepare_delegate('#gen-cert-ready-dlg', webid, {idp: gen.idp});
+        self.prepare_delegate('#gen-cert-ready-dlg', webid, {idp: gen.idp});
 
-      DOM.qSel('#gen-cert-ready-dlg #btn-message')
-        .onclick = async () => {
-          var sel = DOM.qSel('#c_announce option:checked').value;
-          var fmt = await self.gPref.getValue('ext.youid.pref.ann_message');
-          var msg = fmt.replace(/{webid}/g, webid).replace(/{ni-scheme-uri}/g, certData.fingerprint_ni);
+        DOM.qSel('#gen-cert-ready-dlg #btn-message')
+          .onclick = async () => {
+            var sel = DOM.qSel('#c_announce option:checked').value;
+            var fmt = await self.gPref.getValue('ext.youid.pref.ann_message');
+            var msg = fmt.replace(/{webid}/g, webid).replace(/{ni-scheme-uri}/g, certData.fingerprint_ni);
                                           
-          if (sel === 'pdp_twitter') 
-          {
-            twitterAuth.authorize(function() {
-              twitterAuth.sendMessage(msg, function(data, error) { 
-                if (error)
-                  alert('Error: '+error);
-                else
-                  alert('Message was sent');
+            if (sel === 'pdp_twitter') 
+            {
+              twitterAuth.authorize(function() {
+                twitterAuth.sendMessage(msg, function(data, error) { 
+                  if (error)
+                    alert('Error: '+error);
+                  else
+                    alert('Message was sent');
+                });
               });
-            });
-          }
-          else if (sel === 'pdp_linkedin') 
-          {
-            linkedinAuth.authorize(function() {
-              linkedinAuth.sendMessage(msg, function(data, error) { 
-                if (error)
-                  alert('Error: '+error);
-                else
-                  alert('Message was sent');
+            }
+            else if (sel === 'pdp_linkedin') 
+            {
+              linkedinAuth.authorize(function() {
+                linkedinAuth.sendMessage(msg, function(data, error) { 
+                  if (error)
+                    alert('Error: '+error);
+                  else
+                    alert('Message was sent');
+                });
               });
-            });
-          }
+            }
+        }
+
       }
 
     }, 500);
@@ -1606,8 +1633,8 @@ INSERT {
     }
 
     var sanId = webId;
-    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.adr) {
-      sanId = 'bitcoin:'+gen.btc.adr;
+    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.san) {
+      sanId = gen.btc.san;
     }
     else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.adr) {
       sanId = 'ethereum:'+gen.eth.adr;
@@ -1617,24 +1644,22 @@ INSERT {
     cert.setIssuer(attrs);
 
 //      { name: 'basicConstraints', cA: true, critical: true },
-    var extList = [{ name: 'basicConstraints', cA: false, critical: false }];
+    var extList = [{ name: 'basicConstraints', cA: false, critical: true }];
 
     if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
 
       extList.push({ name: 'keyUsage', digitalSignature: true });
-      extList.push({ name: 'extKeyUsage', clientAuth: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true , serverAuth: true});
       extList.push({ name: 'nsCertType', client: true });
 
       var pubKey = null;
-      if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
-        pubKey = forge.util.hexToBytes(gen.btc.p2pkh);
-      else if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
-        pubKey = forge.util.hexToBytes(gen.eth.pkey);
+      if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.pub)
+        pubKey = gen.btc.pub;
+      else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.p2pkh)
+        pubKey = forge.util.hexToBytes(gen.eth.p2pkh);
 
-      if (pubKey) {
-        var pub_value = forge.asn1.create(forge.asn1.Class.UNIVERSAL, forge.asn1.Type.OCTETSTRING, false, pubKey);
-        extList.push({ id: '2.16.840.1.2381.2',  value: pub_value});
-      }
+      if (pubKey)
+        extList.push({ id: '2.16.840.1.2381.2',  value: pubKey});
     } 
     else 
     if (certEmail && certEmail.length > 0) {
@@ -1751,31 +1776,29 @@ INSERT {
     csr.setSubject(attrs);
 
     var sanId = webId;
-    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.adr) {
-      sanId = 'bitcoin:'+gen.btc.adr;
+    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.san) {
+      sanId = gen.btc.san;
     }
     else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.adr) {
       sanId = 'ethereum:'+gen.eth.adr;
     }
 
-    var extList = [{ name: 'basicConstraints', cA: false, critical: false }];
+    var extList = [{ name: 'basicConstraints', cA: false, critical: true }];
 
     if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
 
       extList.push({ name: 'keyUsage', digitalSignature: true });
-      extList.push({ name: 'extKeyUsage', clientAuth: true });
+      extList.push({ name: 'extKeyUsage', clientAuth: true, serverAuth: true });
       extList.push({ name: 'nsCertType', client: true });
 
       var pubKey = null;
-      if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
-        pubKey = forge.util.hexToBytes(gen.btc.p2pkh);
-      else if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.p2pkh)
-        pubKey = forge.util.hexToBytes(gen.eth.pkey);
+      if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.pub)
+        pubKey = gen.btc.pub;
+      else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.p2pkh)
+        pubKey = forge.util.hexToBytes(gen.eth.p2pkh);
 
-      if (pubKey) {
-        var pub_value = forge.asn1.create(forge.asn1.Class.UNIVERSAL, forge.asn1.Type.OCTETSTRING, false, pubKey);
-        extList.push({ id: '2.16.840.1.2381.2',  value: pub_value});
-      }
+      if (pubKey)
+        extList.push({ id: '2.16.840.1.2381.2',  value: pubKey});
     } 
     else 
     if (certEmail && certEmail.length > 0) {

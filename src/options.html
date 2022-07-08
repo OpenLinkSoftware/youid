@@ -40,6 +40,9 @@
     <script type="text/javascript" src="lib/azure-sdk.js"></script>
     <script type="text/javascript" src="lib/punycode.js"></script>
     <script type="text/javascript" src="lib/emojimap.js"></script>
+    <script type="text/javascript" src="lib/ripemd160.js"></script>
+    <script type="text/javascript" src="lib/bn.js"></script>
+    <script type="text/javascript" src="lib/secp256k1.js"></script>
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
     <script type="text/javascript" src="oauth2/oauth1.js"></script>
@@ -47,6 +50,7 @@
     <script type="text/javascript" src="browser.js"></script>
     <script type="text/javascript" src="settings.js"></script>
     <script type="text/javascript" src="OidcWebid.js"></script>
+    <script type="text/javascript" src="countries.js"></script>
     <script type="text/javascript" src="utils.js"></script>
     <script type="text/javascript" src="uploader.js"></script>
     <script type="text/javascript" src="cert_manual.js"></script>
@@ -114,7 +118,9 @@
                 <option value="pdp_win_azure">Windows Azure</option>
                 <option value="pdp_win_live">Windows Live</option>
                 <option value="pdp_btc">Bitcoin</option>
+<!--
                 <option value="pdp_eth">Ethereum</option>
+-->
               </select>
               &nbsp;&nbsp;&nbsp;
               <button id="btn-fetch-pdp" type="button" class="btn btn-primary hidden">
@@ -135,15 +141,9 @@
           </div>
           <div id="r_pdp-btc" class="hidden">
             <div class="form-group row">
-              <label for="c_btc_adr" class="col-md-3 control-label">Address:</label>
+              <label for="c_btc_pkey" class="col-md-3 control-label">Private Key (p2wpkh, p2pkh):</label>
               <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
-                <input type="text" class="form-control" id="c_btc_adr" value="">
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="c_btc_p2pkh" class="col-md-3 control-label">P2PKH:</label>
-              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
-                <input type="text" class="form-control" id="c_btc_p2pkh" value="">
+                <input type="text" class="form-control" id="c_btc_pkey" value="">
               </div>
             </div>
           </div>
@@ -223,10 +223,10 @@
         
         </form>
 
-        <hr/>
         <form class="form-horizontal">
 
-          <div class="form-group row">
+          <div class="form-group" row id="r_idp">
+            <hr/>
             <label for="c_idp" class="col-md-3 control-label">WebID-Profile Storage Providers:</label>
             <div class="col-md-6">
               <select name="profile" class="form-control" id="c_idp">
@@ -770,9 +770,9 @@
             </div>
            </section>
           </form>
+          <p/>
+          <hr/>
         </div>
-        <p/>
-        <hr/>
         <section id="p12-cert">
           <label for="private-cred" class="control-label"> Private Credentials</label>
           <div style="display:flex; flex-direction:column; padding-left:1em">

@@ -79,7 +79,7 @@ async function init()
         });
         selectTab('#webid');
 
-        loadPref();
+        await loadPref();
 
         $('#OK_btn').click(savePref);
         $('#Cancel_btn').click(function() {
@@ -104,7 +104,7 @@ async function init()
           selectTab('#webid');
           v_youid.click_add_youid();
         }
-});
+}
 
 
 function selectTab(tab)
