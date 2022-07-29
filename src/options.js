@@ -192,7 +192,7 @@ async function savePref()
 
    await gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
 
-//   closeOptions();
+   Browser.api.runtime.sendMessage({ cmd: 'settings_updated'});
 }
 
 

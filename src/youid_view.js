@@ -505,6 +505,8 @@ class YouId_View {
     }
     await this.gPref.setValue('ext.youid.pref.list', JSON.stringify(list, undefined, 2));
     await this.gPref.setValue('ext.youid.pref.id', JSON.stringify(pref_youid, undefined, 2));
+
+    Browser.api.runtime.sendMessage({ cmd: 'settings_updated'});
   }
 
 

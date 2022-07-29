@@ -22,21 +22,47 @@
 {
   var setting = new Settings();
 
+  async function sync_Settings()
+  {
+    var pref_youid;
+    var hdr_list = [];
+
+    try {
+      var v = await setting.getValue("ext.youid.pref.id");
+      if (v)
+        pref_youid = JSON.parse(v);
+
+      if (pref_youid && pref_youid.id)
+        localStorage.setItem('cur_delegator', pref_youid.id);
+      else
+        localStorage.removeItem('cur_delegator');
+
+      v = await setting.getValue("ext.youid.pref.hdr_list");
+      if (v && v.length>0)
+        hdr_list = hdr_list.concat(JSON.parse(v));
+
+      if (hdr_list && hdr_list.length > 0)
+        localStorage.setItem('hdr_list', JSON.stringify(hdr_list));
+      else
+        localStorage.removeItem('hdr_list');
+    }catch(e) { }
+  }
+
+  sync_Settings();
+
   Browser.api.webRequest.onBeforeSendHeaders.addListener(
-        async function(details) 
+        function(details) 
         {
           var pref_youid = null;
           var hdr_list = [];
           try {
-            var v = await setting.getValue("ext.youid.pref.id");
-            if (v)
-              pref_youid = JSON.parse(v);
+            pref_youid = localStorage.getItem('cur_delegator');
           } catch(e){}
 
           try {
-            var v = await setting.getValue("ext.youid.pref.hdr_list");
-            if (v && v.length>0)
-              hdr_list = hdr_list.concat(JSON.parse(v));
+            var v = localStorage.getItem('hdr_list');
+            if (v)
+              hdr_list = JSON.parse(v);
           } catch(e){}
 
           if (pref_youid && pref_youid.id && pref_youid.id.length > 0) {
@@ -74,8 +100,9 @@
 
   // iterace with YouID content script
   Browser.api.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+      var pref_youid;
+
       if (request.getWebId) {
-        var pref_youid;
         try {
           var v = await setting.getValue("ext.youid.pref.id");
           if (v)
@@ -83,6 +110,10 @@
         } catch(e){}
 
         sendResponse({webid: pref_youid.id});
+      }
+      else if (request.cmd === "settings_updated") {
+        await sync_Settings();
+        sendResponse({});  // stop
       }
       else
         sendResponse({});  // stop
