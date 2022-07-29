@@ -767,7 +767,7 @@ Certificate.prototype = {
 
     gen.delegate_uri = null;
     this.setDelegateText(gen, '#gen-cert-ready-dlg');
-    this.setDelegatorText(gen, '#gen-cert-ready-dlg', 'delegator');
+    this.setDelegatorText(gen, '#gen-cert-ready-dlg');
 
     DOM.qHide('#gen-cert-ready-dlg #delegate-create');
 
@@ -913,18 +913,47 @@ Certificate.prototype = {
   prepare_delegate: function(parent, webid, context) {  // {idp:'solid_oidc'}
     var self = this;
 
+    const fld_delegate = DOM.qSel(`${parent} #delegate_uri`);
+    const btn_fetch = DOM.qSel(`${parent} #btn-delegate_uri`);
+    const btn_update = DOM.qSel(`${parent} #btn-update_delegate`);
+
+    btn_fetch.disabled = btn_update.disabled = false;
+
+    function delegate_uri_updated()
+    {
+        if (fld_delegate.value.startsWith('bitcoin') || fld_delegate.value.startsWith('ethereum'))
+          btn_fetch.disabled = btn_update.disabled = true;
+        else
+          btn_fetch.disabled = btn_update.disabled = false;
+    }
+
+    DOM.qSel(`${parent} #delegate_uri`).onkeypress = delegate_uri_updated;
+    DOM.qSel(`${parent} #delegate_uri`).onchange = delegate_uri_updated;
+    DOM.qSel(`${parent} #delegate_uri`).onfocusout = delegate_uri_updated;
+
     DOM.qSel(`${parent} #btn-delegate_uri`)
       .onclick = async () => {
-        var delegate = DOM.qSel(`${parent} #delegate_uri`).value;
-        if (delegate.startsWith('bitcoin:') || delegate.startsWith('ethereum:'))
+        webid = DOM.qSel(`${parent} #webid_uri`).value;
+        if (!webid) {
+          alert('Set Delegator NetID value at first.');
+          return;
+        }
+
+        if (fld_delegate.value.startsWith('bitcoin:') || fld_delegate.value.startsWith('ethereum:'))
           Msg.showInfo('Use "Import NetID" for coind based certificate')
         else
-          await self.fetchDelegate(context, webid, parent, 'delegator');
+          await self.fetchDelegate(context, webid, parent);
       };
 
     DOM.qSel(`${parent} #btn-delegate_import`)
       .onclick = async () => {
-        self.import_delegate_cert(context, webid, parent, 'delegator')
+        webid = DOM.qSel(`${parent} #webid_uri`).value;
+        if (!webid) {
+          alert('Set Delegator NetID value at first.');
+          return;
+        }
+
+        self.import_delegate_cert(context, webid, parent)
       };
 
     DOM.qSel(`${parent} #btn-delegate_cert_key`)
@@ -933,93 +962,47 @@ Certificate.prototype = {
            alert('Fetch Delegate profile at first.');
            return; 
         }
-        self.showCertKeys(context, parent, 'delegator');
+        self.showCertKeys(context, parent);
       };
 
     DOM.qSel(`${parent} #btn-update_delegate`)
       .onclick = async () => {
+        webid = DOM.qSel(`${parent} #webid_uri`).value;
+        if (!webid) {
+          alert('Set WebID value at first.');
+          return;
+        }
         await self.uploadDelegate(context, webid, parent);
       };
 
     DOM.qSel(`${parent} #btn-update_delegator`)
       .onclick = async () => {
+        webid = DOM.qSel(`${parent} #webid_uri`).value;
+        if (!webid) {
+          alert('Set WebID value at first.');
+          return;
+        }
         await self.uploadDelegator(context, webid, parent);
       };
   },
 
   showTab_delegate: function(parent) {  // {idp:'solid_oidc'}
-    var self = this;
     var context = {idp: 'soild_oidc'};
     var webid = '';
 
     this.setDelegateText(context, parent);
-    this.setDelegatorText(context, parent, 'delegator1');
+    this.setDelegatorText(context, parent);
 
-    DOM.qSel(`${parent} #btn-delegate_uri`)
-      .onclick = async () => {
-        webid = DOM.qSel(`${parent} #webid_uri`).value;
-        if (!webid) {
-          alert('Set Delegator NetID value at first.');
-          return;
-        }
-
-        var delegate = DOM.qSel(`${parent} #delegate_uri`).value;
-        if (delegate.startsWith('bitcoin:') || delegate.startsWith('ethereum:'))
-          Msg.showInfo('Use "Import NetID" for coind based certificate')
-        else
-          await self.fetchDelegate(context, webid, parent, 'delegator1');
-      };
-
-    DOM.qSel(`${parent} #btn-delegate_import`)
-      .onclick = async () => {
-        webid = DOM.qSel(`${parent} #webid_uri`).value;
-        if (!webid) {
-          alert('Set Delegator NetID value at first.');
-          return;
-        }
-
-        self.import_delegate_cert(context, webid, parent, 'delegator1')
-      };
-
-    DOM.qSel(`${parent} #btn-delegate_cert_key`)
-      .onclick = async () => {
-        if (!context.delegate_keys || context.delegate_keys.length == 0) {
-           alert('Fetch Delegate profile at first.');
-           return; 
-        }
-        self.showCertKeys(context, parent, 'delegator1');
-      };
-
-    DOM.qSel(`${parent} #btn-update_delegate`)
-      .onclick = async () => {
-        webid = DOM.qSel(`${parent} #webid_uri`).value;
-        if (!webid) {
-          alert('Set WebID value at first.');
-          return;
-        }
-        await self.uploadDelegate(context, webid, parent);
-      };
-
-    DOM.qSel(`${parent} #btn-update_delegator`)
-      .onclick = async () => {
-        webid = DOM.qSel(`${parent} #webid_uri`).value;
-        if (!webid) {
-          alert('Set WebID value at first.');
-          return;
-        }
-        await self.uploadDelegator(context, webid, parent);
-      };
+    this.prepare_delegate(parent, webid, context);
   },
 
 
-  import_delegate_cert: function(context, webid, parent, tabPrefix) 
+  import_delegate_cert: function(context, webid, parent) 
   {
     var self = this;
-    var cert_file = null;
 
-    DOM.qSel('#import-delegate-dlg #file_data').onchange = async (e) => {
+    DOM.qSel('#import-delegate-dlg #file_data').onchange = (e) => {
       if (e.target.files.length > 0) {
-        cert_file = e.target.files[0];
         const file = e.target.files[0];
         const ftype = file.type; 
         //p12  application/x-pkcs12
@@ -1036,9 +1019,13 @@ Certificate.prototype = {
     var btnOk = DOM.qSel('#import-delegate-dlg #btn-ok');
     btnOk.onclick = async () =>
        {
-         if (cert_file) {
+         const val = DOM.qSel('#import-delegate-dlg #file_data');
+
+         if (val.files.length > 0) {
+           const cert_file = val.files[0];
+
            try {
-           var data = await loadBinaryFile(cert_file);
+             var data = await loadBinaryFile(cert_file);
 
              if (cert_file.type === 'application/x-pkcs12') {
                //PKCS12
@@ -1047,24 +1034,30 @@ Certificate.prototype = {
                var pkcs = forge.pkcs12.pkcs12FromAsn1(bdata, true, pwd);
                var bags = pkcs.getBags({bagType: forge.pki.oids.certBag});
                var bag = bags[forge.pki.oids.certBag][0];
-               self.loadDelegateCert(context, webid, parent, bag.cert, tabPrefix);
+               self.loadDelegateCert(context, webid, parent, bag.cert);
 
              } 
              else if (cert_file.type === 'application/x-x509-ca-cert') {
                 //PEM
                var cert = forge.pki.certificateFromPem(data);
-               self.loadDelegateCert(context, webid, parent, cert, tabPrefix);
+               self.loadDelegateCert(context, webid, parent, cert);
              }
              else if (cert_file.type === 'application/pkix-cert') {
                //DER
                var bdata = forge.asn1.fromDer(data);
                var cert = forge.pki.certificateFromAsn1(bdata, true);
-               self.loadDelegateCert(context, webid, parent, cert, tabPrefix);
+               self.loadDelegateCert(context, webid, parent, cert);
              }
              else {
                alert('Unsupported file type');
                return;
              }
+
+             const btn_fetch = DOM.qSel(`${parent} #btn-delegate_uri`);
+             const btn_update = DOM.qSel(`${parent} #btn-update_delegate`);
+
+             btn_fetch.disabled = btn_update.disabled = true;
+
            } catch(e) {
              console.log(e);
              alert(e);
@@ -1079,7 +1072,7 @@ Certificate.prototype = {
   },
 
 
-  showCertKeys: function(gen, parent, tabPrefix) {
+  showCertKeys: function(gen, parent) {
      var self = this;
      var tbody = DOM.qSel('#cert-key-dlg #cert-key-tbl tbody');
      var keys = gen.delegate_keys;
@@ -1181,7 +1174,7 @@ Certificate.prototype = {
             gen.delegate_key_label = k.pkey + (k.key_label?' / '+k.key_label : '');
 
             this.setDelegateText(gen, parent);
-            this.setDelegatorText(gen, parent, tabPrefix);
+            this.setDelegatorText(gen, parent);
             $('#cert-key-dlg').modal('hide');
             break;
           }
@@ -1326,7 +1319,7 @@ Certificate.prototype = {
     }
   },
 
-  fetchDelegate: async function (gen, webid, parent, tabPrefix) {
+  fetchDelegate: async function (gen, webid, parent) {
     var done_ok = false;
     DOM.qShow(`${parent} #delegate_wait`);
     var uri = DOM.qSel(`${parent} #delegate_uri`).value;
@@ -1358,7 +1351,7 @@ Certificate.prototype = {
             gen.delegator_webid = webid;
 
             this.setDelegateText(gen, parent);
-            this.setDelegatorText(gen, parent, tabPrefix);
+            this.setDelegatorText(gen, parent);
 
             break;
           }
@@ -1374,7 +1367,7 @@ Certificate.prototype = {
   },
 
 
-  loadDelegateCert: function (gen, webid, parent, cert, tabPrefix) 
+  loadDelegateCert: function (gen, webid, parent, cert) 
   {
     var rc;
 
@@ -1405,7 +1398,7 @@ Certificate.prototype = {
     gen.delegator_webid = webid;
 
     this.setDelegateText(gen, parent);
-    this.setDelegatorText(gen, parent, tabPrefix);
+    this.setDelegatorText(gen, parent);
   },
 
 
@@ -1435,7 +1428,8 @@ Certificate.prototype = {
         s += `         cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
         s += `         cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary . \n`;
       }
-        s += ` }\n`;
+
+      s += ` }\n`;
 /**
 @prefix : <#> . 
 @prefix oplcert: <http://www.openlinksw.com/schemas/cert#>
@@ -1465,7 +1459,7 @@ oplcert:hasCertificate :cert .
     DOM.qSel(`${parent} #delegate-text`).value = s;
   },
 
-  setDelegatorText: function(gen, parent, tabPrefix) {
+  setDelegatorText: function(gen, parent) {
     var s = '';
     var s_ttl = ''
     var s_json = '';
@@ -1574,9 +1568,9 @@ INSERT {
  `;
     }
 
-    DOM.qSel(`${parent} #${tabPrefix}-sparql #text-sparql`).value = s;
-    DOM.qSel(`${parent} #${tabPrefix}-i_ttl #text-i-ttl`).value = s_ttl;
-    DOM.qSel(`${parent} #${tabPrefix}-i_jsonld #text-i-jsonld`).value = s_json;
+    DOM.qSel(`${parent} #delegator-sparql #text-sparql`).value = s;
+    DOM.qSel(`${parent} #delegator-i_ttl #text-i-ttl`).value = s_ttl;
+    DOM.qSel(`${parent} #delegator-i_jsonld #text-i-jsonld`).value = s_json;
 
     var btn = DOM.qSel(`${parent} #btn-delegate_cert_key`);
     if (gen.delegate_uri)
@@ -1637,8 +1631,8 @@ INSERT {
     var url = new URL(webid);
     url.hash = '';
 
-    var query = DOM.qSel(`${parent} #delegator-text`).value;
-    if (query.length < 1) {
+    var query = DOM.qSel(`${parent} #text-sparql`).value;
+    if (!query || query.length < 1) {
       alert('Delegator query is empty');
       return;
     }
