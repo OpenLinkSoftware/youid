@@ -371,6 +371,9 @@
                   <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
                   Fetch Profile 
                 </button>
+                <button id="btn-delegate_import" type="button" class="btn ml5">
+                  Import NetID 
+                </button>
               </div>
             </div>
 
@@ -541,6 +544,40 @@
 
     <input id="OK_btn" value=" Save " type="button">
     <input id="Cancel_btn" value=" Cancel " type="button">
+
+
+<!-- Modal -->
+<div class="modal" id="import-delegate-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Import Delegate data via Secure Credentials File</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+         <tr id="cert-file">
+          <td> Certificate:&nbsp;</td>
+          <td> <input id="file_data" type="file" style="WIDTH: 480px" value="" title="Certificate that identifies an Agent."> </td>
+         </tr>
+         </p>
+         <tr id="cert-pwd" class="hidden">
+          <td style="padding-top:10px"> Password:&nbsp;</td>
+          <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <!-- Modal -->
@@ -840,6 +877,9 @@
               <button id="btn-delegate_uri" type="button" class="btn ml10">
                 <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
                 Fetch Profile 
+              </button>
+              <button id="btn-delegate_import" type="button" class="btn ml5">
+                Import NetID 
               </button>
             </div>
           </div>

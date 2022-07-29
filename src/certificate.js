@@ -915,7 +915,16 @@ Certificate.prototype = {
 
     DOM.qSel(`${parent} #btn-delegate_uri`)
       .onclick = async () => {
-        await self.fetchDelegate(context, webid, parent, 'delegator');
+        var delegate = DOM.qSel(`${parent} #delegate_uri`).value;
+        if (delegate.startsWith('bitcoin:') || delegate.startsWith('ethereum:'))
+          Msg.showInfo('Use "Import NetID" for coind based certificate')
+        else
+          await self.fetchDelegate(context, webid, parent, 'delegator');
+      };
+
+    DOM.qSel(`${parent} #btn-delegate_import`)
+      .onclick = async () => {
+        self.import_delegate_cert(context, webid, parent, 'delegator')
       };
 
     DOM.qSel(`${parent} #btn-delegate_cert_key`)
@@ -950,10 +959,26 @@ Certificate.prototype = {
       .onclick = async () => {
         webid = DOM.qSel(`${parent} #webid_uri`).value;
         if (!webid) {
-          alert('Set WebID value at first.');
+          alert('Set Delegator NetID value at first.');
           return;
         }
-        await self.fetchDelegate(context, webid, parent, 'delegator1');
+
+        var delegate = DOM.qSel(`${parent} #delegate_uri`).value;
+        if (delegate.startsWith('bitcoin:') || delegate.startsWith('ethereum:'))
+          Msg.showInfo('Use "Import NetID" for coind based certificate')
+        else
+          await self.fetchDelegate(context, webid, parent, 'delegator1');
+      };
+
+    DOM.qSel(`${parent} #btn-delegate_import`)
+      .onclick = async () => {
+        webid = DOM.qSel(`${parent} #webid_uri`).value;
+        if (!webid) {
+          alert('Set Delegator NetID value at first.');
+          return;
+        }
+
+        self.import_delegate_cert(context, webid, parent, 'delegator1')
       };
 
     DOM.qSel(`${parent} #btn-delegate_cert_key`)
@@ -985,6 +1010,74 @@ Certificate.prototype = {
         await self.uploadDelegator(context, webid, parent);
       };
   },
+
+
+  import_delegate_cert: function(context, webid, parent, tabPrefix) 
+  {
+    var self = this;
+    var cert_file = null;
+
+    DOM.qSel('#import-delegate-dlg #file_data').onchange = async (e) => {
+      if (e.target.files.length > 0) {
+        cert_file = e.target.files[0];
+        const file = e.target.files[0];
+        const ftype = file.type; 
+        //p12  application/x-pkcs12
+        //pem  application/x-x509-ca-cert
+        //der  application/pkix-cert'
+
+        if (ftype === 'application/x-pkcs12')
+          DOM.qShow('#import-delegate-dlg #cert-pwd');
+        else
+          DOM.qHide('#import-delegate-dlg #cert-pwd');
+      }
+    };
+
+    var btnOk = DOM.qSel('#import-delegate-dlg #btn-ok');
+    btnOk.onclick = async () =>
+       {
+         if (cert_file) {
+           try {
+           var data = await loadBinaryFile(cert_file);
+
+             if (cert_file.type === 'application/x-pkcs12') {
+               //PKCS12
+               var bdata = forge.asn1.fromDer(data);
+               var pwd = DOM.qSel('#import-delegate-dlg #file_pwd').value;
+               var pkcs = forge.pkcs12.pkcs12FromAsn1(bdata, true, pwd);
+               var bags = pkcs.getBags({bagType: forge.pki.oids.certBag});
+               var bag = bags[forge.pki.oids.certBag][0];
+               self.loadDelegateCert(context, webid, parent, bag.cert, tabPrefix);
+
+             } 
+             else if (cert_file.type === 'application/x-x509-ca-cert') {
+                //PEM
+               var cert = forge.pki.certificateFromPem(data);
+               self.loadDelegateCert(context, webid, parent, cert, tabPrefix);
+             }
+             else if (cert_file.type === 'application/pkix-cert') {
+               //DER
+               var bdata = forge.asn1.fromDer(data);
+               var cert = forge.pki.certificateFromAsn1(bdata, true);
+               self.loadDelegateCert(context, webid, parent, cert, tabPrefix);
+             }
+             else {
+               alert('Unsupported file type');
+               return;
+             }
+           } catch(e) {
+             console.log(e);
+             alert(e);
+           }
+         }
+       };
+
+    var dlg = $('#import-delegate-dlg .modal-content');
+    dlg.width(620);
+    $('#import-delegate-dlg').modal('show');
+
+  },
+
 
   showCertKeys: function(gen, parent, tabPrefix) {
      var self = this;
@@ -1216,7 +1309,6 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #u_wait');
       if (done_ok) {
         setTimeout(function () {
-//??          DOM.qSel('#gen-cert-ready-dlg #btn-upload_cert').disabled = true;
           DOM.qSel('#gen-cert-ready-dlg #btn-upload_card').disabled = true;
           DOM.qHide('#gen-cert-ready-dlg #webid-card-upload');
 
@@ -1282,9 +1374,47 @@ Certificate.prototype = {
   },
 
 
+  loadDelegateCert: function (gen, webid, parent, cert, tabPrefix) 
+  {
+    var rc;
+
+    $('#import-delegate-dlg').modal('hide');
+
+    try {
+      rc = Coin.coin_cert_check(cert);
+    } catch(e) {
+       Msg.showInfo(e.message);
+       return;
+    }
+
+    if (rc.rc!= 1) {
+       Msg.showInfo(rc.err);
+       return;
+    }
+      
+    DOM.qSel(`${parent} #delegate_uri`).value = rc.san;
+    
+    gen.delegate_keys = [];
+    gen.delegate_keys.push({exp: rc.exp, mod: rc.mod, pkey:'#PublicKey'});
+    gen.delegate_uri = rc.san;
+    gen.delegate_key_exp = rc.exp;
+    gen.delegate_key_mod = rc.mod;
+    gen.delegate_pubkey_uri = '_:publicKey'; 
+    gen.delegate_key_label = '#PublicKey'; 
+
+    gen.delegator_webid = webid;
+
+    this.setDelegateText(gen, parent);
+    this.setDelegatorText(gen, parent, tabPrefix);
+  },
+
+
   setDelegateText: function(gen, parent) {
     var s = '';
-    if (gen.delegate_uri && gen.delegator_webid) {
+    
+    if (gen.delegate_uri && gen.delegator_webid 
+        && !gen.delegate_uri.startsWith('bitcoin:')  && !gen.delegate_uri.startsWith('ethereum:') ) 
+    {
         s  = '@prefix oplcert: <http://www.openlinksw.com/schemas/cert#> . \n';
         s += '@prefix cert: <http://www.w3.org/ns/auth/cert#> . \n';
         s += '@prefix owl:  <http://www.w3.org/2002/07/owl#> . \n';
@@ -1353,8 +1483,9 @@ INSERT {
    cert:key [ 
              a cert:RSAPublicKey;\n`;
 
-        for(var i=0; i < gen.delegate_fp_uri.length; i++) {
-          s += `             owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
+        if (gen.delegate_fp_uri) {
+          for(var i=0; i < gen.delegate_fp_uri.length; i++)
+            s += `             owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
         }
 
         s += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
@@ -1376,8 +1507,9 @@ INSERT {
    cert:key [ 
              a cert:RSAPublicKey;\n`;
 
-        for(var i=0; i < gen.delegate_fp_uri.length; i++) {
-          s_ttl += `             owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
+        if (gen.delegate_fp_uri) {
+          for(var i=0; i < gen.delegate_fp_uri.length; i++)
+            s_ttl += `             owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
         }
 
         s_ttl += `             cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
