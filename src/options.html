@@ -316,7 +316,7 @@
             </div>
           </div>
           <div class="form-group row hidden" id="r_webid">
-            <label for="c_webid" class="col-md-3 control-label">NetId:</label>
+            <label for="c_webid" class="col-md-3 control-label">NetID:</label>
             <div class="col-md-9">
               <input type="text" class="form-control" id="c_webid" value="">
             </div>
@@ -355,16 +355,17 @@
         <div id="delegate_items" style="font-size: 13px;">
 
           <form id="delegate-tab" class="form-horizontal">
+
             <div class="form-group row">
-              <label for="webid_uri" class="col-md-1 control-label">Delegator&nbsp;NetID:</label>
-              <div class="col-md-10" style="display:flex; flex-direction:row">
+              <div class="col-md-12" style="display:flex; flex-direction:row">
+                <label for="webid_uri" class="control-label">Delegator&nbsp;NetID:&nbsp;</label>
                 <input type="text" class="form-control" id="webid_uri" value="">
               </div>
             </div>
 
             <div class="form-group row">
-              <label for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;NetID:</label>
-              <div class="col-md-10" style="display:flex; flex-direction:row">
+              <div class="col-md-12" style="display:flex; flex-direction:row">
+                <label for="delegate_uri" class="control-label">Delegate&nbsp;NetID:&nbsp;</label>
                 <input type="text" class="form-control" id="delegate_uri" value="">
                 <button id="btn-delegate_uri" type="button" class="btn ml5">
                   <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
@@ -824,9 +825,17 @@
         </div>
 
         <form id="delegate-create" class="form-horizontal hidden" style="padding-left:1em">
+
           <div class="form-group row">
-            <div for="delegate_uri" class="col-md-1 control-label">Delegate&nbsp;URI:</div>
-            <div class="col-md-11" style="display:flex; flex-direction:row">
+            <div class="col-md-12" style="display:flex; flex-direction:row">
+              <label for="webid_uri" class="control-label">Delegator&nbsp;NetID:&nbsp;</label>
+              <input type="text" class="form-control" id="webid_uri" readonly value="">
+            </div>
+          </div>
+          
+          <div class="form-group row">
+            <div class="col-md-12" style="display:flex; flex-direction:row">
+              <label for="delegate_uri" class="control-label">Delegate&nbsp;NetID:&nbsp;</label>
               <input type="text" class="form-control" id="delegate_uri" value="">
               <button id="btn-delegate_uri" type="button" class="btn ml10">
                 <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
@@ -849,6 +858,7 @@
 
             </div>
           </div>
+
           <section id="section-delegator">
             <div for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</div>
             <ul id="delegator-text" class="nav nav-tabs">

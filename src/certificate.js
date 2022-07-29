@@ -39,6 +39,7 @@ Certificate.prototype = {
       DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + this.YMD + '_' + this.HMS;
     
     DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + this.YMD + '_' + this.HMS;
+    this.gen_webid(DOM.qSel('#c_idp option:checked').value);
   },
 
   initCountries: function () {
@@ -327,6 +328,10 @@ Certificate.prototype = {
       .onchange = (e) => {
         var gen = {};
         var sel = DOM.qSel('#c_idp option:checked').value;
+        var sel_pdp = DOM.qSel('#c_pdp option:checked').value;
+
+        if (sel_pdp === 'pdp_btc' || sel_pdp === 'pdp_eth')
+          return;
 
         DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = false;
         DOM.qHide('#gen-cert-dlg #c_webdav');
@@ -841,6 +846,8 @@ Certificate.prototype = {
       v.href = webid;
       v.innerText = webid;
 
+      DOM.qSel('#gen-cert-ready-dlg #webid_uri').value = webid;
+
       if (gen.idp === 'manual') {
         DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
         DOM.qShow('#gen-cert-ready-dlg #profile-card');
@@ -1274,6 +1281,7 @@ Certificate.prototype = {
     }
   },
 
+
   setDelegateText: function(gen, parent) {
     var s = '';
     if (gen.delegate_uri && gen.delegator_webid) {
@@ -1287,11 +1295,12 @@ Certificate.prototype = {
         s += `<${gen.delegate_uri}> \n`;
         s += `            oplcert:onBehalfOf <${gen.delegator_webid}> .\n\n`;
 
-      if (gen.delegate_fp_uri && gen.delegate_fp_uri.length > 0 && gen.delegate_pubkey_uri) {
+      if (gen.delegate_pubkey_uri) {
         s += `<${gen.delegate_uri}> oplcert:hasPublicKey <${gen.delegate_pubkey_uri}> . \n`;
-        s += `<${gen.delegate_pubkey_uri}>  cert:RSAPublicKey; \n`;
-        for(var i=0; i < gen.delegate_fp_uri.length; i++) {
-          s += `         owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
+        s += `<${gen.delegate_pubkey_uri}>  a cert:RSAPublicKey; \n`;
+        if (gen.delegate_fp_uri) {
+          for(var i=0; i < gen.delegate_fp_uri.length; i++)
+            s += `         owl:sameAs   <${gen.delegate_fp_uri[i]}>; \n`;
         }
         s += `         cert:exponent  "${gen.delegate_key_exp}"^^xsd:int; \n`;
         s += `         cert:modulus   "${gen.delegate_key_mod}"^^xsd:hexBinary . \n`;

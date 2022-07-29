@@ -180,8 +180,7 @@ YouID_Loader.prototype = {
       content_type = 'text/plain';
     }
     else {
-      var get_url = uri + ((/\?/).test(uri) ? "&" : "?") + (new Date()).getTime();
-      var rc = await (this.getProfile(get_url, oidc)
+      var rc = await (this.getProfile(uri, oidc)
             .catch(err => {
               throw new Error("Could not load data from: "+uri+"\nError: "+err);
             }));
