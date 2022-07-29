@@ -65,8 +65,8 @@
               hdr_list = JSON.parse(v);
           } catch(e){}
 
-          if (pref_youid && pref_youid.id && pref_youid.id.length > 0) {
-            details.requestHeaders.push({name:"On-Behalf-Of", value:pref_youid.id});
+          if (pref_youid && pref_youid.length > 0) {
+            details.requestHeaders.push({name:"On-Behalf-Of", value:pref_youid});
 /***
             var header_acah = null;
             for (var h of details.requestHeaders) {
