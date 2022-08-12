@@ -2054,7 +2054,7 @@ INSERT {
     var digest_emo_s = bin2emoj(digest.data, 'str');
 
 
-    var pk_digest = pki.getPublicKeyFingerprint(cert.publicKey);
+    var pk_digest = pki.getPublicKeyFingerprint(cert.publicKey, {type: 'SubjectPublicKeyInfo'});
     var pk_digest_b64 = forge.util.encode64(pk_digest.data);
     var pk_b64_url = pk_digest_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var pk_digest_emo_w = bin2emoj(pk_digest.data, 'word');
@@ -2074,7 +2074,7 @@ INSERT {
     var digest_256_emo_w = bin2emoj(digest_256.data, 'word');
     var digest_256_emo_s = bin2emoj(digest_256.data, 'str');
 
-    var pk_digest_256 = pki.getPublicKeyFingerprint(cert.publicKey, {md: forge.md.sha256.create()});
+    var pk_digest_256 = pki.getPublicKeyFingerprint(cert.publicKey, {md: forge.md.sha256.create(), type: 'SubjectPublicKeyInfo'});
     var pk_digest_256_b64 = forge.util.encode64(pk_digest_256.data);
     var pk_b64_256_url = pk_digest_256_b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/\=/g,'');
     var pk_digest_256_emo_w = bin2emoj(pk_digest_256.data, 'word');
