@@ -1,0 +1,1099 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8590FDCB28A6AFBA00F48EA2 /* countries.js in Resources */ = {isa = PBXBuildFile; fileRef = 8590FDCA28A6AFBA00F48EA2 /* countries.js */; };
+		8590FDCC28A6AFBA00F48EA2 /* countries.js in Resources */ = {isa = PBXBuildFile; fileRef = 8590FDCA28A6AFBA00F48EA2 /* countries.js */; };
+		85978C5B27B709D4006BF35B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C5A27B709D4006BF35B /* AppDelegate.swift */; };
+		85978C5D27B709D4006BF35B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C5C27B709D4006BF35B /* SceneDelegate.swift */; };
+		85978C6027B709D4006BF35B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 85978C5E27B709D4006BF35B /* LaunchScreen.storyboard */; };
+		85978C6327B709D4006BF35B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 85978C6127B709D4006BF35B /* Main.storyboard */; };
+		85978C6C27B709D4006BF35B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C6B27B709D4006BF35B /* AppDelegate.swift */; };
+		85978C6F27B709D4006BF35B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 85978C6D27B709D4006BF35B /* Main.storyboard */; };
+		85978C7727B709D4006BF35B /* YouID Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 85978C7627B709D4006BF35B /* YouID Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		85978C8127B709D4006BF35B /* YouID Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 85978C8027B709D4006BF35B /* YouID Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		85978C8727B709D4006BF35B /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4A27B709D2006BF35B /* Main.html */; };
+		85978C8827B709D4006BF35B /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4A27B709D2006BF35B /* Main.html */; };
+		85978C8927B709D4006BF35B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4C27B709D2006BF35B /* Icon.png */; };
+		85978C8A27B709D4006BF35B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4C27B709D2006BF35B /* Icon.png */; };
+		85978C8B27B709D4006BF35B /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4D27B709D2006BF35B /* Style.css */; };
+		85978C8C27B709D4006BF35B /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4D27B709D2006BF35B /* Style.css */; };
+		85978C8D27B709D4006BF35B /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4E27B709D2006BF35B /* Script.js */; };
+		85978C8E27B709D4006BF35B /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978C4E27B709D2006BF35B /* Script.js */; };
+		85978C8F27B709D4006BF35B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C4F27B709D2006BF35B /* ViewController.swift */; };
+		85978C9027B709D4006BF35B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C4F27B709D2006BF35B /* ViewController.swift */; };
+		85978C9127B709D4006BF35B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85978C5027B709D4006BF35B /* Assets.xcassets */; };
+		85978C9227B709D4006BF35B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85978C5027B709D4006BF35B /* Assets.xcassets */; };
+		85978C9327B709D4006BF35B /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C5227B709D4006BF35B /* SafariWebExtensionHandler.swift */; };
+		85978C9427B709D4006BF35B /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85978C5227B709D4006BF35B /* SafariWebExtensionHandler.swift */; };
+		85978CC227B709D5006BF35B /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA627B709D5006BF35B /* popup.js */; };
+		85978CC327B709D5006BF35B /* uploader.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA727B709D5006BF35B /* uploader.js */; };
+		85978CC427B709D5006BF35B /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA827B709D5006BF35B /* background.js */; };
+		85978CC527B709D5006BF35B /* AUTHORS in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA927B709D5006BF35B /* AUTHORS */; };
+		85978CC627B709D5006BF35B /* images in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAA27B709D5006BF35B /* images */; };
+		85978CC727B709D5006BF35B /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAB27B709D5006BF35B /* popup.html */; };
+		85978CC827B709D5006BF35B /* oidc-webid-inject.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAC27B709D5006BF35B /* oidc-webid-inject.js */; };
+		85978CC927B709D5006BF35B /* OidcWebid.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAD27B709D5006BF35B /* OidcWebid.js */; };
+		85978CCA27B709D5006BF35B /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAE27B709D5006BF35B /* options.js */; };
+		85978CCB27B709D5006BF35B /* tpl in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAF27B709D5006BF35B /* tpl */; };
+		85978CCC27B709D5006BF35B /* oauth2 in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB027B709D5006BF35B /* oauth2 */; };
+		85978CCD27B709D5006BF35B /* certificate.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB127B709D5006BF35B /* certificate.js */; };
+		85978CCE27B709D5006BF35B /* youid_view.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB227B709D5006BF35B /* youid_view.js */; };
+		85978CCF27B709D5006BF35B /* cert_manual.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB327B709D5006BF35B /* cert_manual.js */; };
+		85978CD027B709D5006BF35B /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB427B709D5006BF35B /* COPYING */; };
+		85978CD127B709D5006BF35B /* webrequest.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB527B709D5006BF35B /* webrequest.js */; };
+		85978CD227B709D5006BF35B /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB627B709D5006BF35B /* manifest.json */; };
+		85978CD327B709D5006BF35B /* lib in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB727B709D5006BF35B /* lib */; };
+		85978CD427B709D5006BF35B /* content-script.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB827B709D5006BF35B /* content-script.js */; };
+		85978CD527B709D5006BF35B /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB927B709D5006BF35B /* options.html */; };
+		85978CD627B709D5006BF35B /* utils.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBA27B709D5006BF35B /* utils.js */; };
+		85978CD727B709D5006BF35B /* background.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBB27B709D5006BF35B /* background.html */; };
+		85978CD827B709D5006BF35B /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBC27B709D5006BF35B /* popup.css */; };
+		85978CD927B709D5006BF35B /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBD27B709D5006BF35B /* fonts */; };
+		85978CDA27B709D5006BF35B /* browser.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBE27B709D5006BF35B /* browser.js */; };
+		85978CDB27B709D5006BF35B /* CREDITS in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBF27B709D5006BF35B /* CREDITS */; };
+		85978CDC27B709D5006BF35B /* settings.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CC027B709D5006BF35B /* settings.js */; };
+		85978CDD27B709D5006BF35B /* options.css in Resources */ = {isa = PBXBuildFile; fileRef = 85978CC127B709D5006BF35B /* options.css */; };
+		85978CDE27B709D5006BF35B /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA627B709D5006BF35B /* popup.js */; };
+		85978CDF27B709D5006BF35B /* uploader.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA727B709D5006BF35B /* uploader.js */; };
+		85978CE027B709D5006BF35B /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA827B709D5006BF35B /* background.js */; };
+		85978CE127B709D5006BF35B /* AUTHORS in Resources */ = {isa = PBXBuildFile; fileRef = 85978CA927B709D5006BF35B /* AUTHORS */; };
+		85978CE227B709D5006BF35B /* images in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAA27B709D5006BF35B /* images */; };
+		85978CE327B709D5006BF35B /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAB27B709D5006BF35B /* popup.html */; };
+		85978CE427B709D5006BF35B /* oidc-webid-inject.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAC27B709D5006BF35B /* oidc-webid-inject.js */; };
+		85978CE527B709D5006BF35B /* OidcWebid.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAD27B709D5006BF35B /* OidcWebid.js */; };
+		85978CE627B709D5006BF35B /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAE27B709D5006BF35B /* options.js */; };
+		85978CE727B709D5006BF35B /* tpl in Resources */ = {isa = PBXBuildFile; fileRef = 85978CAF27B709D5006BF35B /* tpl */; };
+		85978CE827B709D5006BF35B /* oauth2 in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB027B709D5006BF35B /* oauth2 */; };
+		85978CE927B709D5006BF35B /* certificate.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB127B709D5006BF35B /* certificate.js */; };
+		85978CEA27B709D5006BF35B /* youid_view.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB227B709D5006BF35B /* youid_view.js */; };
+		85978CEB27B709D5006BF35B /* cert_manual.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB327B709D5006BF35B /* cert_manual.js */; };
+		85978CEC27B709D5006BF35B /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB427B709D5006BF35B /* COPYING */; };
+		85978CED27B709D5006BF35B /* webrequest.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB527B709D5006BF35B /* webrequest.js */; };
+		85978CEE27B709D5006BF35B /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB627B709D5006BF35B /* manifest.json */; };
+		85978CEF27B709D5006BF35B /* lib in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB727B709D5006BF35B /* lib */; };
+		85978CF027B709D5006BF35B /* content-script.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB827B709D5006BF35B /* content-script.js */; };
+		85978CF127B709D5006BF35B /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978CB927B709D5006BF35B /* options.html */; };
+		85978CF227B709D5006BF35B /* utils.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBA27B709D5006BF35B /* utils.js */; };
+		85978CF327B709D5006BF35B /* background.html in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBB27B709D5006BF35B /* background.html */; };
+		85978CF427B709D5006BF35B /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBC27B709D5006BF35B /* popup.css */; };
+		85978CF527B709D5006BF35B /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBD27B709D5006BF35B /* fonts */; };
+		85978CF627B709D5006BF35B /* browser.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBE27B709D5006BF35B /* browser.js */; };
+		85978CF727B709D5006BF35B /* CREDITS in Resources */ = {isa = PBXBuildFile; fileRef = 85978CBF27B709D5006BF35B /* CREDITS */; };
+		85978CF827B709D5006BF35B /* settings.js in Resources */ = {isa = PBXBuildFile; fileRef = 85978CC027B709D5006BF35B /* settings.js */; };
+		85978CF927B709D5006BF35B /* options.css in Resources */ = {isa = PBXBuildFile; fileRef = 85978CC127B709D5006BF35B /* options.css */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		85978C7827B709D4006BF35B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 85978C4427B709D2006BF35B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 85978C7527B709D4006BF35B;
+			remoteInfo = "YouID Extension (iOS)";
+		};
+		85978C8227B709D4006BF35B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 85978C4427B709D2006BF35B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 85978C7F27B709D4006BF35B;
+			remoteInfo = "YouID Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		85978C9A27B709D4006BF35B /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				85978C7727B709D4006BF35B /* YouID Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978CA127B709D4006BF35B /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				85978C8127B709D4006BF35B /* YouID Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8590FDCA28A6AFBA00F48EA2 /* countries.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = countries.js; path = Resources/countries.js; sourceTree = "<group>"; };
+		85978C4B27B709D2006BF35B /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		85978C4C27B709D2006BF35B /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		85978C4D27B709D2006BF35B /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		85978C4E27B709D2006BF35B /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		85978C4F27B709D2006BF35B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		85978C5027B709D4006BF35B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		85978C5227B709D4006BF35B /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		85978C5727B709D4006BF35B /* YouID.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YouID.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		85978C5A27B709D4006BF35B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		85978C5C27B709D4006BF35B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		85978C5F27B709D4006BF35B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		85978C6227B709D4006BF35B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		85978C6427B709D4006BF35B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		85978C6927B709D4006BF35B /* YouID.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YouID.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		85978C6B27B709D4006BF35B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		85978C6E27B709D4006BF35B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		85978C7027B709D4006BF35B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		85978C7127B709D4006BF35B /* YouID.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YouID.entitlements; sourceTree = "<group>"; };
+		85978C7627B709D4006BF35B /* YouID Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "YouID Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		85978C7B27B709D4006BF35B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		85978C8027B709D4006BF35B /* YouID Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "YouID Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		85978C8527B709D4006BF35B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		85978C8627B709D4006BF35B /* YouID.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YouID.entitlements; sourceTree = "<group>"; };
+		85978CA627B709D5006BF35B /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
+		85978CA727B709D5006BF35B /* uploader.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = uploader.js; path = Resources/uploader.js; sourceTree = "<group>"; };
+		85978CA827B709D5006BF35B /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		85978CA927B709D5006BF35B /* AUTHORS */ = {isa = PBXFileReference; lastKnownFileType = text; name = AUTHORS; path = Resources/AUTHORS; sourceTree = "<group>"; };
+		85978CAA27B709D5006BF35B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
+		85978CAB27B709D5006BF35B /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
+		85978CAC27B709D5006BF35B /* oidc-webid-inject.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "oidc-webid-inject.js"; path = "Resources/oidc-webid-inject.js"; sourceTree = "<group>"; };
+		85978CAD27B709D5006BF35B /* OidcWebid.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = OidcWebid.js; path = Resources/OidcWebid.js; sourceTree = "<group>"; };
+		85978CAE27B709D5006BF35B /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = Resources/options.js; sourceTree = "<group>"; };
+		85978CAF27B709D5006BF35B /* tpl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tpl; path = Resources/tpl; sourceTree = "<group>"; };
+		85978CB027B709D5006BF35B /* oauth2 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = oauth2; path = Resources/oauth2; sourceTree = "<group>"; };
+		85978CB127B709D5006BF35B /* certificate.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = certificate.js; path = Resources/certificate.js; sourceTree = "<group>"; };
+		85978CB227B709D5006BF35B /* youid_view.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = youid_view.js; path = Resources/youid_view.js; sourceTree = "<group>"; };
+		85978CB327B709D5006BF35B /* cert_manual.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = cert_manual.js; path = Resources/cert_manual.js; sourceTree = "<group>"; };
+		85978CB427B709D5006BF35B /* COPYING */ = {isa = PBXFileReference; lastKnownFileType = text; name = COPYING; path = Resources/COPYING; sourceTree = "<group>"; };
+		85978CB527B709D5006BF35B /* webrequest.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = webrequest.js; path = Resources/webrequest.js; sourceTree = "<group>"; };
+		85978CB627B709D5006BF35B /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		85978CB727B709D5006BF35B /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = Resources/lib; sourceTree = "<group>"; };
+		85978CB827B709D5006BF35B /* content-script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "content-script.js"; path = "Resources/content-script.js"; sourceTree = "<group>"; };
+		85978CB927B709D5006BF35B /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = Resources/options.html; sourceTree = "<group>"; };
+		85978CBA27B709D5006BF35B /* utils.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = utils.js; path = Resources/utils.js; sourceTree = "<group>"; };
+		85978CBB27B709D5006BF35B /* background.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = background.html; path = Resources/background.html; sourceTree = "<group>"; };
+		85978CBC27B709D5006BF35B /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
+		85978CBD27B709D5006BF35B /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = Resources/fonts; sourceTree = "<group>"; };
+		85978CBE27B709D5006BF35B /* browser.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = browser.js; path = Resources/browser.js; sourceTree = "<group>"; };
+		85978CBF27B709D5006BF35B /* CREDITS */ = {isa = PBXFileReference; lastKnownFileType = text; name = CREDITS; path = Resources/CREDITS; sourceTree = "<group>"; };
+		85978CC027B709D5006BF35B /* settings.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = settings.js; path = Resources/settings.js; sourceTree = "<group>"; };
+		85978CC127B709D5006BF35B /* options.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = options.css; path = Resources/options.css; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		85978C5427B709D4006BF35B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C6627B709D4006BF35B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C7327B709D4006BF35B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C7D27B709D4006BF35B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		85978C4327B709D2006BF35B = {
+			isa = PBXGroup;
+			children = (
+				85978C4827B709D2006BF35B /* Shared (App) */,
+				85978C5127B709D4006BF35B /* Shared (Extension) */,
+				85978C5927B709D4006BF35B /* iOS (App) */,
+				85978C6A27B709D4006BF35B /* macOS (App) */,
+				85978C7A27B709D4006BF35B /* iOS (Extension) */,
+				85978C8427B709D4006BF35B /* macOS (Extension) */,
+				85978C5827B709D4006BF35B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		85978C4827B709D2006BF35B /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				85978C4F27B709D2006BF35B /* ViewController.swift */,
+				85978C5027B709D4006BF35B /* Assets.xcassets */,
+				85978C4927B709D2006BF35B /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		85978C4927B709D2006BF35B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				85978C4A27B709D2006BF35B /* Main.html */,
+				85978C4C27B709D2006BF35B /* Icon.png */,
+				85978C4D27B709D2006BF35B /* Style.css */,
+				85978C4E27B709D2006BF35B /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		85978C5127B709D4006BF35B /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				85978CA527B709D5006BF35B /* Resources */,
+				85978C5227B709D4006BF35B /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		85978C5827B709D4006BF35B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				85978C5727B709D4006BF35B /* YouID.app */,
+				85978C6927B709D4006BF35B /* YouID.app */,
+				85978C7627B709D4006BF35B /* YouID Extension.appex */,
+				85978C8027B709D4006BF35B /* YouID Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		85978C5927B709D4006BF35B /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				85978C5A27B709D4006BF35B /* AppDelegate.swift */,
+				85978C5C27B709D4006BF35B /* SceneDelegate.swift */,
+				85978C5E27B709D4006BF35B /* LaunchScreen.storyboard */,
+				85978C6127B709D4006BF35B /* Main.storyboard */,
+				85978C6427B709D4006BF35B /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		85978C6A27B709D4006BF35B /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				85978C6B27B709D4006BF35B /* AppDelegate.swift */,
+				85978C6D27B709D4006BF35B /* Main.storyboard */,
+				85978C7027B709D4006BF35B /* Info.plist */,
+				85978C7127B709D4006BF35B /* YouID.entitlements */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		85978C7A27B709D4006BF35B /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				85978C7B27B709D4006BF35B /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		85978C8427B709D4006BF35B /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				85978C8527B709D4006BF35B /* Info.plist */,
+				85978C8627B709D4006BF35B /* YouID.entitlements */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		85978CA527B709D5006BF35B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8590FDCA28A6AFBA00F48EA2 /* countries.js */,
+				85978CA627B709D5006BF35B /* popup.js */,
+				85978CA727B709D5006BF35B /* uploader.js */,
+				85978CA827B709D5006BF35B /* background.js */,
+				85978CA927B709D5006BF35B /* AUTHORS */,
+				85978CAA27B709D5006BF35B /* images */,
+				85978CAB27B709D5006BF35B /* popup.html */,
+				85978CAC27B709D5006BF35B /* oidc-webid-inject.js */,
+				85978CAD27B709D5006BF35B /* OidcWebid.js */,
+				85978CAE27B709D5006BF35B /* options.js */,
+				85978CAF27B709D5006BF35B /* tpl */,
+				85978CB027B709D5006BF35B /* oauth2 */,
+				85978CB127B709D5006BF35B /* certificate.js */,
+				85978CB227B709D5006BF35B /* youid_view.js */,
+				85978CB327B709D5006BF35B /* cert_manual.js */,
+				85978CB427B709D5006BF35B /* COPYING */,
+				85978CB527B709D5006BF35B /* webrequest.js */,
+				85978CB627B709D5006BF35B /* manifest.json */,
+				85978CB727B709D5006BF35B /* lib */,
+				85978CB827B709D5006BF35B /* content-script.js */,
+				85978CB927B709D5006BF35B /* options.html */,
+				85978CBA27B709D5006BF35B /* utils.js */,
+				85978CBB27B709D5006BF35B /* background.html */,
+				85978CBC27B709D5006BF35B /* popup.css */,
+				85978CBD27B709D5006BF35B /* fonts */,
+				85978CBE27B709D5006BF35B /* browser.js */,
+				85978CBF27B709D5006BF35B /* CREDITS */,
+				85978CC027B709D5006BF35B /* settings.js */,
+				85978CC127B709D5006BF35B /* options.css */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		85978C5627B709D4006BF35B /* YouID (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85978C9B27B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID (iOS)" */;
+			buildPhases = (
+				85978C5327B709D4006BF35B /* Sources */,
+				85978C5427B709D4006BF35B /* Frameworks */,
+				85978C5527B709D4006BF35B /* Resources */,
+				85978C9A27B709D4006BF35B /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				85978C7927B709D4006BF35B /* PBXTargetDependency */,
+			);
+			name = "YouID (iOS)";
+			productName = "YouID (iOS)";
+			productReference = 85978C5727B709D4006BF35B /* YouID.app */;
+			productType = "com.apple.product-type.application";
+		};
+		85978C6827B709D4006BF35B /* YouID (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85978CA227B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID (macOS)" */;
+			buildPhases = (
+				85978C6527B709D4006BF35B /* Sources */,
+				85978C6627B709D4006BF35B /* Frameworks */,
+				85978C6727B709D4006BF35B /* Resources */,
+				85978CA127B709D4006BF35B /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				85978C8327B709D4006BF35B /* PBXTargetDependency */,
+			);
+			name = "YouID (macOS)";
+			productName = "YouID (macOS)";
+			productReference = 85978C6927B709D4006BF35B /* YouID.app */;
+			productType = "com.apple.product-type.application";
+		};
+		85978C7527B709D4006BF35B /* YouID Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85978C9727B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID Extension (iOS)" */;
+			buildPhases = (
+				85978C7227B709D4006BF35B /* Sources */,
+				85978C7327B709D4006BF35B /* Frameworks */,
+				85978C7427B709D4006BF35B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "YouID Extension (iOS)";
+			productName = "YouID Extension (iOS)";
+			productReference = 85978C7627B709D4006BF35B /* YouID Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		85978C7F27B709D4006BF35B /* YouID Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85978C9E27B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID Extension (macOS)" */;
+			buildPhases = (
+				85978C7C27B709D4006BF35B /* Sources */,
+				85978C7D27B709D4006BF35B /* Frameworks */,
+				85978C7E27B709D4006BF35B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "YouID Extension (macOS)";
+			productName = "YouID Extension (macOS)";
+			productReference = 85978C8027B709D4006BF35B /* YouID Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		85978C4427B709D2006BF35B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1300;
+				LastUpgradeCheck = 1300;
+				TargetAttributes = {
+					85978C5627B709D4006BF35B = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					85978C6827B709D4006BF35B = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					85978C7527B709D4006BF35B = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					85978C7F27B709D4006BF35B = {
+						CreatedOnToolsVersion = 13.0;
+					};
+				};
+			};
+			buildConfigurationList = 85978C4727B709D2006BF35B /* Build configuration list for PBXProject "YouID" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 85978C4327B709D2006BF35B;
+			productRefGroup = 85978C5827B709D4006BF35B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				85978C5627B709D4006BF35B /* YouID (iOS) */,
+				85978C6827B709D4006BF35B /* YouID (macOS) */,
+				85978C7527B709D4006BF35B /* YouID Extension (iOS) */,
+				85978C7F27B709D4006BF35B /* YouID Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		85978C5527B709D4006BF35B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978C8927B709D4006BF35B /* Icon.png in Resources */,
+				85978C6027B709D4006BF35B /* LaunchScreen.storyboard in Resources */,
+				85978C8727B709D4006BF35B /* Main.html in Resources */,
+				85978C8D27B709D4006BF35B /* Script.js in Resources */,
+				85978C9127B709D4006BF35B /* Assets.xcassets in Resources */,
+				85978C6327B709D4006BF35B /* Main.storyboard in Resources */,
+				85978C8B27B709D4006BF35B /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C6727B709D4006BF35B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978C8A27B709D4006BF35B /* Icon.png in Resources */,
+				85978C8C27B709D4006BF35B /* Style.css in Resources */,
+				85978C6F27B709D4006BF35B /* Main.storyboard in Resources */,
+				85978C8E27B709D4006BF35B /* Script.js in Resources */,
+				85978C9227B709D4006BF35B /* Assets.xcassets in Resources */,
+				85978C8827B709D4006BF35B /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C7427B709D4006BF35B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978CEF27B709D5006BF35B /* lib in Resources */,
+				85978CE427B709D5006BF35B /* oidc-webid-inject.js in Resources */,
+				85978CE627B709D5006BF35B /* options.js in Resources */,
+				85978CE527B709D5006BF35B /* OidcWebid.js in Resources */,
+				85978CEC27B709D5006BF35B /* COPYING in Resources */,
+				85978CF627B709D5006BF35B /* browser.js in Resources */,
+				85978CE227B709D5006BF35B /* images in Resources */,
+				8590FDCB28A6AFBA00F48EA2 /* countries.js in Resources */,
+				85978CEB27B709D5006BF35B /* cert_manual.js in Resources */,
+				85978CF127B709D5006BF35B /* options.html in Resources */,
+				85978CE827B709D5006BF35B /* oauth2 in Resources */,
+				85978CEA27B709D5006BF35B /* youid_view.js in Resources */,
+				85978CF827B709D5006BF35B /* settings.js in Resources */,
+				85978CF027B709D5006BF35B /* content-script.js in Resources */,
+				85978CE327B709D5006BF35B /* popup.html in Resources */,
+				85978CF327B709D5006BF35B /* background.html in Resources */,
+				85978CE727B709D5006BF35B /* tpl in Resources */,
+				85978CF727B709D5006BF35B /* CREDITS in Resources */,
+				85978CDF27B709D5006BF35B /* uploader.js in Resources */,
+				85978CF927B709D5006BF35B /* options.css in Resources */,
+				85978CF527B709D5006BF35B /* fonts in Resources */,
+				85978CE927B709D5006BF35B /* certificate.js in Resources */,
+				85978CE127B709D5006BF35B /* AUTHORS in Resources */,
+				85978CF227B709D5006BF35B /* utils.js in Resources */,
+				85978CEE27B709D5006BF35B /* manifest.json in Resources */,
+				85978CF427B709D5006BF35B /* popup.css in Resources */,
+				85978CE027B709D5006BF35B /* background.js in Resources */,
+				85978CDE27B709D5006BF35B /* popup.js in Resources */,
+				85978CED27B709D5006BF35B /* webrequest.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C7E27B709D4006BF35B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978CD327B709D5006BF35B /* lib in Resources */,
+				85978CC827B709D5006BF35B /* oidc-webid-inject.js in Resources */,
+				85978CCA27B709D5006BF35B /* options.js in Resources */,
+				85978CC927B709D5006BF35B /* OidcWebid.js in Resources */,
+				85978CD027B709D5006BF35B /* COPYING in Resources */,
+				85978CDA27B709D5006BF35B /* browser.js in Resources */,
+				85978CC627B709D5006BF35B /* images in Resources */,
+				8590FDCC28A6AFBA00F48EA2 /* countries.js in Resources */,
+				85978CCF27B709D5006BF35B /* cert_manual.js in Resources */,
+				85978CD527B709D5006BF35B /* options.html in Resources */,
+				85978CCC27B709D5006BF35B /* oauth2 in Resources */,
+				85978CCE27B709D5006BF35B /* youid_view.js in Resources */,
+				85978CDC27B709D5006BF35B /* settings.js in Resources */,
+				85978CD427B709D5006BF35B /* content-script.js in Resources */,
+				85978CC727B709D5006BF35B /* popup.html in Resources */,
+				85978CD727B709D5006BF35B /* background.html in Resources */,
+				85978CCB27B709D5006BF35B /* tpl in Resources */,
+				85978CDB27B709D5006BF35B /* CREDITS in Resources */,
+				85978CC327B709D5006BF35B /* uploader.js in Resources */,
+				85978CDD27B709D5006BF35B /* options.css in Resources */,
+				85978CD927B709D5006BF35B /* fonts in Resources */,
+				85978CCD27B709D5006BF35B /* certificate.js in Resources */,
+				85978CC527B709D5006BF35B /* AUTHORS in Resources */,
+				85978CD627B709D5006BF35B /* utils.js in Resources */,
+				85978CD227B709D5006BF35B /* manifest.json in Resources */,
+				85978CD827B709D5006BF35B /* popup.css in Resources */,
+				85978CC427B709D5006BF35B /* background.js in Resources */,
+				85978CC227B709D5006BF35B /* popup.js in Resources */,
+				85978CD127B709D5006BF35B /* webrequest.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		85978C5327B709D4006BF35B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978C8F27B709D4006BF35B /* ViewController.swift in Sources */,
+				85978C5B27B709D4006BF35B /* AppDelegate.swift in Sources */,
+				85978C5D27B709D4006BF35B /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C6527B709D4006BF35B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978C9027B709D4006BF35B /* ViewController.swift in Sources */,
+				85978C6C27B709D4006BF35B /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C7227B709D4006BF35B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978C9327B709D4006BF35B /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85978C7C27B709D4006BF35B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85978C9427B709D4006BF35B /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		85978C7927B709D4006BF35B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 85978C7527B709D4006BF35B /* YouID Extension (iOS) */;
+			targetProxy = 85978C7827B709D4006BF35B /* PBXContainerItemProxy */;
+		};
+		85978C8327B709D4006BF35B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 85978C7F27B709D4006BF35B /* YouID Extension (macOS) */;
+			targetProxy = 85978C8227B709D4006BF35B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		85978C4A27B709D2006BF35B /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				85978C4B27B709D2006BF35B /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		85978C5E27B709D4006BF35B /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				85978C5F27B709D4006BF35B /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		85978C6127B709D4006BF35B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				85978C6227B709D4006BF35B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		85978C6D27B709D4006BF35B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				85978C6E27B709D4006BF35B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		85978C9527B709D4006BF35B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		85978C9627B709D4006BF35B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		85978C9827B709D4006BF35B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "YouID Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
+				PRODUCT_NAME = "YouID Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		85978C9927B709D4006BF35B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "YouID Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
+				PRODUCT_NAME = "YouID Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		85978C9C27B709D4006BF35B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = YouID;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID;
+				PRODUCT_NAME = YouID;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		85978C9D27B709D4006BF35B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = YouID;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID;
+				PRODUCT_NAME = YouID;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		85978C9F27B709D4006BF35B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/YouID.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "YouID Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
+				PRODUCT_NAME = "YouID Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		85978CA027B709D4006BF35B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/YouID.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "YouID Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
+				PRODUCT_NAME = "YouID Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		85978CA327B709D4006BF35B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/YouID.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = YouID;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID;
+				PRODUCT_NAME = YouID;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		85978CA427B709D4006BF35B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "macOS (App)/YouID.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0;
+				DEVELOPMENT_TEAM = E4G7YC8M82;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = YouID;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID;
+				PRODUCT_NAME = YouID;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		85978C4727B709D2006BF35B /* Build configuration list for PBXProject "YouID" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85978C9527B709D4006BF35B /* Debug */,
+				85978C9627B709D4006BF35B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		85978C9727B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85978C9827B709D4006BF35B /* Debug */,
+				85978C9927B709D4006BF35B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		85978C9B27B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85978C9C27B709D4006BF35B /* Debug */,
+				85978C9D27B709D4006BF35B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		85978C9E27B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85978C9F27B709D4006BF35B /* Debug */,
+				85978CA027B709D4006BF35B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		85978CA227B709D4006BF35B /* Build configuration list for PBXNativeTarget "YouID (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85978CA327B709D4006BF35B /* Debug */,
+				85978CA427B709D4006BF35B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 85978C4427B709D2006BF35B /* Project object */;
+}

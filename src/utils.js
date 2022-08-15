@@ -23,8 +23,8 @@ const jsonld_nano_pattern = /(## JSON-LD +Start ##)((.|\n|\r)*?)((## JSON-LD +(E
 const rdf_nano_pattern = /(## RDF(\/|-)XML +Start ##)((.|\n|\r)*?)((## RDF(\/|-)XML +(End|Stop) ##))(.*)/gmi;
 
 
-YouID_Loader = function () {
-
+class YouID_Loader {
+  constructor() {
   this.load_webid = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
   PREFIX schema: <http://schema.org/> 
@@ -133,7 +133,9 @@ YouID_Loader = function () {
                oplcert:fingerprint-digest ?fp_dg .
     }`;
 
-};
+
+  }
+
 /**
        OPTIONAL { 
          <#{webid}> oplcert:hasCertificate ?cert .
@@ -142,8 +144,7 @@ YouID_Loader = function () {
        }
 ***/
 
-YouID_Loader.prototype = {
-  parse_data: async function(data, content_type, baseURI)
+  async parse_data(data, content_type, baseURI)
   {
     var self = this;
     var store = await (this.load_data(baseURI, data, content_type)
@@ -151,10 +152,11 @@ YouID_Loader.prototype = {
               throw new Error("Could not parse data from: "+baseURI+"\nError: "+err);
             }));
     return await self.exec_verify_query(store, {data, content_type, baseURI});
-  },
+  }
 
 
-  verify_ID : async function(uri, oidc) {
+  async verify_ID(uri, oidc) 
+  {
     var self = this;
     var baseURI = new URL(uri);
         baseURI.hash = '';
@@ -254,12 +256,12 @@ YouID_Loader.prototype = {
 
     } else {
 
-      var store = await (this.load_data(baseURI, data, content_type)
+      var store = await this.load_data(baseURI, data, content_type)
             .catch(err => {
               throw new Error("Could not parse data from: "+uri+"\nError: "+err);
-            }));
+            });
 
-      var ret = await self.exec_verify_query(store, {data, content_type, baseURI});
+      var ret = await this.exec_verify_query(store, {data, content_type, baseURI});
       for(var webid in ret) {
         var data = ret[webid];
         rc.push(data); 
@@ -267,11 +269,12 @@ YouID_Loader.prototype = {
     }
 
     return rc;
-  },
+  }
 
 
 
-  exec_verify_query : async function(store, profile) {
+  async exec_verify_query(store, profile) 
+  {
     var self = this;
 
     var ret;
@@ -279,7 +282,7 @@ YouID_Loader.prototype = {
 
     while(i < 3) {
       try {
-        ret = await this.exec_query(store, self.load_webid);
+        ret = await this.exec_query(store, this.load_webid);
         if (!ret.err && (ret.results && ret.results.length==0) && i < 3) {
           i++;
           continue;
@@ -306,7 +309,7 @@ YouID_Loader.prototype = {
             pim: null, inbox: null, outbox: null };
       var schema_name, foaf_name, rdfs_name, skos_prefLabel, skos_altLabel;
 
-      var ret = await self.loadCertKeys(store, webid);
+      var ret = await this.loadCertKeys(store, webid);
       if (!ret.error && ret.keys)
         youid.keys = ret.keys;
 
@@ -337,7 +340,7 @@ YouID_Loader.prototype = {
 
     var _webid = Object.keys(lst);
     for(var i=0; i < _webid.length; i++) {
-      var query = self.webid_details.replace(/#\{webid\}/g, _webid[i]);
+      var query = this.webid_details.replace(/#\{webid\}/g, _webid[i]);
       
       var ret = await this.exec_query(store, query);
 
@@ -404,10 +407,10 @@ YouID_Loader.prototype = {
       }
     }
     return lst;
-  },
+  }
 
 
-  genHTML_view : function(data)
+  genHTML_view(data)
   {
     var out;
     out = `<table class="footable verify-tbl"><tbody id="verify-data">`;
@@ -460,10 +463,10 @@ YouID_Loader.prototype = {
     out += `</tbody></table>`;
 
     return out;
-  },
+  }
 
 
-  genHTML_cert_view : function(data)
+  genHTML_cert_view(data)
   {
     var out;
     out = `<table class="footable verify-tbl"><tbody id="verify-data">`;
@@ -481,10 +484,11 @@ YouID_Loader.prototype = {
     out += `</tbody></table>`;
 
     return out;
-  },
+  }
 
 
-  getProfile : function(url, oidc) {
+  getProfile(url, oidc) 
+  {
     return new Promise( (resolve, reject) => {
       var options = {
         method: 'GET',
@@ -509,11 +513,11 @@ YouID_Loader.prototype = {
           reject(err); 
         }) ;
     })
-  }, 
+  }
 
 
-  load_data : function(baseURI, data, content_type) {
-
+  load_data(baseURI, data, content_type) 
+  {
     var self = this;
     return new Promise(function(resolve, reject) {
 
@@ -580,24 +584,25 @@ YouID_Loader.prototype = {
         }
       })
     })
-  },
+  }
 
 
-  exec_query : function(store, query) {
+  exec_query(store, query) 
+  {
     var self = this;
     return new Promise((resolve, reject) => {
       store.execute(query, function(err, results) {
         resolve({err, results});
       })
     })
-  },
+  }
 
 
-  loadCertKeys : async function(store, webid) {
+  async loadCertKeys(store, webid) 
+  {
     var self = this;
-    var store;
 
-    var query = self.load_pubkey.replace(/#\{webid\}/g, webid);
+    var query = this.load_pubkey.replace(/#\{webid\}/g, webid);
 
     var rc;
     try {
@@ -636,7 +641,7 @@ YouID_Loader.prototype = {
       var ret = Object.values(pkeys)
 
       for(var i=0; i < ret.length; i++) {
-        var lst = await self.loadPKey_Fp(store, ret[i].pubkey_uri);
+        var lst = await this.loadPKey_Fp(store, ret[i].pubkey_uri);
         if (!lst.error && lst.fp)
           ret[i].fp_uri = lst.fp;
       }
@@ -646,14 +651,15 @@ YouID_Loader.prototype = {
    else {
       return { "error": 'No data'};
    }
-  } ,
+  }
 
 
-  loadPKey_Fp : async function(store, pkey) {
+  async loadPKey_Fp(store, pkey) 
+  {
     var self = this;
     var store;
 
-    var query = self.load_pubkey_fp.replace(/#\{pubkey\}/g, pkey);
+    var query = this.load_pubkey_fp.replace(/#\{pubkey\}/g, pkey);
 
     var rc;
     try {
@@ -678,14 +684,15 @@ YouID_Loader.prototype = {
    else {
       return { "error": 'No data'};
    }
-  } ,
+  }
 
 
-  loadCert_Fp : async function(store, webid) {
+  async loadCert_Fp(store, webid) 
+  {
     var self = this;
     var store;
 
-    var query = self.load_cert_fp.replace(/#\{webid\}/g, webid);
+    var query = this.load_cert_fp.replace(/#\{webid\}/g, webid);
 
     var rc;
     try {
@@ -719,10 +726,12 @@ YouID_Loader.prototype = {
    else {
       return { "error": 'No data'};
    }
-  } ,
+  } 
 
 
 }
+
+
 
 
 
