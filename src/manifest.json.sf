@@ -1,0 +1,61 @@
+{
+  "name": "YouID",
+  "short_name": "YouID",
+  "author":"OpenLink Software",
+  "version": "1.5.10",
+  "manifest_version": 2,
+  "minimum_chrome_version": "18",
+  "description": "YouID selector.",
+  "icons": {
+      "16":  "images/icon20.png",
+      "48":  "images/icon48.png",
+      "128": "images/icon128.png" },
+  "browser_action": {
+    "default_icon": "images/icon20.png",
+    "default_title": "YouID",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["file:///*/*","*://*/*"],
+      "js": ["browser.js","content-script.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*/*"],
+      "js": ["browser.js", "oidc-webid-inject.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.google.com/robots.txt*", 
+                  "http://www.facebook.com/robots.txt*",
+                  "https://login.live.com/oauth20_desktop.srf*", 
+                  "http://id.myopenlink.net/OAuthCallback*",
+                  "https://id.myopenlink.net/OAuthCallback*"],
+      "js": ["oauth2/oauth2_inject.js"],
+      "run_at": "document_start"
+    }
+  ],
+
+  "options_page": "options.html",
+
+  "permissions": [
+    "storage", 
+    "webRequest", 
+    "webRequestBlocking",
+    "tabs", 
+    "http://*/",
+    "https://*/",
+    "https://accounts.google.com/o/oauth2/token"
+  ],
+
+  "web_accessible_resources": [
+    "oauth2/oauth2.html"
+  ],
+
+  "content_security_policy": 
+    "script-src 'self' 'unsafe-eval' safari-web-extension://lib; object-src 'self' safari-web-extension://lib; style-src 'self' 'unsafe-inline' safari-web-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' safari-web-extension://lib ;"
+}

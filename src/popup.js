@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink Structured Data Sniffer
+ *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2016 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -25,21 +25,21 @@ var v_youid = null;
 
 $(document).ready(function()
 {
-  $("#alert-dlg").hide();
-  $("#add-dlg").hide();
-  $("#verify-dlg").hide();
+  DOM.iSel("c_year").innerText = new Date().getFullYear();
 
-  $('#prefs_btn').click(Prefs_exec);
+  DOM.qSel('#prefs_btn').onclick = (e) => { Prefs_exec(); }
 
   gPref = new Settings();
   v_youid = new YouId_View(true);
 
-  $('#ext_ver').text('version: '+ Browser.api.runtime.getManifest().version);
+  DOM.qSel('#ext_ver').innerText = 'Version: '+ Browser.api.runtime.getManifest().version;
 
-  $('a[href="#add_youid"]').click(function(e){v_youid.click_add_youid(e);});
+  DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
+  DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
+  DOM.qSel('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
+  DOM.qSel('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
 
   load_popup();
-
 });
 
 
@@ -49,8 +49,8 @@ function Prefs_exec()
   return false;
 }
 
-function load_popup()
+async function load_popup()
 {
-    v_youid.load_youid_list();
+    await v_youid.load_youid_list();
 }
 

@@ -1,8 +1,8 @@
 <html>
 <!--
-    This file is part of the OpenLink Structured Data Sniffer
-
-    Copyright (C) 2015-2016 OpenLink Software
+    This file is part of the OpenLink YouID
+ 
+    Copyright (C) 2015-2020 OpenLink Software
 
     This project is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by the
@@ -19,16 +19,25 @@
 -->
     <head>
 	<meta charset="UTF-8">
-        <link type="text/css" href="lib/css/smoothness/jquery-ui.min.css" rel="stylesheet" />
-        <link type="text/css" href="lib/css/smoothness/theme.css" rel="stylesheet" />
         <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
+        <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
 
         <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
-        <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="lib/jsuri.js"></script>
+        <script type="text/javascript" src="lib/bootstrap.js"></script>
         <script type="text/javascript" src="lib/rdfstore_min.js"></script>
+        <script type="text/javascript" src="lib/rdflib.js"></script>
+        <script type="text/javascript" src="lib/jsonld.js"></script>
+        <script type="text/javascript" src="lib/RDFa.js"></script>
         <script type="text/javascript" src="lib/purify.min.js"></script>
+        <script type="text/javascript" src="lib/oidc-web.min.js"></script>
 
+        <script type="text/javascript" src="lib/forge.bundle.js"></script>
+        <script type="text/javascript" src="lib/ripemd160.js"></script>
+        <script type="text/javascript" src="lib/bn.js"></script>
+        <script type="text/javascript" src="lib/secp256k1.js"></script>
+        <script type="text/javascript" src="lib/sha3.js"></script>
+
+        <script type="text/javascript" src="OidcWebid.js"></script>
         <script type="text/javascript" src="browser.js"></script>
         <script type="text/javascript" src="settings.js"></script>
         <script type="text/javascript" src="youid_view.js"></script>
@@ -38,64 +47,178 @@
         <link rel="stylesheet" href="popup.css" />
 
     </head>
-
+    
     <body class="youid">
 
-      <div class="popup" id="alert-dlg" title="Info">
-        <p id="alert-msg1">
-        <p id="alert-msg2">
-        </p>
-      </div>
-
-      <div class="popup" id="add-dlg" title="Add YouID">
-        <p/>
-        <table style="font-size: 14px;">
-
-         <tr id="uri-link">
-          <td> WebID&nbsp;URI: </td>
-          <td> <input id="uri" style="WIDTH: 480px"> </td>
-         </tr>
-
-        </table>
-      </div>
-
-      <div class="popup" id="verify-dlg" title="Verifying WebID">
-        <p/>
-         <div id="verify_progress">
-          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
-         </div>
-        <p id="verify-msg"></p>
-        <p/>
-        <div id="verify-tbl-place"></div>
-      </div>
-
-
-
       <div id="pulldown" class="content_scroll">
-       <table class="footable">
+       <div class="grid_buttons">
+       <button id="add_youid" type="button" class="btn btn-primary" title="Register a NetID with your Browser">Add&nbsp;NetID</button>
+       <button id="add_certid" type="button" class="btn btn-primary" title="Add via Secure Credentials File">Import&nbsp;NetID</button>
+       <button id="btn-gen-cert" type="button" class="btn btn-primary" title="Generate an X.509 Certificate for tokenizing your Credentials">Cenerate&nbsp;Certificate</button>
+       <button id="btn-delegate" type="button" class="btn btn-primary" title="Associate your NetID with a Credentials Authentication Delegate">Add Delegate</button>
+       </div>
+       <br>
+       <table id="youid_tbl" class="footable">
         <tbody class="youid_list" ></tbody>
        </table>
-       <table class="footable">
-         <tr><td><a href="#add_youid">Add&nbspWebID </a></td></tr>
-       </table>
-
       </div>
 
 
       <table class="copyright_left">
         <tr>
-          <td><a href="http://youid.openlinksw.com" class="uri">YouID</a></td>
+          <td><a href="http://youid.openlinksw.com" class="uri" target="_blank">YouID</a></td>
+          <td>&nbsp;</td>
           <td id="ext_ver" style="width:90px">version:0.0.0</td>
         </tr>
       </table>
 
       <table class="copyright_right">
         <tr>
-          <td>Copyright &copy; 2015-2016 <a href="http://www.openlinksw.com" class="uri"> OpenLink Software </a></td>
+          <td>Copyright&nbsp;&copy;&nbsp;2015-<span id="c_year">2021</span> <a href="http://www.openlinksw.com" class="uri"> OpenLink Software </a></td>
           <td>&nbsp</td>
           <td><input type="image" id="prefs_btn" src="images/osds-icon-settings-24.png" width="14" height="14" title="Extension Settings"></td>
         </tr>
       </table>
 
+
+<!-- Modal -->
+<div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Info</h4>
+      </div>
+      <div class="modal-body">
+        <section style="overflow-wrap: break-word;">
+          <p id="alert-msg1"></p>
+          <p id="alert-msg2"></p>
+        </section>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button id="btn-yes" type="button" class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Modal -->
+<div class="modal" id="verify1-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Verifying NetID</h4>
+      </div>
+      <div class="modal-body">
+        <div id="verify_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID-Profile Document
+        </div>
+        <div id="verify_cert_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID Certificate
+        </div>
+        <p id="verify-msg"></p>
+        <form id="verify-webid-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_webid_lst" class="col-md-1 control-label">NetID:</label>
+            <div class="col-md-11">
+              <select class="form-control" id="c_webid_lst">
+              </select>
+            </div>
+          </div>
+        </form>
+        <form id="verify-pkey-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_pkey_lst" class="col-md-1 control-label">PubKey:</label>
+            <div class="col-md-11">
+              <select class="form-control" id="c_pkey_lst">
+              </select>
+            </div>
+          </div>
+        </form>
+        <div id="verify-tbl-place" style="height:330px; overflow: auto;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add NetID</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+
+         <tr id="uri-link">
+          <td> NetID:&nbsp;</td>
+          <td> <input id="uri" style="WIDTH: 480px" title="A NetID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-certid-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add via Secure Credentials File</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+         <tr id="cert-file">
+          <td> Certificate:&nbsp;</td>
+          <td> <input id="file_data" type="file" style="WIDTH: 480px" value="" title="Certificate that identifies an Agent."> </td>
+         </tr>
+         </p>
+         <tr id="cert-pwd" class="hidden">
+          <td style="padding-top:10px"> Password:&nbsp;</td>
+          <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
     </body>
 </html>

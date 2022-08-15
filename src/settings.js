@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink Structured Data Sniffer
+ *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2016 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -18,19 +18,71 @@
  *
  */
 
-Settings = function(data) {
+class Settings {
+  constructor() { }
 
-  this._data = (data!== undefined && data!==null) ? data:null;
-}
+  async _syncAll()
+  {
+    if (!Browser.is_safari) {
+      for(var i=0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        var val = localStorage.getItem(key);
+        if (key.startsWith('ext.'))
+          await this._setItem(key, val);
+      }
+    }
+  }
 
 
-Settings.prototype = {
-  getValue : function(id)
+  async _getItem0(id)
+  {
+    if (Browser.is_ff) {
+      return Browser.api.storage.local.get(id);
+    }
+    else 
+      return new Promise((resolve, reject) => {
+         Browser.api.storage.local.get(id, (rec) => {
+           resolve(rec);
+         });
+        
+      })
+  }
+
+  async _getItem(id)
+  {
+    if (!Browser.is_safari) {
+      var rec = await this._getItem0('data_moved');
+      if (!rec['data_moved']) {
+        await this._syncAll();
+        await this._setItem('data_moved','1');
+      }
+    }
+
+    var rec = await this._getItem0(id);
+    return rec[id];
+  }
+
+  async _setItem(id, val)
+  {
+    var rec = {};
+    rec[id] = val;
+    if (Browser.is_ff)
+      return Browser.api.storage.local.set(rec);
+    else 
+      return new Promise((resolve, reject) => {
+         Browser.api.storage.local.set(rec, () => {
+           resolve();
+         });
+        
+      })
+  }
+
+  async getValue(id)
   {
     var val = null;
 
     try {
-      val = localStorage.getItem(id);
+      val = await this._getItem(id);
 
       if (val===undefined)
         val = null;
@@ -40,27 +92,30 @@ Settings.prototype = {
 
     if (val!==null)
       return val;
-/**
+
     switch(id) {
-      case "ext.osds.uiterm.mode":
-          val = "ui-eav"
-          break;
-      case "ext.osds.import.url":
-          val = this.def_import_url;
+      case "ext.youid.pref.ann_message":
+          val = this.getDef_Fingerprint();
           break;
     }
-**/
     return val;
-  },
+  }
 
-  setValue : function(id, val)
+  async setValue(id, val)
   {
     try {
-        localStorage.removeItem(id);
-        localStorage.setItem(id, val);
+      await this._setItem(id, val);
     } catch(e) {
       console.log(e);
     }
   }
+
+
+  getDef_Fingerprint() 
+  {
+    return 'Announcing a new verifiable Digital Identity for {webid} .\n'
+          +'Fingerprint URI: {ni-scheme-uri} .';
+  }
+
 }
-  
+

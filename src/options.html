@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <!--
-    This file is part of the OpenLink Structured Data Sniffer
-
-    Copyright (C) 2015-2016 OpenLink Software
+    This file is part of the OpenLink YouID
+  
+    Copyright (C) 2015-2020 OpenLink Software
 
     This project is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by the
@@ -20,92 +20,485 @@
 -->
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>YouID</title>
-    <link type="text/css" href="lib/css/smoothness/jquery-ui.min.css" rel="stylesheet" />
-    <link type="text/css" href="lib/css/smoothness/theme.css" rel="stylesheet" />
     <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
+    <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
 
+    <script type="text/javascript" src="lib/qrcode.js"></script>
     <script type="text/javascript" src="lib/jquery-3.1.0.min.js"></script>
-    <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="lib/jsuri.js"></script>
+    <script type="text/javascript" src="lib/bootstrap.js"></script>
+    <script type="text/javascript" src="lib/multimodal.js"></script>
     <script type="text/javascript" src="lib/rdfstore_min.js"></script>
+    <script type="text/javascript" src="lib/rdflib.js"></script>
+    <script type="text/javascript" src="lib/jsonld.js"></script>
+    <script type="text/javascript" src="lib/RDFa.js"></script>
     <script type="text/javascript" src="lib/purify.min.js"></script>
+    <script type="text/javascript" src="lib/forge.bundle.js"></script>
+    <script type="text/javascript" src="lib/oidc-web.min.js"></script>
+    <script type="text/javascript" src="lib/aws-sdk.js"></script>
+    <script type="text/javascript" src="lib/azure-sdk.js"></script>
+    <script type="text/javascript" src="lib/punycode.js"></script>
+    <script type="text/javascript" src="lib/emojimap.js"></script>
+    <script type="text/javascript" src="lib/ripemd160.js"></script>
+    <script type="text/javascript" src="lib/bn.js"></script>
+    <script type="text/javascript" src="lib/secp256k1.js"></script>
+    <script type="text/javascript" src="lib/sha3.js"></script>
+    <script type="text/javascript" src="oauth2/oauth2.js"></script>
+    <script type="text/javascript" src="oauth2/sha1.js"></script>
+    <script type="text/javascript" src="oauth2/oauth1.js"></script>
+    <script type="text/javascript" src="oauth2/oauth2_utils.js"></script>
     <script type="text/javascript" src="browser.js"></script>
     <script type="text/javascript" src="settings.js"></script>
+    <script type="text/javascript" src="OidcWebid.js"></script>
+    <script type="text/javascript" src="countries.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="uploader.js"></script>
+    <script type="text/javascript" src="cert_manual.js"></script>
+    <script type="text/javascript" src="certificate.js"></script>
     <script type="text/javascript" src="youid_view.js"></script>
     <script type="text/javascript" src="options.js"></script>
-    <script type="text/javascript" src="utils.js"></script>
 
     <link rel="stylesheet" href="options.css" />
 
     <style type="text/css">
-	body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
-        .popup { font-size: 12px; }
+	body { 
+	  margin: 50px;
+	}
+	.ml5 {margin-left:5px}
+	.ml10 {margin-left:10px}
     </style>
-
   </head>
 
   <body>
 
-
-      <div class="popup" id="alert-dlg" title="Info">
-        <p id="alert-msg1">
-        <p id="alert-msg2">
-        </p>
-      </div>
-
-      <div class="popup" id="add-dlg" title="Add YouID">
-        <p/>
-        <table style="font-size: 14px;">
-
-         <tr id="uri-link">
-          <td> WebID&nbsp;URI: </td>
-          <td> <input id="uri" style="WIDTH: 480px"> </td>
-         </tr>
-
-        </table>
-      </div>
-
-      <div class="popup" id="verify-dlg" title="Verifying WebID">
-        <p/>
-         <div id="verify_progress">
-          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating WebID-Profile Document
-         </div>
-        <p id="verify-msg"></p>
-        <p/>
-        <div id="verify-tbl-place"></div>
-      </div>
-
-
     <!-- Tabs -->
-    <div id="tabs" style="WIDTH: 700px">
-      <ul>
-	<li><a href="#tabs-1">YouID&nbsp;List</a></li>
-	<li><a href="#tabs-2">Header&nbsp;Settings</a></li>
-	<li><a href="#tabs-3">About</a></li>
-      </ul>
+     <div style="WIDTH: 1200px;">      
+      <div id="header">
+        <ul id="tabs">
+          <li><a href="#webid" title="Register a NetID with your Browser">NetID&nbsp;List</a></li>
+          <li><a href="#certificate" title="Generate an X.509 Certificate for tokenizing your Credentials">Certificate</a></li>
+          <li><a href="#delegate" title="Associate your NetID with a Credentials Authentication Delegate">Delegation</a></li>
+          <li><a href="#accounts" title="Settings for IdP accounts">Storage Provider Settings</a></li>
+          <li><a href="#headers">Header&nbsp;Settings</a></li>
+          <li><a href="#about"  >About</a></li>
+        </ul>
+      </div>
 
-        <div id="tabs-1">
+      <div class="content" style="padding: 10px; border: lightgray; border-style: solid; border-width: thin;">
+
+        <div id="webid_items" style="font-size: 13px;">
           <table>
            <tr>
+             <div class="grid_buttons" width="100%">
+               <button id="add_youid" type="button" class="btn btn-primary">Add&nbsp;NetID</button>
+               <button id="add_certid" type="button" class="btn btn-primary">Import&nbsp;NetID</button>
+             </div>
+             </br>
              <table id="youid_tbl" class="footable">
                <tbody class="youid_list">
                </tbody>
-             </table>
-             <table class="footable">
-               <tr><td><a href="#add_youid">Add&nbspWebID </a></td></tr>
-<!--
-               <tr >
-                 <button style="margin:8px; margin-top:2px;" id="youid_add" class="youid_add">Add</button>
-               </tr>
--->
              </table>
            </tr>
           </table>
         </div>
 
+        <div id="certificate_items" >
+<!-- ========================================================================= -->
+        <div id="gen-cert-dlg" >
+        <form class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_pdp" class="col-md-3 control-label">Profile Data Provider:</label>
+            <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+              <select name="provider" class="form-control" id="c_pdp">
+                <option value="pdp_webid" selected>NetID-Profile Document</option>
+                <option value="pdp_amazon">Amazon</option>
+                <option value="pdp_facebook">Facebook</option>
+                <option value="pdp_google">Google</option>
+                <option value="pdp_linkedin">LinkedIn</option>
+                <option value="pdp_twitter">Twitter</option>
+                <option value="pdp_win_azure">Windows Azure</option>
+                <option value="pdp_win_live">Windows Live</option>
+                <option value="pdp_btc">Bitcoin</option>
+                <option value="pdp_eth">Ethereum</option>
+              </select>
+              &nbsp;&nbsp;&nbsp;
+              <button id="btn-fetch-pdp" type="button" class="btn btn-primary hidden">
+                Fetch Profile 
+              </button>
+            </div>
+          </div>
+          <div class="form-group row" id="r_pdp-webid">
+            <label for="c_profile" class="col-md-3 control-label">Profile Document URL:</label>
+            <div class="col-md-9" style="display:flex; flex-direction:row; align-items: baseline;">
+              <input type="text" class="form-control" id="c_profile" value="">
+              &nbsp;&nbsp;
+              <button id="btn-fetch-profile" type="button" class="btn btn-primary">
+                <img class="hidden" id="fetch_wait" src="images/throbber.gif" width="16" />
+                Fetch Profile 
+              </button>
+            </div>
+          </div>
+          <div id="r_pdp-btc" class="hidden">
+            <div class="form-group row">
+              <label for="c_btc_pkey" class="col-md-3 control-label">Private Key (p2wpkh, p2pkh):</label>
+              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+                <input type="text" class="form-control" id="c_btc_pkey" value="">
+              </div>
+            </div>
+          </div>
 
-        <div id="tabs-2">
+          <div id="r_pdp-eth" class="hidden">
+            <div class="form-group row">
+              <label for="c_eth_pkey" class="col-md-3 control-label">Private Key (hex):</label>
+              <div class="col-md-6" style="display:flex; flex-direction:row; align-items: baseline;">
+                <input type="text" class="form-control" id="c_eth_pkey" value="">
+              </div>
+            </div>
+          </div>
+          <hr/>
+
+          <div class="form-group row">
+            <label for="c_name" class="col-md-3 control-label">Name:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_name" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_email" class="col-md-3 control-label">Email:</label>
+            <div class="col-md-6">
+              <input type="email" class="form-control" id="c_email" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_org" class="col-md-3 control-label">Organization:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_org" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_org_unit" class="col-md-3 control-label">Org. Unit:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_org_unit" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_country" class="col-md-3 control-label">Country:</label>
+            <div class="col-md-6">
+              <select class="form-control" id="c_country">
+                <option value="" ></option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_state" class="col-md-3 control-label">State:</label>
+            <div class="col-md-6">
+              <input list="c_states" class="form-control" id="c_state" />
+              <datalist id="c_states">
+              </datalist>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_city" class="col-md-3 control-label">Locality:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_city" />
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="c_issued" class="col-md-3 control-label">Issued By:</label>
+            <div class="col-md-6">
+              <select name="issued" class="form-control" id="c_issued">
+                <option value="self_signed" selected>Self-Signed</option>
+                <option value="local_ca">Local CA</option>
+              </select>
+            </div>
+          </div>
+        
+        </form>
+
+        <form class="form-horizontal">
+
+          <div class="form-group" row id="r_idp">
+            <hr/>
+            <label for="c_idp" class="col-md-3 control-label">NetID-Profile Storage Providers:</label>
+            <div class="col-md-6">
+              <select name="profile" class="form-control" id="c_idp">
+                <option value="manual" selected>Manual</option>
+                <option value="opl_dav">MyOpenLink (WebDAV)</option>
+                <option value="opl_dav_https">MyOpenLink (Secure WebDAV)</option>
+                <option value="opl_ldp">MyOpenLink (LDP)</option>
+                <option value="opl_ldp_https">MyOpenLink (Secure LDP)</option>
+                <option value="solid_oidc">Solid WebID-OIDC</option>
+<!--
+                <option value="ldp_tls_solid">Solid LDP WebID-TLS</option>
+-->
+                <option value="ldp_tls">Generic (Secure LDP)</option>
+                <option value="aws_s3">Amazon S3</option>
+                <option value="azure">Azure</option>
+              </select>
+            </div>
+          </div>
+          <section id="c_webdav" class="hidden"> 
+              <div class="form-group row">
+                <label for="c_dav_path" class="col-md-3 control-label">DAV&nbsp;Base&nbsp;Path:</label>
+                <div class="col-md-9">
+                  <input readonly type="text" class="form-control" id="c_dav_path" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_dav_uid" class="col-md-3 control-label">DAV&nbsp;User:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_dav_uid" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_dav_pwd" class="col-md-3 control-label">DAV&nbsp;Pwd:</label>
+                <div class="col-md-6">
+                  <input type="password" class="form-control" id="c_dav_pwd" />
+                </div>
+              </div>
+          </section>
+          <section id="c_solid_oidc" class="hidden"> 
+              <div class="form-group row">
+                <label class="col-md-3 control-label"></label>
+                <div class="col-md-3">
+                  <button id="btn-solid-oidc-login" type="button" class="btn">Login</button>
+                  <a id="c_oidc_webid" href="" title="" class="hidden"> <img id="uid-icon" src="images/uid.png" style="width:28px"> </a>
+                </div>
+              </div>
+          </section>
+          <section id="c_aws_s3" class="hidden"> 
+              <div class="form-group row">
+                <label for="c_access_key" class="col-md-3 control-label">Access&nbsp;Key:</label>
+                <div class="col-md-9">
+                  <input type="text" class="form-control" id="c_access_key" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_secret_key" class="col-md-3 control-label">Secret&nbsp;Key:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_secret_key"  />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_bucket" class="col-md-3 control-label">Bucket&nbsp;Name:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_bucket" />
+                </div>
+              </div>
+          </section>
+          <section id="c_azure" class="hidden"> 
+              <div class="form-group row">
+                <label for="c_account" class="col-md-3 control-label">Storage&nbsp;Account:</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="c_account" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="c_account_key" class="col-md-3 control-label">SAS&nbsp;Token:</label>
+                <div class="col-md-9">
+                  <input type="text" class="form-control" id="c_account_key" placeholder="sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-08-31T21:48:18Z&st=2020-07-30T13:48:18Z&spr=https,http&sig=Fw%2BoJ4FMIYWZCXVFBVDSC6hYD9XXXXXXXXXXXXRtpZ8%3D"/>
+                </div>
+              </div>
+          </section>
+          <hr/>
+          <div class="form-group row" id="r_cert_name">
+            <label for="c_cert_name" class="col-md-3 control-label">Certificate&nbsp;Name:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_cert_name" value="">
+            </div>
+          </div>
+          <div class="form-group row" id="r_cert_path">
+            <label for="c_cert_path" class="col-md-3 control-label">Certificate&nbsp;Store&nbsp;Path:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_cert_path" value="">
+            </div>
+          </div>
+          <div class="form-group row hidden" id="r_webid">
+            <label for="c_webid" class="col-md-3 control-label">NetID:</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" id="c_webid" value="">
+            </div>
+          </div>
+
+
+          <div class="form-group row">
+            <label for="c_pwd" class="col-md-3 control-label">Password&nbsp;for&nbsp;PKCS12&nbsp;Store:</label>
+            <div class="col-md-3">
+              <input type="password" class="form-control" id="c_pwd" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_pwd1" class="col-md-3 control-label">Confirm&nbsp;Password:</label>
+            <div class="col-md-3">
+              <input type="password" class="form-control" id="c_pwd1" value="">
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2">
+            <button id="btn-gen-cert" type="button" class="btn btn-primary">Generate</button>
+            </div>
+          </div>
+        </form>
+        <p/>
+        <p/>
+        <p/>
+        </div>
+
+<!-- ========================================================================= -->
+        </div>
+
+
+        <div id="delegate_items" style="font-size: 13px;">
+
+          <form id="delegate-tab" class="form-horizontal">
+
+            <div class="form-group row">
+              <div class="col-md-12" style="display:flex; flex-direction:row">
+                <label for="webid_uri" class="control-label">Delegator&nbsp;NetID:&nbsp;</label>
+                <input type="text" class="form-control" id="webid_uri" value="">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-md-12" style="display:flex; flex-direction:row">
+                <label for="delegate_uri" class="control-label">Delegate&nbsp;NetID:&nbsp;</label>
+                <input type="text" class="form-control" id="delegate_uri" value="">
+                <button id="btn-delegate_uri" type="button" class="btn ml5">
+                  <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
+                  Fetch Profile 
+                </button>
+                <button id="btn-delegate_import" type="button" class="btn ml5">
+                  Import NetID 
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-md-12">
+                <button id="btn-delegate_cert_key" style="text-align:left" class="btn col-md-12" type="button">Certificate Key<span class="caret pull-right" style="margin-top:10px"></span></button>
+              </div> 
+
+              <div class="col-md-12">
+                <label for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</label>
+                <textarea id="delegate-text" class="form-control" style="max-width:100%; height: 130px; overflow:scroll; white-space:pre;">
+                </textarea>
+                <button id="btn-update_delegate" type="button" class="btn btn-primary ">
+                  Update Delegate Profile 
+                </button>
+              </div>
+            </div>
+
+            <section id="section-delegator">
+              <label for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</label>
+              <ul id="delegator-text" class="nav nav-tabs">
+                <li class="active"><a href="#delegator-sparql" data-toggle="tab">SPARQL</a></li>
+                <li><a href="#delegator-i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
+                <li><a href="#delegator-i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                <div class="tab-pane active" id="delegator-sparql">
+                  <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                  </textarea>
+                  <button id="btn-update_delegator" type="button" class="btn btn-primary ">
+                    Update Delegator Profile 
+                  </button>
+                </div>
+                <div class="tab-pane" id="delegator-i_ttl">
+                  <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
+                  </textarea>
+                </div>
+                <div class="tab-pane" id="delegator-i_jsonld">
+                  <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
+                  </textarea>
+                </div>
+              </div>
+            </section>
+
+            <div id="u_wait" class="hidden">
+             <img src="images/throbber.gif" width="16" /> Wait...
+             <div id="u_msg"></div>
+            </div>
+          </form>
+
+        </div>
+        
+        
+        <div id="accounts_items" style="font-size: 13px;">
+        <form id="s3_account" class="form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-4 control-label">AWS S3 Settings</label>
+          </div>
+          <div class="form-group row">
+            <label for="c_s3_access_key" class="col-md-2 control-label">Access Key:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_s3_access_key" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_s3_secret_key" class="col-md-2 control-label">Secret Key:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_s3_secret_key" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_s3_bucket" class="col-md-2 control-label">Bucket Name:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_s3_bucket" value="">
+            </div>
+          </div>
+        </form>
+        <hr>
+
+        <form id="az_account" class="form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-4 control-label">Azure Settings</label>
+          </div>
+          <div class="form-group row">
+            <label for="c_az_account" class="col-md-2 control-label">Storage Account:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_az_account" value="">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="c_az_sas_token" class="col-md-2 control-label">SAS Token:</label>
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="c_az_sas_token" value="" placeholder="sv=2019-12-12&ss=b&srt=sco&sp=rwdlacx&se=2020-08-31T21:48:18Z&st=2020-07-30T13:48:18Z&spr=https,http&sig=Fw%2BoJ4FMIYWZCXVFBVDSC6hYD9XXXXXXXXXXXXRtpZ8%3D">
+            </div>
+          </div>
+        </form>
+        <hr>
+
+        <form id="announce" class="form-horizontal">
+          <div class="form-group row">
+            <label class="col-md-4 control-label">Announcement Messages</label>
+          </div>
+          <div class="form-group row">
+            <div class="col-md-8">
+              <textarea id="message-text" class="form-control" style="max-width:100%; height: 100px; overflow:scroll; white-space:pre;">
+              </textarea>
+              <button id="btn-reset-announce" type="button" class="btn ">
+                Revert to Defaults 
+              </button>
+              <div>
+                &#x25cf <span style="color:red">{webid}</span> token will be replaced with the NetID URI
+              </div>
+              <div>
+                &#x25cf <span style="color:red">{ni-scheme-uri}</span> token will be replaced with the Certificate Ni Fingerprint
+              </div>
+            </div>
+          </div>
+        </form>
+
+        </div>
+
+
+        <div id="headers_items" style="font-size: 13px;">
           <table>
            <tr>
              <table id="hdr_tbl" class="footable">
@@ -122,16 +515,16 @@
 
              <table>
                <tr >
-                 <button style="margin:8px; margin-top:2px;" id="hdr_add" class="hdr_add">Add</button>
+                 <button style="margin:6px; margin-top:2px;" id="hdr_add" class="hdr_add"> 
+                   <input type="image" src="lib/css/img/plus.png" width="12" height="12">
+                 </button>
                </tr>
              </table>
            </tr>
           </table>
-
         </div>
 
-
-	<div id="tabs-3">
+        <div id="about_items">
             <IMG alt="" src="images/icon48.png">
             <h3>YouID</h3>
             <p id="ext_ver">Version 0.0.0</p>
@@ -140,14 +533,412 @@
               an single HTTPS (TLS) connection without browser restart.
             </p>
             <p>Home Page: <a href="http://youid.openlinksw.com" target="_blank">http://youid.openlinksw.com</a></p>
-            <p>Copyright 2015-2016 <a href="http://www.openlinksw.com" target="_blank">OpenLink Software</a></p>
+            <p>Copyright&nbsp;2015-<span id="c_year">2021</span> <a href="http://www.openlinksw.com" target="_blank">OpenLink Software</a></p>
         </div>
-    </div>
+
+      </div>
+      </div>
+      
+    <p/>
     <p/>
 
-    <input id="OK_btn" value=" OK " type="button">
+    <input id="OK_btn" value=" Save " type="button">
     <input id="Cancel_btn" value=" Cancel " type="button">
 
 
+<!-- Modal -->
+<div class="modal" id="import-delegate-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Import Delegate data via Secure Credentials File</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+         <tr id="cert-file">
+          <td> Certificate:&nbsp;</td>
+          <td> <input id="file_data" type="file" style="WIDTH: 480px" value="" title="Certificate that identifies an Agent."> </td>
+         </tr>
+         </p>
+         <tr id="cert-pwd" class="hidden">
+          <td style="padding-top:10px"> Password:&nbsp;</td>
+          <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Info</h4>
+      </div>
+      <div class="modal-body">
+        <section style="overflow-wrap: break-word;">
+          <p id="alert-msg1"></p>
+          <p id="alert-msg2"></p>
+        </section>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button id="btn-yes" type="button" class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="verify1-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Verifying NetID</h4>
+      </div>
+      <div class="modal-body">
+        <div id="verify_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID-Profile Document
+        </div>
+        <div id="verify_cert_progress">
+          <img src="images/throbber.gif" width="16" />&nbsp;&nbsp;&nbsp;&nbsp;Loading & Evaluating NetID Certificate
+        </div>
+        <p id="verify-msg"></p>
+        <form id="verify-webid-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_webid_lst" class="col-md-1 control-label">NetId:</label>
+            <div class="col-md-11">
+              <select class="form-control" id="c_webid_lst">
+              </select>
+            </div>
+          </div>
+        </form>
+        <form id="verify-pkey-lst" class="form-horizontal">
+          <div class="form-group row">
+            <label for="c_pkey_lst" class="col-md-1 control-label">PubKey:</label>
+            <div class="col-md-11">
+              <select class="form-control" id="c_pkey_lst">
+              </select>
+            </div>
+          </div>
+        </form>
+        <div id="verify-tbl-place" style="height:400px; overflow: auto;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add NetID</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+
+         <tr id="uri-link">
+          <td> NetID:&nbsp;</td>
+          <td> <input id="uri" style="WIDTH: 480px" value="" title="A NetID is an Hyperlink (specifically, HTTP URI) that identifies an Agent."> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="add-certid-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Add via Secure Credentials File</h5>
+      </div>
+      <div class="modal-body">
+        <p/>
+        <table style="font-size: 14px;">
+         <tr id="cert-file">
+          <td> Certificate:&nbsp;</td>
+          <td> <input id="file_data" type="file" style="WIDTH: 480px" value="" title="Certificate that identifies an Agent."> </td>
+         </tr>
+         </p>
+         <tr id="cert-pwd" class="hidden">
+          <td style="padding-top:10px"> Password:&nbsp;</td>
+          <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
+         </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="cert-key-dlg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" style="width:700px" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title">Choose Certificate Key</h5>
+      </div>
+      <div class="modal-body">
+        <div style="height:500px; overflow: auto;">
+          <table id="cert-key-tbl" class="footable">
+            <tbody id="keys_data">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btn-ok" type="button" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="gen-cert-ready-dlg" tabindex="-1" role="dialog" aria-labelledby="certModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog" style="width:1130px" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 id="title" class="modal-title">Credentials</h4>
+      </div>
+      <div class="modal-body">
+        <div id="c_wait">
+         <img src="images/throbber.gif" width="16" /> Wait...
+        </div>
+        <div id="public-cred">
+          <label class="control-label">Public Credentials</label> 
+          <section id="webid-cert"  style="padding-left:1em">
+            Your NetID:&nbsp;<a id="webid_href" href="#" target="_blank" style="overflow-wrap: break-word;"> </a>
+          </section>
+          <section id="r-message"  style="padding-left:1em">
+            <div style="display:flex; flex-direction:row; align-items: baseline;">
+               Announce your Certificate identity claims via post to
+               <select name="provider" class="ml10 form-control" style="width:120px" id="c_announce">
+                  <option value="pdp_linkedin">LinkedIn</option>
+                  <option value="pdp_twitter" selected>Twitter</option>
+               </select>
+               <button id="btn-message" type="button" class="ml10 btn btn-primary">Send</button>
+            </div>
+          </section>
+          <p/>
+          <section id="webid-card-upload" class="hidden" style="padding-left:1em">
+            <div class="hidden0" id="upload_msg" style="display:flex; flex-direction:row; align-items: baseline;">
+              Click button for create your identity card.&nbsp;&nbsp;
+              <button id="btn-upload_card" type="button" class="btn btn-primary hidden0">Upload</button>
+            </div>
+          </section>
+          <section id="webid-card" style="padding-left:1em">
+            Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
+          </section>
+          <p/>
+          <form class="form-horizontal" style="padding-left:1em">
+           <section id="profile-card">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#n_ttl" data-toggle="tab">RDF-Turtle</a></li>
+              <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
+              <li><a href="#n_rdfxml" data-toggle="tab">RDF-XML</a></li>
+              <li><a href="#i_ttl" data-toggle="tab">HTML+RDF-Turtle</a></li>
+              <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+              <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF-XML</a></li>
+              <li><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
+              <li><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
+              <li><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div class="tab-pane active" id="n_ttl">
+                <textarea readonly id="text-n-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="n_jsonld">
+                <textarea readonly id="text-n-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="n_rdfxml">
+                <textarea readonly id="text-n-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_ttl">
+                <textarea readonly id="text-i-ttl" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_jsonld">
+                <textarea readonly id="text-i-jsonld" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_rdfxml">
+                <textarea readonly id="text-i-rdfxml" class="form-control" style="max-width:100%; height: 300px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_fp">
+                <textarea readonly id="text-i-fp" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_ni">
+                <textarea readonly id="text-i-ni" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="i_di">
+                <textarea readonly id="text-i-di" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+            </div>
+           </section>
+          </form>
+          <p/>
+          <hr/>
+        </div>
+        <section id="p12-cert">
+          <label for="private-cred" class="control-label"> Private Credentials</label>
+          <div style="display:flex; flex-direction:column; padding-left:1em">
+            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+             PKCS12 Credentials Store&nbsp;&nbsp;
+             <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+            </div>
+            <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
+          </div>
+          <hr>
+        </section>
+
+        <div class="row" id="r-reg_delegate">
+          <div class="col-md-6">
+            <label for="reg_delegate">Enable Delegation:</label>
+            <input id="reg_delegate" type="checkbox">
+          </div>
+        </div>
+
+        <form id="delegate-create" class="form-horizontal hidden" style="padding-left:1em">
+
+          <div class="form-group row">
+            <div class="col-md-12" style="display:flex; flex-direction:row">
+              <label for="webid_uri" class="control-label">Delegator&nbsp;NetID:&nbsp;</label>
+              <input type="text" class="form-control" id="webid_uri" readonly value="">
+            </div>
+          </div>
+          
+          <div class="form-group row">
+            <div class="col-md-12" style="display:flex; flex-direction:row">
+              <label for="delegate_uri" class="control-label">Delegate&nbsp;NetID:&nbsp;</label>
+              <input type="text" class="form-control" id="delegate_uri" value="">
+              <button id="btn-delegate_uri" type="button" class="btn ml10">
+                <img class="hidden" id="delegate_wait" src="images/throbber.gif" width="16" />
+                Fetch Profile 
+              </button>
+              <button id="btn-delegate_import" type="button" class="btn ml5">
+                Import NetID 
+              </button>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-md-12">
+              <button id="btn-delegate_cert_key" style="text-align:left" class="btn col-md-12" type="button">Certificate Key<span class="caret pull-right" style="margin-top:10px"></span></button>
+            </div> 
+
+            <div class="col-md-12">
+              <div for="delegate-text" class="control-label">Relations for uploading to Delegate profile:</div>
+              <textarea id="delegate-text" class="form-control hidden1" style="max-width:100%; height: 130px; overflow:scroll; white-space:pre;">
+              </textarea>
+              <button id="btn-update_delegate" type="button" class="btn btn-primary ">
+                Update Delegate Profile 
+              </button>
+
+            </div>
+          </div>
+
+          <section id="section-delegator">
+            <div for="delegator-text" class="control-label">Relations for uploading to Delegator profile:</div>
+            <ul id="delegator-text" class="nav nav-tabs">
+              <li class="active"><a href="#delegator-sparql" data-toggle="tab">SPARQL</a></li>
+              <li><a href="#delegator-i_ttl" data-toggle="tab">HTML+N3/Turtle</a></li>
+              <li><a href="#delegator-i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div class="tab-pane active" id="delegator-sparql">
+                <textarea id="text-sparql" class="form-control" style="max-width:100%; height: 200px; overflow:scroll; white-space:pre;">
+                </textarea>
+                <button id="btn-update_delegator" type="button" class="btn btn-primary ">
+                  Update Delegator Profile 
+                </button>
+              </div>
+              <div class="tab-pane" id="delegator-i_ttl">
+                <textarea id="text-i-ttl" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+              <div class="tab-pane" id="delegator-i_jsonld">
+                <textarea id="text-i-jsonld" class="form-control" style="max-width:100%; height: 240px; overflow:scroll; white-space:pre;">
+                </textarea>
+              </div>
+            </div>
+
+          </section>
+
+        </form>
+
+        <div id="u_wait" class="hidden">
+         <img src="images/throbber.gif" width="16" /> Wait...
+         <div id="u_msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
   </body>
+
 </html>

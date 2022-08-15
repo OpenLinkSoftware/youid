@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink Structured Data Sniffer
+ *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2016 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -19,9 +19,36 @@
  */
 
 
-if (Browser.isChromeAPI) 
 {
   var setting = new Settings();
+
+  async function sync_Settings()
+  {
+    var pref_youid;
+    var hdr_list = [];
+
+    try {
+      var v = await setting.getValue("ext.youid.pref.id");
+      if (v)
+        pref_youid = JSON.parse(v);
+
+      if (pref_youid && pref_youid.id)
+        localStorage.setItem('cur_delegator', pref_youid.id);
+      else
+        localStorage.removeItem('cur_delegator');
+
+      v = await setting.getValue("ext.youid.pref.hdr_list");
+      if (v && v.length>0)
+        hdr_list = hdr_list.concat(JSON.parse(v));
+
+      if (hdr_list && hdr_list.length > 0)
+        localStorage.setItem('hdr_list', JSON.stringify(hdr_list));
+      else
+        localStorage.removeItem('hdr_list');
+    }catch(e) { }
+  }
+
+  sync_Settings();
 
   Browser.api.webRequest.onBeforeSendHeaders.addListener(
         function(details) 
@@ -29,21 +56,31 @@ if (Browser.isChromeAPI)
           var pref_youid = null;
           var hdr_list = [];
           try {
-            var v = setting.getValue("ext.youid.pref.id");
-            if (v)
-              pref_youid = JSON.parse(v);
+            pref_youid = localStorage.getItem('cur_delegator');
           } catch(e){}
 
           try {
-            var v = setting.getValue("ext.youid.pref.hdr_list");
-            if (v && v.length>0)
-              hdr_list = hdr_list.concat(JSON.parse(v));
+            var v = localStorage.getItem('hdr_list');
+            if (v)
+              hdr_list = JSON.parse(v);
           } catch(e){}
 
+          if (pref_youid && pref_youid.length > 0) {
+            details.requestHeaders.push({name:"On-Behalf-Of", value:pref_youid});
+/***
+            var header_acah = null;
+            for (var h of details.requestHeaders) {
+              if (h.name && h.name.toLowerCase() === "access-control-allow-headers") {
+                header_acah = h;
+                break;
+              }
+            }
 
-          if (pref_youid && pref_youid.id && pref_youid.id.length > 0) {
-            details.requestHeaders.push({name:"On-Behalf-Of", value:pref_youid.id});
-            details.requestHeaders.push({name:"User", value:pref_youid.id});
+            if (header_acah && header_acah.value.trim().length > 0)
+              header_acah.value += ', On-Behalf-Of'
+            else
+              details.requestHeaders.push({name:"Access-Control-Allow-Headers", value:"On-Behalf-Of"});
+***/
           }
 
           if (hdr_list.length > 0) {
@@ -62,20 +99,34 @@ if (Browser.isChromeAPI)
 
 
   // iterace with YouID content script
-  Browser.api.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  Browser.api.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+      var pref_youid;
+
       if (request.getWebId) {
-        var pref_youid;
         try {
-          var v = setting.getValue("ext.youid.pref.id");
+          var v = await setting.getValue("ext.youid.pref.id");
           if (v)
             pref_youid = JSON.parse(v);
         } catch(e){}
 
         sendResponse({webid: pref_youid.id});
       }
+      else if (request.cmd === "settings_updated") {
+        await sync_Settings();
+        sendResponse({});  // stop
+      }
       else
         sendResponse({});  // stop
   });
+
+
+  Browser.api.runtime.onMessageExternal.addListener(
+    async function(request, sender, sendResponse) {
+      if (request.getWebId) {
+        var v = await setting.getValue("ext.youid.pref.id");
+        sendResponse({webid: v});
+      }
+    });
 
 
 }

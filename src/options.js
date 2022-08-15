@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink Structured Data Sniffer
+ *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2016 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -20,20 +20,25 @@
 
 var gPref = null;
 var v_youid = null;
+var v_cert = null;
+var prevSelectedTab = null;
+var selectedTab = null;
 
 $(function(){
+  init();
+});
+
+async function init()
+{
 	gPref = new Settings();
 
-	// Tabs
-
-
-        $("#alert-dlg").hide();
-        $("#add-dlg").hide();
-        $("#verify-dlg").hide();
+        DOM.iSel("c_year").innerText = new Date().getFullYear();
 
         v_youid = new YouId_View(false);
+        v_cert = new Certificate();
 
-        $('a[href="#add_youid"]').click(function(e){v_youid.click_add_youid(e);});
+        DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
+        DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
 
 
         $('#hdr_add').click(hdr_add);
@@ -43,23 +48,95 @@ $(function(){
         });
 
 
-	$('#tabs').tabs();
+	// Tabs
+        $('#tabs a[href="#webid"').click(() => {
+          selectTab('#webid');
+          return false;
+        });
+        $('#tabs a[href="#certificate"').click(() => {
+          selectTab('#certificate');
+          v_cert.click_gen_cert(v_youid.cur_webid);
+          return false;
+        });
+        $('#tabs a[href="#delegate"').click(() => {
+          selectTab('#delegate');
+          v_cert.showTab_delegate('#delegate-tab');
+          return false;
+        });
+        $('#tabs a[href="#accounts"').click(() => {
+          selectTab('#accounts');
+          return false;
+        });
+        $('#tabs a[href="#headers"').click(() => {
+          selectTab('#headers');
+          return false;
+        });
+        $('#tabs a[href="#about"').click(() => {
+          selectTab('#about');
+          return false;
+        });
+        selectTab('#webid');
 
-        loadPref();
+        await loadPref();
 
         $('#OK_btn').click(savePref);
         $('#Cancel_btn').click(function() {
             closeOptions();
          });
 
+        $('#announce #btn-reset-announce').click(function() {
+           DOM.qSel('#announce #message-text').value = gPref.getDef_Fingerprint();
+         });
 
-        $('#ext_ver').text('Version: '+ Browser.api.runtime.getManifest().version);
-});
+
+        DOM.qSel('#ext_ver').innerText = 'Version: '+ Browser.api.runtime.getManifest().version;
+        var url = new URL(location.href);
+
+        if (url.hash == '#certificate') {
+          selectTab('#certificate');
+          v_cert.click_gen_cert(v_youid.cur_webid);
+        } else if (url.hash == '#delegate') {
+          selectTab('#delegate');
+          v_cert.showTab_delegate('#delegate-tab');
+        } else if (url.hash == '#add_youid') {
+          selectTab('#webid');
+          v_youid.click_add_youid();
+        }
+}
+
+
+
+function selectTab(tab)
+{
+  prevSelectedTab = selectedTab;
+  selectedTab = tab;
+
+  function updateTab(tab, selTab)
+  {
+    var tab_data = $(tab+'_items');
+    var tab_id = $('#tabs a[href="'+tab+'"]');
+
+    if (selTab===tab) {
+      tab_data.show()
+      tab_id.addClass('selected');
+    } else {
+      tab_data.hide()
+      tab_id.removeClass('selected');
+    }
+  }
+
+  updateTab('#webid', selectedTab);
+  updateTab('#certificate', selectedTab);
+  updateTab('#delegate', selectedTab);
+  updateTab('#accounts', selectedTab);
+  updateTab('#headers', selectedTab);
+  updateTab('#about', selectedTab);
+}
 
 
 function closeOptions()
 {
-    if (Browser.isChromeAPI && Browser.isFirefoxWebExt) {
+    if (Browser.is_ff) {
       Browser.api.tabs.getCurrent(function(tab) {
         Browser.api.tabs.remove(tab.id);
       });
@@ -68,34 +145,56 @@ function closeOptions()
     }
 }
 
-function loadPref()
+
+
+async function loadPref()
 {
     var hdr_list = [];
 
-/**
-    list = [{id:"http://id.myopenlink.net/public_home/smalinin/Public/YouID/IDcard_Twitter_160927_202756/160927_202756_profile.ttl#identity",name:"Alice1",mod:"020304",exp:"65537"},
-            {id:"http://myyouid2",name:"Alice2",mod:"020304",exp:"65537"}
-            ];
-**/
-    v_youid.load_youid_list();
+    await v_youid.load_youid_list();
 
     try {
-      var v = gPref.getValue('ext.youid.pref.hdr_list');
+      var v = await gPref.getValue('ext.youid.pref.hdr_list');
       if (v)
         hdr_list = JSON.parse(v);
     } catch(e){}
 
     load_hdr_list(hdr_list);
+
+    
+    DOM.qSel('#s3_account #c_s3_access_key').value = await gPref.getValue('ext.youid.s3_access_key');
+    DOM.qSel('#s3_account #c_s3_secret_key').value = await gPref.getValue('ext.youid.s3_secret_key');
+    DOM.qSel('#s3_account #c_s3_bucket').value = await gPref.getValue('ext.youid.s3_bucket');
+
+    DOM.qSel('#az_account #c_az_account').value = await gPref.getValue('ext.youid.s3_account');
+    DOM.qSel('#az_account #c_az_sas_token').value = await gPref.getValue('ext.youid.s3_sas_token');
+
+    var v = await gPref.getValue('ext.youid.pref.ann_message');
+    if (!v || v.length < 1)
+      v = gPref.getDef_Fingerprint();
+    
+    DOM.qSel('#announce #message-text').value = v;
 }
 
 
 
-function savePref()
+async function savePref()
 {
    v_youid.save_youid_data();
-   save_hdr_list();
-   closeOptions();
+   await save_hdr_list();
+
+   await gPref.setValue('ext.youid.s3_access_key', DOM.qSel('#s3_account #c_s3_access_key').value);
+   await gPref.setValue('ext.youid.s3_secret_key', DOM.qSel('#s3_account #c_s3_secret_key').value);
+   await gPref.setValue('ext.youid.s3_bucket', DOM.qSel('#s3_account #c_s3_bucket').value);
+
+   await gPref.setValue('ext.youid.s3_account', DOM.qSel('#az_account #c_az_account').value);
+   await gPref.setValue('ext.youid.s3_sas_token', DOM.qSel('#az_account #c_az_sas_token').value);
+
+   await gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
+
+   Browser.api.runtime.sendMessage({ cmd: 'settings_updated'});
 }
+
 
 
 // ========== hdr List ===========
@@ -104,7 +203,9 @@ function createHdrRow(row)
 {
   if (!row)
     return;
-  var del = '<button id="hdr_del" class="hdr_del">Del</button>';
+  var del = '<button id="hdr_del" class="hdr_del">'
+           +' <input type="image" src="lib/css/img/minus.png" width="12" height="12">'  
+           +'</button>';
   return '<tr><td width="16px">'+del+'</td>'
         +'<td ><input style="WIDTH: 98%" id="h" value="'+row.hdr+'"></td>'
         +'<td ><input style="WIDTH: 98%" id="v" value="'+row.val+'"></td>'
@@ -114,31 +215,26 @@ function createHdrRow(row)
 
 function addHdrItem(v)
 {
-  $('#hdr_data').append(createHdrRow(v));
-  $('.hdr_del').button({
-    icons: { primary: 'ui-icon-minusthick' },
-    text: false
-  });
-  $('.hdr_del').not('.click-binded').click(hdr_del).addClass('click-binded');
+  var tbody = DOM.qSel('#hdr_tbl tbody')
+  var r = tbody.insertRow(-1);
+  r.innerHTML = createHdrRow(v);
+  r.querySelector('.hdr_del').onclick = (ev) => {
+     var row = ev.target.closest('tr');
+     row.remove();
+    };
 }
 
 
 function emptyHdrLst()
 {
-  var data = $('#hdr_data>tr').remove();
+  var tbody = DOM.qSel('#hdr_tbl tbody')
+  tbody.innerHTML = ''
 }
 
 function hdr_add() {
     addHdrItem({hdr:"", val:""});
 }
 
-function hdr_del(e) {
-  //get the row we clicked on
-  var row = $(this).parents('tr:first');
-  $(row).remove();
-
-  return true;
-}
 
 function load_hdr_list(params)
 {
@@ -152,20 +248,41 @@ function load_hdr_list(params)
     hdr_add();
 }
 
-function save_hdr_list()
+
+async function save_hdr_list()
 {
   var list = [];
-  var rows = $('#hdr_data>tr');
+  var tbody = DOM.qSel('#hdr_tbl tbody')
+  var rows = tbody.querySelectorAll('tr');
   for(var i=0; i < rows.length; i++) {
-    var r = $(rows[i]);
+    var r = rows[i];
 
-    var h = r.find('#h').val();
-    var v = r.find('#v').val();
+    var h = r.querySelector('#h').value;
+    var v = r.querySelector('#v').value;
     if (h.length>0 && v.length>0)
        list.push({hdr:h, val:v});
   }
 
-  gPref.setValue('ext.youid.pref.hdr_list', JSON.stringify(list, undefined, 2));
+  await gPref.setValue('ext.youid.pref.hdr_list', JSON.stringify(list, undefined, 2));
 }
 
+
+
+
+Browser.api.runtime.onMessage.addListener(async function(request, sender, sendResponse)
+{
+  try {
+    if (request.cmd === "store_updated" && request.key === "oidc.session")
+    {
+      v_cert.oidc_changed(); 
+    }
+    else
+    {
+      sendResponse({}); 
+    }
+  } catch(e) {
+    console.log("OSDS: onMsg="+e);
+  }
+
+});
 

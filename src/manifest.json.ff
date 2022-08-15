@@ -2,7 +2,7 @@
   "name": "OpenLink YouID",
   "short_name": "opl_youid",
   "author":"OpenLink Software",
-  "version": "1.1.1",
+  "version": "1.5.10",
   "manifest_version": 2,
   "minimum_chrome_version": "18",
   "description": "YouID selector.",
@@ -28,18 +28,45 @@
     {
       "matches": ["file:///*/*","*://*/*"],
       "js": ["browser.js","content-script.js"],
-      "run_at": "document_idle"
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*/*"],
+      "js": ["browser.js", "oidc-webid-inject.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.google.com/robots.txt*", 
+                  "http://www.facebook.com/robots.txt*",
+                  "https://login.live.com/oauth20_desktop.srf*", 
+                  "http://id.myopenlink.net/OAuthCallback*",
+                  "https://id.myopenlink.net/OAuthCallback*"],
+      "js": ["oauth2/oauth2_inject.js"],
+      "run_at": "document_start"
     }
   ],
+
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
   },
+
   "permissions": [
+    "storage", 
     "webRequest", 
     "webRequestBlocking",
     "tabs", 
-    "<all_urls>"
-  ]
+    "http://*/",
+    "https://*/",
+    "*://*/*", 
+    "file:///*/*",
+    "https://accounts.google.com/o/oauth2/token"
+  ],
 
+  "web_accessible_resources": [
+    "oauth2/oauth2.html"
+  ],
+
+  "content_security_policy": 
+    "script-src 'self' 'unsafe-eval' moz-extension://lib; object-src 'self' moz-extension://lib; style-src 'self' 'unsafe-inline' moz-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' moz-extension://lib ;"
 }

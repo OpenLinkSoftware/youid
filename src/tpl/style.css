@@ -1,0 +1,65 @@
+@charset "UTF-8";
+
+/* Reset Browser Defaults */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+
+/* Page Setup */
+body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background: #ececec; }
+.clear { clear: both; }
+
+/* Fonts */
+@font-face {
+font-family: 'Museo500Regular';
+    src: url('museo-500-webfont.eot');
+    src: url('museo-500-webfont.eot?#iefix') format('embedded-opentype'),
+         url('museo-500-webfont.woff') format('woff'),
+         url('museo-500-webfont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Headings */
+h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center; }
+
+/* Card Wrapper */
+.cardWrapper { width: 592px; margin: auto; margin-top: 30px; background: #fff; }
+
+/* Card Header */
+.cardHeader { background: #1D70B7; height: 60px; line-height: 60px; padding: 0 23px; color: #fff; -webkit-border-radius: 3px 3px 0 0; -moz-border-radius: 3px 3px 0 0; border-radius: 3px 3px 0 0; z-index: 2; }
+
+/* Card Content */
+.cardContent { padding: 23px; padding-right: 131px; -moz-box-shadow: 0 0 2px #999998; -webkit-box-shadow: 0 0 2px #999998; box-shadow: 0 0 2px #999998; z-index: 1; position: relative; }
+
+/* User Photo */
+.cardPic { float: left; }
+
+/* Card Details Section */
+.cardDetails { float: left; padding-left: 23px; padding-bottom: 53px; width: 285px; }
+
+/* Card Fields */
+p.fieldName { font-size: 11px; color: #6F6F6E; margin-bottom: 4px; }
+p.fieldContent { font-size: 14px; color: #000; background: #F5F5F5; padding: 5px; margin: 0 0 7px -2px; -webkit-border-radius: 3px; -webkit-border-radius: 3px; -moz-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; }
+.fieldContent:last-child { margin-bottom: 0; }
+
+/* Card YouID */
+.cardYouIdIcn p { font-size: 11px; position: absolute; bottom: 14px; left: 33px; color: #6F6F6E; }
+.cardYouIdIcn a { font-size: 11px; position: absolute; bottom: 14px; left: 33px; color: #6F6F6E; }
+.cardYouIdIcn .aimg{ vertical-align: bottom; position: absolute; bottom: 29px; left: 59px;}
+
+/* vCard */
+.vCard p { font-size: 11px; position: absolute; bottom: 19px; left: 174px; color: #6F6F6E; }
+.vCard a { font-size: 11px; position: absolute; bottom: 14px; left: 174px; color: #6F6F6E; }
+.vCard .aimg{ vertical-align: bottom; position: absolute; bottom: 29px; left: 200px;}
+
+/* pKey */
+.pKey p { font-size: 11px; position: absolute; bottom: 19px; left: 320px; color: #6F6F6E; }
+.pKey a { font-size: 11px; position: absolute; bottom: 14px; left: 320px; color: #6F6F6E; }
+.pKey .aimg { vertical-align: bottom; position: absolute; bottom: 29px; left: 330px; }
+
+/* caKey */
+.caKey p { font-size: 11px; position: absolute; bottom: 19px; left: 440px; color: #6F6F6E; }
+.caKey a { font-size: 11px; position: absolute; bottom: 14px; left: 440px; color: #6F6F6E; }
+.caKey .aimg { vertical-align: bottom; position: absolute; bottom: 29px; left: 460px; }
+
+/* Card QR Code */
+.cardQr { position: absolute; right: 23px; bottom: 76px; }

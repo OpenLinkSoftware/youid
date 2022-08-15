@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink Structured Data Sniffer
+ *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2016 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -19,12 +19,10 @@
  */
 
 var Browser = {
-    isChromeAPI: true,
-    isFirefoxSDK: false,
-
-    isChromeWebExt: true,
-    isFirefoxWebExt: false,
+    is_chrome: true,
+    is_ff: false,
     isEdgeWebExt: false,
+    is_safari: false,
 
     api: null,
 
@@ -47,5 +45,5 @@ var Browser = {
 }
 
 try {
-  Browser.api = (Browser.isChromeAPI && Browser.isChromeWebExt) ? chrome : browser;
+  Browser.api = (Browser.is_chrome) ? chrome : browser;
 } catch(e) {}

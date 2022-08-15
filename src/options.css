@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink Structured Data Sniffer
+ *  This file is part of the OpenLink YouID
  *
- *  Copyright (C) 2015-2016 OpenLink Software
+ *  Copyright (C) 2015-2020 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -18,6 +18,12 @@
  *
  */
 
+div.grid_buttons {
+  display: grid;
+  grid-template-rows: 1fr; /* 1fr*/
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 10px;
+}
 
 .bold_text {
   font-weight: bold;
@@ -35,11 +41,23 @@
   font-size: 12px;
   word-wrap:break-word;
  }
+.dtext_col1 {
+  width:70px;
+ }
 
 .youid_item { 
     font-weight: bold;
+    width:1150px; 
+    table-layout: fixed;
+}
+
+.certkeys_item { 
+    /*font-weight: bold;*/
     width:650px; 
     table-layout: fixed;
+}
+.key_name { 
+    font-weight: bold;
 }
 
 
@@ -48,7 +66,7 @@
 }
 
 table.verify-tbl {
-  width:580px;
+  width:600px;
   table-layout: fixed;
   font-size: 12px;
   word-wrap:break-word;
@@ -65,4 +83,36 @@ table.verify-tbl > tbody > tr > td:first-child {
      table-layout: fixed;
 }
 
+
+ul#tabs {
+    font-size: 14px;
+    font-weight: bold;
+    list-style-type: none;
+    margin: 10px 0 0 0;
+    padding: 0 0 0.3em 0;
+}
+
+ul#tabs li {
+    display: inline;
+}
+
+ul#tabs li a {
+    color: #42454a;
+    background-color: #dedbde;
+    border: 1px solid #c9c3ba;
+    border-bottom: none;
+    padding: 0.5em 0.5em 0 0.5em;
+    text-decoration: none;
+}
+
+ul#tabs li a:hover {
+    background-color: #f1f0ee;
+}
+
+ul#tabs li a.selected {
+    color: blue;
+    background-color: #f1f0ee;
+    font-weight: bold;
+    padding: 0.7em 0.5em 0.5em 0.5em;
+}
 
