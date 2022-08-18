@@ -224,7 +224,7 @@
             <label for="c_idp" class="col-md-3 control-label">NetID-Profile Storage Providers:</label>
             <div class="col-md-6">
               <select name="profile" class="form-control" id="c_idp">
-                <option value="manual" selected>Manual</option>
+                <option id="manual" value="manual" selected>Manual</option>
                 <option value="opl_dav">MyOpenLink (WebDAV)</option>
                 <option value="opl_dav_https">MyOpenLink (Secure WebDAV)</option>
                 <option value="opl_ldp">MyOpenLink (LDP)</option>
@@ -787,15 +787,15 @@
           <form class="form-horizontal" style="padding-left:1em">
            <section id="profile-card">
             <ul class="nav nav-tabs">
-              <li class="active"><a href="#n_ttl" data-toggle="tab">RDF-Turtle</a></li>
-              <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
-              <li><a href="#n_rdfxml" data-toggle="tab">RDF-XML</a></li>
-              <li><a href="#i_ttl" data-toggle="tab">HTML+RDF-Turtle</a></li>
-              <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
-              <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF-XML</a></li>
-              <li><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
-              <li><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
-              <li><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
+              <li id="tab_n_ttl" class="active"><a href="#n_ttl" data-toggle="tab">RDF-Turtle</a></li>
+              <li id="tab_n_jsonld"><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
+              <li id="tab_n_rdfxml"><a href="#n_rdfxml" data-toggle="tab">RDF-XML</a></li>
+              <li id="tab_i_ttl"><a href="#i_ttl" data-toggle="tab">HTML+RDF-Turtle</a></li>
+              <li id="tab_i_jsonld"><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+              <li id="tab_i_rdfxml"><a href="#i_rdfxml" data-toggle="tab">HTML+RDF-XML</a></li>
+              <li id="tab_i_fp"><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
+              <li id="tab_i_ni"><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
+              <li id="tab_i_di"><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
             </ul>
 
             <!-- Tab panes -->

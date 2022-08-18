@@ -133,12 +133,16 @@ Certificate.prototype = {
               DOM.iSel('c_name').value = 'BTC Wallet Proxy'; 
               DOM.qHide('#gen-cert-dlg #r_webid'); 
               DOM.qHide('#gen-cert-dlg #r_idp'); 
+              DOM.qSel('#gen-cert-dlg #c_idp #manual').selected = true;
+              DOM.qSel('#gen-cert-dlg #c_idp').onchange();
               break;
           case 'pdp_eth':  
               DOM.qShow('#gen-cert-dlg #r_pdp-eth'); 
               DOM.iSel('c_name').value = 'ETH Wallet Proxy'; 
               DOM.qHide('#gen-cert-dlg #r_webid'); 
               DOM.qHide('#gen-cert-dlg #r_idp'); 
+              DOM.qSel('#gen-cert-dlg #c_idp #manual').selected = true;
+              DOM.qSel('#gen-cert-dlg #c_idp').onchange();
               break;
           case 'pdp_webid': 
               DOM.qShow('#gen-cert-dlg #r_pdp-webid'); 
@@ -330,17 +334,16 @@ Certificate.prototype = {
         var sel = DOM.qSel('#c_idp option:checked').value;
         var sel_pdp = DOM.qSel('#c_pdp option:checked').value;
 
-        if (sel_pdp === 'pdp_btc' || sel_pdp === 'pdp_eth')
-          return;
-
         DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = false;
         DOM.qHide('#gen-cert-dlg #c_webdav');
         DOM.qHide('#gen-cert-dlg #c_solid_oidc');
-//        DOM.qHide('#gen-cert-dlg #r_cert_name');
         DOM.qHide('#gen-cert-dlg #r_cert_path');
         DOM.qHide('#gen-cert-dlg #c_aws_s3');
         DOM.qHide('#gen-cert-dlg #c_azure');
         DOM.qSel('#gen-cert-dlg #c_webid').value = '';
+
+        if (sel_pdp === 'pdp_btc' || sel_pdp === 'pdp_eth')
+          return;
 
         if (sel === 'manual') {
           DOM.qShow('#gen-cert-dlg #r_webid');
@@ -829,13 +832,14 @@ Certificate.prototype = {
       DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
       DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
+      DOM.qShow('#gen-cert-ready-dlg #public-cred');
 
       if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
-        DOM.qHide('#gen-cert-ready-dlg #public-cred');
         DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate');
+        DOM.qHide('#gen-cert-ready-dlg #webid-cert');
+        DOM.qHide('#gen-cert-ready-dlg #r-message');
       }
       else {
-        DOM.qShow('#gen-cert-ready-dlg #public-cred');
         DOM.qShow('#gen-cert-ready-dlg #r-reg_delegate');
       }
 
@@ -860,6 +864,8 @@ Certificate.prototype = {
 
       if (gen.pdp !== 'pdp_btc' && gen.pdp !== 'gen.eth') {
         var s = self.genManualCard(webid, certData);
+        DOM.qShowAll('#profile-card li');
+        $('#profile-card #tab_n_ttl a').tab('show');
         DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
         DOM.qSel('#profile-card #text-n-jsonld').value = s.nano_jsonld;
         DOM.qSel('#profile-card #text-n-rdfxml').value = s.nano_rdfxml;
@@ -902,6 +908,15 @@ Certificate.prototype = {
             }
         }
 
+      } else {
+        DOM.qSel('#profile-card #text-i-ni').value = certData.fingerprint_ni_tab;
+        DOM.qSel('#profile-card #text-i-di').value = certData.fingerprint_di_tab;
+        DOM.qSel('#profile-card #text-i-fp').value = certData.fingerprint_tab;
+        DOM.qHideAll('#profile-card li');
+        DOM.qShow('#profile-card #tab_i_fp');
+        DOM.qShow('#profile-card #tab_i_di');
+        DOM.qShow('#profile-card #tab_i_ni');
+        $('#profile-card #tab_i_fp a').tab('show');
       }
 
     }, 500);

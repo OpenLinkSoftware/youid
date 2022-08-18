@@ -851,9 +851,22 @@ function create_UUID(){
 var DOM = {};
 
 DOM.qSel = (sel) => { return document.querySelector(sel); };
+DOM.qSelAll = (sel) => { return document.querySelectorAll(sel); };
 DOM.iSel = (id) => { return document.getElementById(id); };
 DOM.qShow = (sel) => { DOM.qSel(sel).classList.remove('hidden'); };
 DOM.qHide = (sel) => { DOM.qSel(sel).classList.add('hidden'); };
+DOM.qShowAll = (sel) => { 
+  var lst = DOM.qSelAll(sel); 
+  for(var i of lst) {
+    i.classList.remove('hidden');
+  }
+};
+DOM.qHideAll = (sel) => { 
+  var lst = DOM.qSelAll(sel); 
+  for(var i of lst) {
+    i.classList.add('hidden');
+  }
+};
 
 DOM.qGetValue = function (sel)
   {
