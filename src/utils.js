@@ -1588,11 +1588,14 @@ Coin.btc_check = function (pub, addr)
   const addr1 = addr.substring(8);
 
   if (!pub)
-    return 0;
+    return {rc:0, err:'Public key is empty'};
 
   const addr0 = Coin.bip_p2pkh_address_from_pub(pub);
   
-  return (addr0 === addr1) ? 1 : 0;
+  if (addr0 === addr1)
+    return {rc: 1};
+  else
+    return {rc:0, err:"Could not verify Wallet address"};
 }
 
 Coin.eth_check = function(pub, addr)
@@ -1603,12 +1606,15 @@ Coin.eth_check = function(pub, addr)
   const addr1 = addr.substring(9);
 
   if (!pub)
-    return 0;
+    return {rc:0, err:'Public key is empty'};
 
   var addr0 = Coin.hash_keccak256(pub.substring(1)).substring(24);
   addr0 = '0x' + Coin.eth_toChecksumAddress(addr0);
 
-  return (addr0 === addr1) ? 1 : 0;
+  if (addr0 === addr1)
+    return {rc: 1};
+  else
+    return {rc:0, err:"Could not verify Wallet address"};
 }
 
 
@@ -1621,7 +1627,7 @@ Coin.coin_cert_check = function (cert)
     if (ext)
       pub = ext.value;
     else
-      return {rc:0, err: "Could not found Coin PublicKey data in Certificate"}
+      return {rc:0, err: "Could not find Coin PublicKey data in Certificate"}
 
     ext = cert.getExtension('subjectAltName');
     if (ext) {
@@ -1635,18 +1641,24 @@ Coin.coin_cert_check = function (cert)
     const CN = cert.subject.getField('CN');
     const name = CN.value;
 
-
     if (san) {
       if (san.startsWith('bitcoin:')) {
-        rc = Coin.btc_check(pub, san);
         addr = san.substring(8);
+        var ret = Coin.btc_check(pub, san);
+        if (ret.rc != 1)
+          return {rc:ret.rc, err:ret.err};
+        rc = ret.rc;
       }
       else if (san.startsWith('ethereum:')) {
         rc = Coin.eth_check(pub, san);
         addr = san.substring(9);
+        var ret = Coin.eth_check(pub, san);
+        if (ret.rc != 1)
+          return {rc:ret.rc, err:ret.err};
+        rc = ret.rc;
       }
       else
-      return {rc:0, err: "Could not found Account Address in Certificate"}
+        return {rc:0, err: "Could not find Account Address in Certificate"}
     }
 
     return {

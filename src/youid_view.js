@@ -410,6 +410,8 @@ class YouId_View {
     var self = this;
     var cert_file = null;
 
+    DOM.qSel('#add-certid-dlg #file_data').value = null;
+
     DOM.qSel('#add-certid-dlg #file_data').onchange = async (e) => {
       if (e.target.files.length > 0) {
         cert_file = e.target.files[0];

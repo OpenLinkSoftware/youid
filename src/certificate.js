@@ -727,6 +727,7 @@ Certificate.prototype = {
        try {
          var rc = Coin.btc_gen_x509_wif_san_from_pkey(gen.btc.pkey);
          gen.btc.pub = rc.pub;
+         gen.btc.pub_hex = rc.pub_hex;
          gen.btc.san = rc.san;
        } catch (e) {
          alert(e);
@@ -737,6 +738,7 @@ Certificate.prototype = {
        try {
          var rc = Coin.eth_gen_x509_san_from_pkey(gen.eth.pkey);
          gen.eth.pub = rc.pub;
+         gen.eth.pub_hex = rc.pub_hex;
          gen.eth.san = rc.san;
        } catch (e) {
          alert(e);
@@ -862,7 +864,7 @@ Certificate.prototype = {
 
       DOM.qShow('#gen-cert-ready-dlg #profile-card');
 
-      if (gen.pdp !== 'pdp_btc' && gen.pdp !== 'gen.eth') {
+      if (gen.pdp !== 'pdp_btc' && gen.pdp !== 'pdp_eth') {
         var s = self.genManualCard(webid, certData);
         DOM.qShowAll('#profile-card li');
         $('#profile-card #tab_n_ttl a').tab('show');
@@ -1015,6 +1017,8 @@ Certificate.prototype = {
   import_delegate_cert: function(context, webid, parent) 
   {
     var self = this;
+
+    DOM.qSel('#import-delegate-dlg #file_data').value = null;
 
     DOM.qSel('#import-delegate-dlg #file_data').onchange = (e) => {
       if (e.target.files.length > 0) {
