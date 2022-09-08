@@ -1650,7 +1650,6 @@ Coin.coin_cert_check = function (cert)
         rc = ret.rc;
       }
       else if (san.startsWith('ethereum:')) {
-        rc = Coin.eth_check(pub, san);
         addr = san.substring(9);
         var ret = Coin.eth_check(pub, san);
         if (ret.rc != 1)
