@@ -657,7 +657,6 @@ class YouID_Loader {
   async loadPKey_Fp(store, pkey) 
   {
     var self = this;
-    var store;
 
     var query = this.load_pubkey_fp.replace(/#\{pubkey\}/g, pkey);
 
@@ -690,7 +689,6 @@ class YouID_Loader {
   async loadCert_Fp(store, webid) 
   {
     var self = this;
-    var store;
 
     var query = this.load_cert_fp.replace(/#\{webid\}/g, webid);
 
