@@ -36,8 +36,8 @@ $(document).ready(function()
 
   DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
   DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
-  DOM.qSel('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); };
-  DOM.qSel('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); };
+  DOM.qSel('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); window.close(); };
+  DOM.qSel('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); window.close(); };
 
   load_popup();
 });
