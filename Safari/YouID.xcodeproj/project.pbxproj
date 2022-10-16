@@ -932,7 +932,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.macOS.Extension;
 				PRODUCT_NAME = "YouID Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -965,7 +965,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.macOS.Extension;
 				PRODUCT_NAME = "YouID Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1005,7 +1005,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.macOS;
 				PRODUCT_NAME = "YouID (macOS)";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
