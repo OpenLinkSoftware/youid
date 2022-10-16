@@ -945,7 +945,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/YouID.entitlements";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1.0;
 				DEVELOPMENT_TEAM = E4G7YC8M82;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -966,6 +967,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.Extension;
 				PRODUCT_NAME = "YouID Extension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1041,9 +1043,9 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openlinksw.NetID.macOS;
 				PRODUCT_NAME = "YouID (macOS)";
-				PROVISIONING_PROFILE_SPECIFIER = "YouID app for Safari macOS(2022-08-22)";
+				PROVISIONING_PROFILE_SPECIFIER = "NetID app for Safari macOS(2022-09-14) hwilliams";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
