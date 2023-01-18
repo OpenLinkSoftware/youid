@@ -816,7 +816,7 @@ Certificate.prototype = {
           var ca = self.genCACert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
           var caData = self.genCertInfo(null, ca.cert, ca.privateKey, name+'_CA', certPwd);
 
-          var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen, ca.privateKey);
+          var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen, ca.privateKey, ca.cert);
           certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
 
           certData.ca_pem = caData.pem;
@@ -1921,7 +1921,7 @@ INSERT {
 
 
 
-  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen, CA_privKey) {
+  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen, CA_privKey, CA_cert) {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -1981,7 +1981,11 @@ INSERT {
     }
 
     cert.setSubject(attrs);
-    cert.setIssuer(attrs);
+
+    if (CA_privKey && CA_cert)
+      cert.setIssuer(CA_cert.subject.attributes);
+    else
+      cert.setIssuer(attrs);
 
 //      { name: 'basicConstraints', cA: true, critical: true },
     var extList = [{ name: 'basicConstraints', cA: false, critical: true }];
