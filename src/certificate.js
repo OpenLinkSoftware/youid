@@ -754,8 +754,11 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-dlg #c_pwd').value = '';
     DOM.qSel('#gen-cert-dlg #c_pwd1').value = '';
     DOM.qShow('#gen-cert-ready-dlg #c_wait');
+    DOM.qHide('#gen-cert-ready-dlg #manual-idcard');
+    DOM.qSel('#gen-cert-ready-dlg #idcard-download').removeAttribute('href');
     DOM.qHide('#gen-cert-ready-dlg #public-cred');
     DOM.qHide('#gen-cert-ready-dlg #p12-cert');
+    DOM.qHide('#gen-cert-ready-dlg #p12-ca');
     DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').removeAttribute('href');
     DOM.qHide('#gen-cert-ready-dlg #u_wait');
     DOM.qHide('#gen-cert-ready-dlg #webid-cert');
@@ -769,6 +772,8 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-ready-dlg #delegator-i_jsonld #text-i-jsonld').value = '';
     DOM.qSel('#gen-cert-ready-dlg #delegate_uri').value = '';
     DOM.qSel('#gen-cert-ready-dlg #reg_delegate').checked = false;
+    DOM.qHide('#gen-cert-ready-dlg #webid-card-upload');
+    DOM.qSel('#gen-cert-ready-dlg #btn-upload_card').disabled = false;
 
     gen.delegate_uri = null;
     this.setDelegateText(gen, '#gen-cert-ready-dlg');
@@ -806,9 +811,23 @@ Certificate.prototype = {
         certData.ca_fname = 'OpenLinkLocalCA.pem'
 
       } 
-      else {
-        var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
-        certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
+      else { // Self-Signed
+        if (email && email.length > 0) {
+          var ca = self.genCACert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
+          var caData = self.genCertInfo(null, ca.cert, ca.privateKey, name+'_CA', certPwd);
+
+          var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen, ca.privateKey);
+          certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
+
+          certData.ca_pem = caData.pem;
+          certData.ca_fname = gen.cert_name+'_CA.pem';
+          certData.caSS_p12B64 = caData.pkcs12B64;
+          certData.caSS_p12 = caData.pkcs12;
+          certData.caSS_p12_fname = gen.cert_name+'_CA.p12';
+        } else {
+          var rc = self.genCert(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
+          certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
+        }
         DOM.qHide('#gen-cert-ready-dlg #c_wait');
       }
 
@@ -826,15 +845,29 @@ Certificate.prototype = {
               await self.uploadCert(gen, webid, certData);
             };
         }
+      } else {
+        // Manual
+        DOM.qShow('#gen-cert-ready-dlg #manual-idcard');
+        DOM.qShow('#gen-cert-ready-dlg #u_wait');s
+        DOM.qSel('#gen-cert-ready-dlg #title').innerText = 'Creating your identity card...';
+        var rc = await self.zipIdCard(gen, webid, certData);
+        if (rc == -1) {
+           alert("Error in create ZIP");
+        }
       }
       
       var p12Url = 'data:application/x-pkcs12;base64,' + certData.pkcs12B64;
       DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('href', p12Url);
       DOM.qShow('#gen-cert-ready-dlg #p12-cert');
-      DOM.qHide('#gen-cert-ready-dlg #ready_msg_manual');
       DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
       DOM.qShow('#gen-cert-ready-dlg #public-cred');
+
+      if (certData.caSS_p12B64) {
+        var ca_p12Url = 'data:application/x-pkcs12;base64,' + certData.caSS_p12B64;
+        DOM.qSel('#gen-cert-ready-dlg #ca-pkcs12-download').setAttribute('href', ca_p12Url);
+        DOM.qShow('#gen-cert-ready-dlg #p12-ca');
+      }
 
       if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {
         DOM.qHide('#gen-cert-ready-dlg #r-reg_delegate');
@@ -855,11 +888,7 @@ Certificate.prototype = {
       DOM.qSel('#gen-cert-ready-dlg #webid_uri').value = webid;
 
       if (gen.idp === 'manual') {
-        DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
         DOM.qShow('#gen-cert-ready-dlg #profile-card');
-      } else {
-
-        DOM.qShow('#gen-cert-ready-dlg #ready_msg_manual');
       }
 
       DOM.qShow('#gen-cert-ready-dlg #profile-card');
@@ -1225,6 +1254,73 @@ Certificate.prototype = {
       return {retcode:'0', error: ''+e};
     }
   },
+
+  
+  zipIdCard: async function(gen, webid, certData) {
+    var done_ok = false;
+    try {
+      const up = new Uploader_Manual();
+
+      var rc = await up.loadCardFiles();
+      if (!rc) {
+        alert('Could not load card template files');
+        return -1;
+      }
+      rc = await up.updateTemplate(certData, webid, '.', gen);
+      if (!rc) {
+        alert('Could not update card templates');
+        return -1;
+      }
+      rc = await up.uploadCardFiles(gen.cert_dir);
+      if (!rc) {
+        alert('Could not upload card files');
+        return -1;
+      }
+
+      var p12data = forge.util.binary.base64.decode(certData.pkcs12B64)
+      rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.p12', p12data, 'application/x-pkcs12');
+      if (!rc.ok) {
+        alert('Could not upload file ' + gen.cert_name + '.p12');
+        return -1;
+      }
+      var der = forge.util.binary.raw.decode(certData.der)
+      rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', der, 'application/pkix-cert');
+      if (!rc.ok) {
+        alert('Could not upload file ' + gen.cert_name + '.crt');
+        return -1;
+      }
+
+      if (certData.ca_pem && certData.ca_fname) {
+        rc = await up.uploadFile(gen.cert_dir, certData.ca_fname, certData.ca_pem, 'application/x-pem-file');
+        if (!rc.ok) 
+          return {rc:0, error:'Could not upload file ' + certData.ca_fname};
+      }
+
+      if (certData.caSS_p12B64 && certData.caSS_p12_fname) {
+        var ca_p12data = forge.util.binary.base64.decode(certData.caSS_p12B64)
+        rc = await up.uploadFile(gen.cert_dir,  certData.caSS_p12_fname, ca_p12data, 'application/x-pkcs12');
+        if (!rc.ok) {
+          alert('Could not upload file ' + certData.caSS_p12_fname);
+          return -1;
+        }
+      }
+
+      done_ok = true;
+      const zip_href = await up.genZIP_base64_href();
+      DOM.qSel('#gen-cert-ready-dlg #idcard-download').setAttribute('href', zip_href);
+    }
+    catch (e) {
+      alert(e);
+    }
+    finally {
+      DOM.qHide('#gen-cert-ready-dlg #u_wait');
+      if (!done_ok) {
+        alert('Error. Could not create your identity card, try again.');
+      }
+      return done_ok ? 0 : -1;
+    }
+  },
+
 
   uploadCert: async function (gen, webid, certData) {
     var done_ok = false;
@@ -1737,8 +1833,95 @@ INSERT {
   },
 
 
+  genCACert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) {
+    function addDays(date, days) {
+      var result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    }
 
-  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) {
+    var pki = forge.pki;
+
+    // generate a keypair and create an X.509v3 certificate
+    var keys = pki.rsa.generateKeyPair(2048);
+    var cert = pki.createCertificate();
+    cert.publicKey = keys.publicKey;
+    // NOTE: serialNumber is the hex encoded value of an ASN.1 INTEGER.
+    // Conforming CAs should ensure serialNumber is:
+    // - no more than 20 octets
+    // - non-negative (prefix a '00' if your value starts with a '1' bit)
+    cert.serialNumber = (Date.now()).toString(16);
+
+    cert.validity.notBefore = new Date();
+    cert.validity.notAfter = addDays(new Date(), 60);
+    //   cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1)
+
+    var attrs = [];
+    if (certName && certName.length > 1) {
+      attrs.push({ name: 'commonName', value: certName+' CA' });
+    }
+
+    if (certCountry && certCountry.length > 1) {
+      attrs.push({ name: 'countryName', value: certCountry });
+    }
+
+    if (certState && certState.length > 1) {
+      attrs.push({ shortName: 'ST', value: certState });
+    }
+    if (certCity && certCity.length > 1) {
+      attrs.push({ name: 'localityName', value: certCity });
+    }
+    if (certOrgUnit && certOrgUnit.length > 1) {
+      attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
+    }
+
+    if (certOrg && certOrg.length > 1) {
+      attrs.push({ name: 'organizationName', value: certOrg });
+    } else {
+      attrs.push({ name: 'organizationName', value: 'NetID' });
+    }
+    if (certEmail && certEmail.length > 1) {
+      attrs.push({ name: 'emailAddress', value: certEmail });
+    }
+
+    var sanId = webId;
+    if (gen.pdp === 'pdp_btc' && gen.btc && gen.btc.san) {
+      sanId = gen.btc.san;
+    }
+    else if (gen.pdp === 'pdp_eth' && gen.eth && gen.eth.san) {
+      sanId = gen.eth.san;
+    }
+
+    cert.setSubject(attrs);
+    cert.setIssuer(attrs);
+
+    var extList = [{ name: 'basicConstraints', cA: true, critical: true }];
+
+    extList.push({ name: 'keyUsage', digitalSignature: true, keyEncipherment: true, keyCertSign: true });
+    extList.push({ name: 'extKeyUsage', emailProtection: true });
+
+    extList.push({ name: 'subjectAltName',
+        altNames: [{
+          type: 6, // URI
+          value: sanId
+        }]
+      });
+    extList.push({ name: 'subjectKeyIdentifier' });
+
+    cert.setExtensions(extList);
+
+    cert.sign(keys.privateKey, forge.md.sha512.create());
+
+    return { 
+      privateKey: keys.privateKey,
+      publicKey: keys.publicKey,
+      cert
+    };
+  },
+
+
+
+  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen, CA_privKey) {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -1840,43 +2023,10 @@ INSERT {
 
     cert.setExtensions(extList);
 
-/**
-    if (certEmail && certEmail.length > 0) {
-      cert.setExtensions([
-        { name: 'basicConstraints', cA: false, critical: false },
-        { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },  
-        { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
-        { name: 'nsCertType', client: true, email: true },
-        {
-          name: 'subjectAltName',
-          altNames: [{
-            type: 6, // URI
-            value: sanId
-          }]
-        },
-        { name: 'subjectKeyIdentifier' }
-      ])
-    }
-    else {
-      cert.setExtensions([
-//      { name: 'basicConstraints', cA: true, critical: true },
-        { name: 'basicConstraints', cA: false, critical: false },
-        { name: 'keyUsage', digitalSignature: true},  
-        { name: 'extKeyUsage', clientAuth: true},
-        { name: 'nsCertType', client: true},
-        {
-          name: 'subjectAltName',
-          altNames: [{
-            type: 6, // URI
-            value: sanId
-          }]
-        },
-        { name: 'subjectKeyIdentifier' }
-      ])
-    }
-**/
-
-    cert.sign(keys.privateKey, forge.md.sha512.create());
+    if (CA_privKey)
+      cert.sign(CA_privKey, forge.md.sha512.create());
+    else
+      cert.sign(keys.privateKey, forge.md.sha512.create());
 
     return { 
       privateKey: keys.privateKey,

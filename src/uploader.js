@@ -22,6 +22,7 @@
 class Uploader {
   constructor() {
     this.files = {};
+    this.uploadTimeout = 500;
   }
 
   create_qrcode(text) 
@@ -157,7 +158,9 @@ class Uploader {
 
       if (!rc.ok)
         return rc.ok;
-      await this.timeout(500);
+
+      if (this.uploadTimeout > 0)
+        await this.timeout(500);
     }
     return true;
   }
@@ -332,6 +335,51 @@ class Uploader {
     return true;
   }
 }
+
+
+class Uploader_Manual extends Uploader {
+// updateTemplate
+// uploadCardFiles
+// uploadFile
+  constructor() 
+  {
+    super();
+    this.zip = new JSZip();
+    this.uploadTimeout = 0;
+  }
+
+  async uploadFile(dir, fname, data, type) 
+  {
+    if (data instanceof Blob) {
+      this.zip.file(fname, data);
+    } else {
+      this.zip.file(fname, data);
+    } 
+
+    return {ok: true};
+  }
+
+  async genZIP_base64()
+  {
+    return await this.zip.generateAsync({type:"base64"});
+  }
+
+  async genZIP_base64_href()
+  {
+    const v = await this.zip.generateAsync({type:"base64"});
+    return "data:application/zip;base64,"+v;
+  }
+
+  saveZIP(fname)
+  { 
+    this.zip.generateAsync({type:"blob"})
+     .then(function (blob) {
+        saveAs(blob, fname);
+    });
+  }
+
+}
+
 
 
 class Uploader_Solid_OIDC extends Uploader {

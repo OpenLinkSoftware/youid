@@ -44,6 +44,8 @@
     <script type="text/javascript" src="lib/bn.js"></script>
     <script type="text/javascript" src="lib/secp256k1.js"></script>
     <script type="text/javascript" src="lib/sha3.js"></script>
+    <script type="text/javascript" src="lib/jszip.js"></script>
+
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
     <script type="text/javascript" src="oauth2/oauth1.js"></script>
@@ -784,6 +786,17 @@
           <section id="webid-card" style="padding-left:1em">
             Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
           </section>
+
+          <section id="manual-idcard" class="hidden">
+            <div style="display:flex; flex-direction:column; padding-left:1em">
+              <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+               Identity card files:&nbsp;&nbsp;
+               <a id="idcard-download" download="idcard.zip">Download IDCard archive</a>
+               <div style="margin-left:20px; font-style:italic;">Please save Identiry card archive on local disk.</div>
+              </div>
+            </div>
+            <hr>
+          </section>
           <p/>
           <form class="form-horizontal" style="padding-left:1em">
            <section id="profile-card">
@@ -847,10 +860,17 @@
           <label for="private-cred" class="control-label"> Private Credentials</label>
           <div style="display:flex; flex-direction:column; padding-left:1em">
             <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
-             PKCS12 Credentials Store&nbsp;&nbsp;
-             <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+              PKCS12 Credentials Store&nbsp;&nbsp;
+              <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+              <div style="margin-left:20px; font-style:italic;">Please save PKCS12 Credentials Store on local disk. </div>
             </div>
-            <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
+          </div>
+          <div id="p12-ca" class="hidden" style="display:flex; flex-direction:column; padding-left:1em">
+            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+              CA PKCS12 Credentials Store&nbsp;&nbsp;
+              <a id="ca-pkcs12-download" download="ca_certificate.p12">Download CA PKCS12</a>
+              <div style="margin-left:20px; font-style:italic;">Please save CA PKCS12 Credentials Store on local disk. </div>
+            </div>
           </div>
           <hr>
         </section>

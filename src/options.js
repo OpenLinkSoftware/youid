@@ -40,8 +40,7 @@ async function init()
         DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
         DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
 
-
-        $('#hdr_add').click(hdr_add);
+        DOM.qSel('#hdr_add').onclick = (e) => { hdr_add() }
         $('#hdr_add').button({
           icons: { primary: 'ui-icon-plusthick' },
           text: false
@@ -49,44 +48,43 @@ async function init()
 
 
 	// Tabs
-        $('#tabs a[href="#webid"').click(() => {
+	DOM.qSel('#tabs a[href="#webid"').onclick = (e) => {
           selectTab('#webid');
           return false;
-        });
-        $('#tabs a[href="#certificate"').click(() => {
+	}
+	DOM.qSel('#tabs a[href="#certificate"').onclick = (e) => {
           selectTab('#certificate');
           v_cert.click_gen_cert(v_youid.cur_webid);
           return false;
-        });
-        $('#tabs a[href="#delegate"').click(() => {
+	}
+	DOM.qSel('#tabs a[href="#delegate"').onclick = (e) => {
           selectTab('#delegate');
           v_cert.showTab_delegate('#delegate-tab');
           return false;
-        });
-        $('#tabs a[href="#accounts"').click(() => {
+	}
+	DOM.qSel('#tabs a[href="#accounts"').onclick = (e) => {
           selectTab('#accounts');
           return false;
-        });
-        $('#tabs a[href="#headers"').click(() => {
+	}
+	DOM.qSel('#tabs a[href="#headers"').onclick = (e) => {
           selectTab('#headers');
           return false;
-        });
-        $('#tabs a[href="#about"').click(() => {
+	}
+	DOM.qSel('#tabs a[href="#about"').onclick = (e) => {
           selectTab('#about');
           return false;
-        });
+	}
+
         selectTab('#webid');
 
         await loadPref();
 
-        $('#OK_btn').click(savePref);
-        $('#Cancel_btn').click(function() {
-            closeOptions();
-         });
+        DOM.iSel('OK_btn').onclick = (e) => { savePref() }
+        DOM.iSel('Cancel_btn').onclick = (e) => { closeOptions() }
 
-        $('#announce #btn-reset-announce').click(function() {
+        DOM.qSel('#announce #btn-reset-announce').onclick = (e) => {
            DOM.qSel('#announce #message-text').value = gPref.getDef_Fingerprint();
-         });
+        }
 
 
         DOM.qSel('#ext_ver').innerText = 'Version: '+ Browser.api.runtime.getManifest().version;
