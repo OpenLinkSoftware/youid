@@ -22,6 +22,7 @@
 
 <link href="style.css" rel="stylesheet" type="text/css">
 
+<script type="text/javascript" src="./qrcode.js"></script>
 
 </head>
 <body>
@@ -124,6 +125,33 @@
 </script> 
 <!-- end profile json_ld -->
 
+<script>
+(function () {
+
+  function create_qrcode(text) 
+  {
+    var errorCorrectionLevel = 'Q';
+    var typeNumber = 8;
+    qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+    var qr = qrcode(typeNumber || 4, errorCorrectionLevel || 'M');
+    qr.addData(text, 'Byte');
+    qr.make();
+
+    return qr.createImgTag(null, 2, 'QR code');
+  }
+
+
+  document.addEventListener('DOMContentLoaded', 
+    function()
+    {
+       var el = document.querySelector('.cardQr');
+       if (el)
+         el.innerHTML = create_qrcode(location.href);
+    });
+
+})();
+</script>
 
 </body>
 </html>

@@ -90,5 +90,10 @@ following projects:
     License	: MIT License
     Description : Sleek, intuitive, and powerful front-end framework for faster and easier web development.
 
+* jszip
+    Project	: https://github.com/Stuk/jszip
+    License	: MIT license or the GPLv3 license
+    Description : Create, read and edit .zip files with Javascript 
+
 This list may not complete. If you feel any third party project is missing from this list, please
 email the current maintainer.

@@ -758,8 +758,14 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-ready-dlg #idcard-download').removeAttribute('href');
     DOM.qHide('#gen-cert-ready-dlg #public-cred');
     DOM.qHide('#gen-cert-ready-dlg #p12-cert');
-    DOM.qHide('#gen-cert-ready-dlg #p12-ca');
     DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').removeAttribute('href');
+
+    DOM.qHide('#gen-cert-ready-dlg #ca-cert');
+    DOM.qHide('#gen-cert-ready-dlg #ca-pkcs12-download')
+    DOM.qSel('#gen-cert-ready-dlg #ca-pkcs12-download').removeAttribute('href');
+    DOM.qHide('#gen-cert-ready-dlg #ca-pem-download')
+    DOM.qSel('#gen-cert-ready-dlg #ca-pem-download').removeAttribute('href');
+
     DOM.qHide('#gen-cert-ready-dlg #u_wait');
     DOM.qHide('#gen-cert-ready-dlg #webid-cert');
     DOM.qHide('#gen-cert-ready-dlg #webid-card');
@@ -808,6 +814,7 @@ Certificate.prototype = {
 
         certData = self.genCertInfo(decodeURIComponent(rc.data), null, csr.privateKey, name, certPwd)
         certData.ca_pem = decodeURIComponent(rc.ca_data)
+        certData.ca_pemB64 = forge.util.encode64(certData.ca_pem);
         certData.ca_fname = 'OpenLinkLocalCA.pem'
 
       } 
@@ -820,6 +827,7 @@ Certificate.prototype = {
           certData = self.genCertInfo(null, rc.cert, rc.privateKey, name, certPwd)
 
           certData.ca_pem = caData.pem;
+          certData.ca_pemB64 = forge.util.encode64(certData.ca_pem);
           certData.ca_fname = gen.cert_name+'_CA.pem';
           certData.caSS_p12B64 = caData.pkcs12B64;
           certData.caSS_p12 = caData.pkcs12;
@@ -858,6 +866,7 @@ Certificate.prototype = {
       
       var p12Url = 'data:application/x-pkcs12;base64,' + certData.pkcs12B64;
       DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('href', p12Url);
+      DOM.qSel('#gen-cert-ready-dlg #pkcs12-download').setAttribute('download', gen.cert_name+'.p12');
       DOM.qShow('#gen-cert-ready-dlg #p12-cert');
       DOM.qShow('#gen-cert-ready-dlg #r-message');
       DOM.qShow('#gen-cert-ready-dlg #webid-cert');
@@ -866,7 +875,16 @@ Certificate.prototype = {
       if (certData.caSS_p12B64) {
         var ca_p12Url = 'data:application/x-pkcs12;base64,' + certData.caSS_p12B64;
         DOM.qSel('#gen-cert-ready-dlg #ca-pkcs12-download').setAttribute('href', ca_p12Url);
-        DOM.qShow('#gen-cert-ready-dlg #p12-ca');
+        DOM.qSel('#gen-cert-ready-dlg #ca-pkcs12-download').setAttribute('download', certData.caSS_p12_fname);
+        DOM.qShow('#gen-cert-ready-dlg #ca-pkcs12-download');
+        DOM.qShow('#gen-cert-ready-dlg #ca-cert');
+      }
+      if (certData.ca_pemB64) {
+        var ca_pemUrl = 'data:application/x-pem-file;base64,' + certData.ca_pemB64;
+        DOM.qSel('#gen-cert-ready-dlg #ca-pem-download').setAttribute('href', ca_pemUrl);
+        DOM.qSel('#gen-cert-ready-dlg #ca-pem-download').setAttribute('download', certData.ca_fname);
+        DOM.qShow('#gen-cert-ready-dlg #ca-pem-download');
+        DOM.qShow('#gen-cert-ready-dlg #ca-cert');
       }
 
       if (gen.pdp === 'pdp_btc' || gen.pdp === 'pdp_eth') {

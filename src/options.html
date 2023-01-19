@@ -326,7 +326,7 @@
 
 
           <div class="form-group row">
-            <label for="c_pwd" class="col-md-3 control-label">Password&nbsp;for&nbsp;PKCS12&nbsp;Store:</label>
+            <label for="c_pwd" class="col-md-3 control-label">Password&nbsp;for&nbsp;PKCS#12&nbsp;Store:</label>
             <div class="col-md-3">
               <input type="password" class="form-control" id="c_pwd" value="">
             </div>
@@ -790,9 +790,8 @@
           <section id="manual-idcard" class="hidden">
             <div style="display:flex; flex-direction:column; padding-left:1em">
               <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
-               Identity card files:&nbsp;&nbsp;
-               <a id="idcard-download" download="idcard.zip">Download IDCard archive</a>
-               <div style="margin-left:20px; font-style:italic;">Please save Identiry card archive on local disk.</div>
+                Credentials (Public & Private) Bundle:&nbsp;&nbsp;
+               <a id="idcard-download" download="idcard.zip">ZIP Archive</a>
               </div>
             </div>
             <hr>
@@ -859,17 +858,19 @@
         <section id="p12-cert">
           <label for="private-cred" class="control-label"> Private Credentials</label>
           <div style="display:flex; flex-direction:column; padding-left:1em">
+            <div style="padding-bottom:0.5em">Download the following private credentials documents and then click on each 
+              for automatic upload to the secure credentials store provided by your computing device.
+            </div>
             <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
-              PKCS12 Credentials Store&nbsp;&nbsp;
-              <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
-              <div style="margin-left:20px; font-style:italic;">Please save PKCS12 Credentials Store on local disk. </div>
+               * Personal Credentials&nbsp;
+              <a style="margin-left:10px" id="pkcs12-download" download="certificate.p12">PKCS#12</a>
             </div>
           </div>
-          <div id="p12-ca" class="hidden" style="display:flex; flex-direction:column; padding-left:1em">
+          <div id="ca-cert" class="hidden" style="display:flex; flex-direction:column; padding-left:1em">
             <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
-              CA PKCS12 Credentials Store&nbsp;&nbsp;
-              <a id="ca-pkcs12-download" download="ca_certificate.p12">Download CA PKCS12</a>
-              <div style="margin-left:20px; font-style:italic;">Please save CA PKCS12 Credentials Store on local disk. </div>
+              * Personal Certificate Authority Credentials&nbsp;
+              <a style="margin-left:10px" id="ca-pkcs12-download" download="ca_certificate.p12">PKCS#12</a>
+              <a style="margin-left:20px" id="ca-pem-download" download="ca_certificate.pem">PEM</a>
             </div>
           </div>
           <hr>

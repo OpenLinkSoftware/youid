@@ -88,6 +88,7 @@ class Uploader {
 
   async loadCardFiles() {
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
+    this.files["qrcode.js"] = new CardFileBinary('qrcode.js', 'text/javascript');
     this.files["lock.png"] = new CardFileBinary('lock.png', 'image/png');
     this.files["museo-500-webfont.eot"] = new CardFileBinary('museo-500-webfont.eot', 'application/vnd.ms-fontobject');
     this.files["museo-500-webfont.ttf"] = new CardFileBinary('museo-500-webfont.ttf', 'application/x-font-ttf');
@@ -368,14 +369,6 @@ class Uploader_Manual extends Uploader {
   {
     const v = await this.zip.generateAsync({type:"base64"});
     return "data:application/zip;base64,"+v;
-  }
-
-  saveZIP(fname)
-  { 
-    this.zip.generateAsync({type:"blob"})
-     .then(function (blob) {
-        saveAs(blob, fname);
-    });
   }
 
 }
