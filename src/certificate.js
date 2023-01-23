@@ -116,6 +116,30 @@ Certificate.prototype = {
       this.oidc_changed();
     }
 
+    if (Browser.is_safari) {
+      function downloadFile(e) 
+      {
+        e.preventDefault();
+
+        var el = e.target;
+        if (el.href && el.download) {
+          var popup = window.open();
+          var link = document.createElement('a');
+          link.setAttribute('href', el.href);
+          link.setAttribute('download', el.download);
+          popup.document.body.appendChild(link);
+          link.click();
+        }
+      }
+
+      DOM.iSel('idcard-download').onclick = (e) => { downloadFile(e); }
+      DOM.iSel('pkcs12-download').onclick = (e) => { downloadFile(e); }
+      DOM.iSel('ca-pkcs12-download').onclick = (e) => { downloadFile(e);}
+      DOM.iSel('ca-pem-download').onclick = (e) => { downloadFile(e); }
+    }
+
+
+
     DOM.qSel('#gen-cert-dlg #c_pdp')
       .onchange = (e) => {
         var sel = DOM.qSel('#c_pdp option:checked').value;
