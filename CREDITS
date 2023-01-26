@@ -95,5 +95,23 @@ following projects:
     License	: MIT license or the GPLv3 license
     Description : Create, read and edit .zip files with Javascript 
 
+* secp256k1
+    Project     : https://github.com/lionello/secp256k1-js
+    License	: MIT license or the GPLv3 license
+    Description : Pure JS implementation of secp256k1 signing, verification, recovery ECDSA. 
+
+* js-sha3 
+    Project     : https://github.com/emn178/js-sha3
+    License	: MIT license or the GPLv3 license
+    Description : A simple SHA-3 / Keccak hash function for JavaScript supports UTF-8 encoding. 
+
+* ripemd160
+    Project     : https://github.com/crypto-browserify/ripemd160
+    License	: MIT license or the GPLv3 license
+    Description : JavaScript component to compute the RIPEMD160 hash of strings or bytes. 
+
+
+
+
 This list may not complete. If you feel any third party project is missing from this list, please
 email the current maintainer.
