@@ -139,6 +139,17 @@ Certificate.prototype = {
     }
 
 
+    DOM.qSel('#gen-cert-dlg #c_profile')
+      .onchange = (e) => {
+        var idp = DOM.qSel('#c_idp option:checked').value;
+        if (idp === 'manual') {
+          try {
+            var url = new URL(DOM.qSel('#gen-cert-dlg #c_profile').value);
+            url.hash = '#netid';
+            DOM.qSel('#c_webid').value = url.toString();
+          } catch(e) {}
+        }
+      }
 
     DOM.qSel('#gen-cert-dlg #c_pdp')
       .onchange = (e) => {
@@ -2178,52 +2189,6 @@ INSERT {
         extensions: extList
         }]);
 
-/****
-    if (certEmail && certEmail.length > 0) {
-
-      csr.setAttributes([
-        {
-        name: 'extensionRequest',
-        extensions: [
-//        { name: 'basicConstraints', cA: true, critical: true },
-          { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },  
-          { name: 'extKeyUsage', clientAuth: true, emailProtection: true },
-          { name: 'nsCertType', client: true, email: true },
-          {
-            name: 'subjectAltName',
-            altNames: [{
-              type: 6, // URI
-              value: webId
-            }]
-          },
-//          { name: 'subjectKeyIdentifier' }
-        ]
-      }]);
-
-    }
-    else {
-
-      csr.setAttributes([
-        {
-        name: 'extensionRequest',
-        extensions: [
-//        { name: 'basicConstraints', cA: true, critical: true },
-          { name: 'keyUsage', digitalSignature: true },  
-          { name: 'extKeyUsage', clientAuth: true },
-          { name: 'nsCertType', client: true },
-          {
-            name: 'subjectAltName',
-            altNames: [{
-              type: 6, // URI
-              value: webId
-            }]
-          },
-//          { name: 'subjectKeyIdentifier' }
-        ]
-      }]);
-    
-    }
-***/
     csr.sign(keys.privateKey, forge.md.sha512.create());
 
     return  {
