@@ -416,7 +416,11 @@ class YouId_View {
   async load_data_from_cert(cert)
   {
     $('#add-certid-dlg').modal('hide');
-    this.verify1_cert_exec(cert);
+    const rc = Coin.is_coin_cert(cert);
+    if (rc.is_coin==0 && rc.san && (rc.san.startsWith('http://') || rc.san.startsWith('https://')))
+      this.load_data_from_uri(rc.san, null);
+    else
+      this.verify1_cert_exec(cert);
   }
 
 

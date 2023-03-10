@@ -804,12 +804,10 @@ var Msg = {};
 
 Msg.showYN = function (msg1, msg2, callback)
   {
-    if (msg1) 
-      document.querySelector('#alert-dlg #alert-msg1').textContent = msg1;
-    if (msg2)
-      document.querySelector('#alert-dlg #alert-msg2').textContent = msg2;
+    DOM.qSel('#alert-dlg #alert-msg1').textContent = msg1 ? msg1 : '';
+    DOM.qSel('#alert-dlg #alert-msg2').textContent = msg2 ? msg2 : '';
 
-    document.querySelector('#alert-dlg #btn-cancel').textContent = 'No';
+    DOM.qSel('#alert-dlg #btn-cancel').textContent = 'No';
 
     var btnYes = document.querySelector('#alert-dlg #btn-yes');
     btnYes.style.display = 'initial'
@@ -830,11 +828,12 @@ Msg.showYN = function (msg1, msg2, callback)
 
 Msg.showInfo = function (msg)
   {
-    if (msg) 
-      document.querySelector('#alert-dlg #alert-msg1').textContent = msg;
+    DOM.qSel('#alert-dlg #alert-msg1').textContent = msg ? msg : '';
+    DOM.qSel('#alert-dlg #alert-msg2').textContent = '';
 
-    document.querySelector('#alert-dlg #btn-cancel').textContent = 'Cancel';
-    var btnYes = document.querySelector('#alert-dlg #btn-yes');
+
+    DOM.qSel('#alert-dlg #btn-cancel').textContent = 'Cancel';
+    var btnYes = DOM.qSel('#alert-dlg #btn-yes');
     btnYes.style.display = 'none'
 
     var dlg = $('#alert-dlg .modal-content');
@@ -1620,6 +1619,30 @@ Coin.eth_check = function(pub, addr)
     return {rc: 1};
   else
     return {rc:0, err:"Could not verify Wallet address"};
+}
+
+Coin.is_coin_cert = function(cert)
+{
+  var san = '';
+  var is_coin = 0;
+
+  try {
+    var ext = cert.getExtension('subjectAltName');
+    if (ext) {
+      for(var nm of ext.altNames)
+        if (nm.type == 6)
+          san = nm.value;
+    }
+
+    ext = cert.getExtension({id: '2.16.840.1.2381.2'});
+    if (ext)
+      is_coin = 1;
+
+  } catch(e) {
+    console.log(e);
+  }
+  
+  return {is_coin, san};
 }
 
 
