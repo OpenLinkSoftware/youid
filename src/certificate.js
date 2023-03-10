@@ -17,16 +17,81 @@
  *  51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
+class Relations {
+  constructor() {
+    DOM.qSel('#rel_add').onclick = (e) => {
+      e.preventDefault();
+      this.addItem();
+    }
+  }
 
-Certificate = function () {
-  this.gPref = new Settings();
-  this.gOidc = new OidcWeb();
-  this.pdp = null;
+  createRow()
+  {
+    const sel = '<select id="c_rel_type">'
+               +' <option value="none">--</option>'
+               +' <option value="fb">Facebook</option>'
+               +' <option value="in">Instagram</option>'
+               +' <option value="li">LinkedIn</option>'
+               +' <option value="lt">Linktree</option>'
+               +' <option value="ma">Mastodon</option>'
+               +' <option value="ti">TikTok</option>'
+               +' <option value="tw">Twitter</option>'
+               +'</select>';
+
+    return  '<tr>'
+           +'<td> <button id="rel_del"> <input type="image" src="lib/css/img/minus.png" width="12" height="12"> </button> </td>' 
+           +'<td>'+sel+'</td>'
+           +'<td><input id="rel_v" type="text" class="form-control" id="c_rel" value=""></td>';
+           +'</tr>';
+  }
+
+  addItem()
+  {
+    const tbody = DOM.qSel('#tbl_rels tbody');
+    const r = tbody.insertRow(-1);
+    r.innerHTML = this.createRow();
+    r.querySelector('#rel_del').onclick = (e) => {
+      e.preventDefault();
+      const row = e.target.closest('tr');
+      row.remove();
+    }
+  }
+
+  emptyList()
+  {
+    const tbody = DOM.qSel('#tbl_rels tbody');
+    tbody.innerHTML = '';
+    this.addItem();
+  }
+
+  getList()
+  {
+    var list = [];
+    const tbody = DOM.qSel('#tbl_rels tbody');
+    const rows = tbody.querySelectorAll('tr');
+    for(const el of rows) {
+      var v = el.querySelector('#rel_v').value;
+      var type = el.querySelector('#c_rel_type option:checked').value;
+      if (v)
+        list.push({v,type});
+    }
+    return list;
+  }
 }
 
-Certificate.prototype = {
 
-  reset_gen_cert: function () {
+class Certificate {
+  constructor() 
+  {
+    this.gPref = new Settings();
+    this.gOidc = new OidcWeb();
+    this.pdp = null;
+    this.relations = new Relations();
+    this.relations.emptyList();
+  }
+
+  reset_gen_cert() 
+  {
     var dt = new Date();
     this.YMD = dt.toISOString().substring(0, 10).replace(/-/g, '');
     this.HMS = dt.toISOString().substring(11, 19).replace(/:/g, '');
@@ -40,9 +105,10 @@ Certificate.prototype = {
     
     DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + this.YMD + '_' + this.HMS;
     this.gen_webid(DOM.qSel('#c_idp option:checked').value);
-  },
+  }
 
-  initCountries: function () {
+  initCountries() 
+  {
     var select = DOM.qSel('#c_country');
     select.options.length = 0;
     var el = document.createElement('option');
@@ -57,9 +123,10 @@ Certificate.prototype = {
       el.value = c.ccode;
       select.add(el);
     }
-  },
+  }
 
-  gen_webid: function (idp) {
+  gen_webid(idp) 
+  {
         var cert_path = DOM.qSel('#gen-cert-dlg #c_cert_path').value;
 
         if (idp === 'manual') {
@@ -99,10 +166,11 @@ Certificate.prototype = {
           DOM.qSel('#gen-cert-dlg #c_webid').value = up.getDirPath(cert_path) + '/profile.ttl#identity';
           DOM.qSel('#gen-cert-dlg #r_webid input').readOnly = true;
         }
-  }, 
+  } 
 
 
-  click_gen_cert: async function (cur_webid) {
+  async click_gen_cert(cur_webid) 
+  {
     var self = this;
 
     if (cur_webid) {
@@ -190,7 +258,8 @@ Certificate.prototype = {
 
     
     DOM.qSel('#gen-cert-dlg #btn-fetch-pdp')
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         var sel = DOM.qSel('#c_pdp option:checked').value;
         self.pdp = null;
         switch(sel) 
@@ -279,7 +348,8 @@ Certificate.prototype = {
 
     
     DOM.qSel('#gen-cert-dlg #btn-fetch-profile')
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         var uri = DOM.iSel('c_profile').value.trim();
         if (uri.length == 0)
           return;
@@ -444,7 +514,8 @@ Certificate.prototype = {
       };
 
     DOM.qSel('#gen-cert-dlg #btn-solid-oidc-login')
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         if (this.gOidc.webid) {
           await this.gOidc.logout();
           self.oidc_changed();
@@ -472,7 +543,8 @@ Certificate.prototype = {
 
 
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         var gen = {};
         gen.issued = DOM.qSel('#c_issued option:checked').value;
         gen.idp = DOM.qSel('#c_idp option:checked').value;
@@ -669,10 +741,11 @@ Certificate.prototype = {
     DOM.qSel('#gen-cert-dlg #c_idp').onchange();
 
     return false;
-  },
+  }
 
 
-  oidc_changed: async function () {
+  async oidc_changed() 
+  {
     try {
       await this.gOidc.checkSession();
 
@@ -722,11 +795,11 @@ Certificate.prototype = {
     } catch (e) {
       console.log(e);
     }
-  },
+  }
 
 
-  genCertificate: function (gen) {
-    this.certData = {};
+  genCertificate(gen) 
+  {
     var self = this;
 
     var webid = DOM.qSel('#gen-cert-dlg #c_webid').value;
@@ -785,6 +858,7 @@ Certificate.prototype = {
       return
     }
 
+    gen.relList = this.relations.getList();
 
     DOM.qSel('#gen-cert-dlg #c_pwd').value = '';
     DOM.qSel('#gen-cert-dlg #c_pwd1').value = '';
@@ -837,6 +911,7 @@ Certificate.prototype = {
     })
 
     setTimeout(async function () {
+      var certData = {};
       if (gen.issued === "local_ca") {
         var csr = self.genCSR(name, email, certOrg, certOrgUnit, certCity, certState, certCountry, webid, gen);
         var rc = await self.uploadCSR(csr.pem);
@@ -883,7 +958,8 @@ Certificate.prototype = {
         if (rc == -1) {
           DOM.qShow('#gen-cert-ready-dlg #webid-card-upload');
           DOM.qSel('#gen-cert-ready-dlg #btn-upload_card')
-            .onclick = async () => {
+            .onclick = async (e) => {
+              e.preventDefault();
               DOM.qShow('#gen-cert-ready-dlg #u_wait');
               await self.uploadCert(gen, webid, certData);
             };
@@ -947,7 +1023,7 @@ Certificate.prototype = {
       DOM.qShow('#gen-cert-ready-dlg #profile-card');
 
       if (gen.pdp !== 'pdp_btc' && gen.pdp !== 'pdp_eth') {
-        var s = self.genManualCard(webid, certData);
+        var s = await self.genManualCard(webid, certData, gen);
         DOM.qShowAll('#profile-card li');
         $('#profile-card #tab_n_ttl a').tab('show');
         DOM.qSel('#profile-card #text-n-ttl').value = s.nano_ttl;
@@ -963,7 +1039,8 @@ Certificate.prototype = {
         self.prepare_delegate('#gen-cert-ready-dlg', webid, {idp: gen.idp});
 
         DOM.qSel('#gen-cert-ready-dlg #btn-message')
-          .onclick = async () => {
+          .onclick = async (e) => {
+            e.preventDefault();
             var sel = DOM.qSel('#c_announce option:checked').value;
             var fmt = await self.gPref.getValue('ext.youid.pref.ann_message');
             var msg = fmt.replace(/{webid}/g, webid).replace(/{ni-scheme-uri}/g, certData.fingerprint_ni);
@@ -1006,10 +1083,11 @@ Certificate.prototype = {
     }, 500);
 
     return false;
-  },
+  }
 
 
-  prepare_delegate: function(parent, webid, context) {  // {idp:'solid_oidc'}
+  prepare_delegate(parent, webid, context)   // {idp:'solid_oidc'}
+  {
     var self = this;
 
     const fld_delegate = DOM.qSel(`${parent} #delegate_uri`);
@@ -1031,7 +1109,8 @@ Certificate.prototype = {
     DOM.qSel(`${parent} #delegate_uri`).onfocusout = delegate_uri_updated;
 
     DOM.qSel(`${parent} #btn-delegate_uri`)
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         webid = DOM.qSel(`${parent} #webid_uri`).value;
         if (!webid) {
           alert('Set Delegator NetID value at first.');
@@ -1045,7 +1124,8 @@ Certificate.prototype = {
       };
 
     DOM.qSel(`${parent} #btn-delegate_import`)
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         webid = DOM.qSel(`${parent} #webid_uri`).value;
         if (!webid) {
           alert('Set Delegator NetID value at first.');
@@ -1056,7 +1136,8 @@ Certificate.prototype = {
       };
 
     DOM.qSel(`${parent} #btn-delegate_cert_key`)
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         if (!context.delegate_keys || context.delegate_keys.length == 0) {
            alert('Fetch Delegate profile at first.');
            return; 
@@ -1065,7 +1146,8 @@ Certificate.prototype = {
       };
 
     DOM.qSel(`${parent} #btn-update_delegate`)
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         webid = DOM.qSel(`${parent} #webid_uri`).value;
         if (!webid) {
           alert('Set WebID value at first.');
@@ -1075,7 +1157,8 @@ Certificate.prototype = {
       };
 
     DOM.qSel(`${parent} #btn-update_delegator`)
-      .onclick = async () => {
+      .onclick = async (e) => {
+        e.preventDefault();
         webid = DOM.qSel(`${parent} #webid_uri`).value;
         if (!webid) {
           alert('Set WebID value at first.');
@@ -1083,9 +1166,10 @@ Certificate.prototype = {
         }
         await self.uploadDelegator(context, webid, parent);
       };
-  },
+  }
 
-  showTab_delegate: function(parent) {  // {idp:'solid_oidc'}
+  showTab_delegate(parent)  // {idp:'solid_oidc'}
+  {
     var context = {idp: 'soild_oidc'};
     var webid = '';
 
@@ -1093,10 +1177,10 @@ Certificate.prototype = {
     this.setDelegatorText(context, parent);
 
     this.prepare_delegate(parent, webid, context);
-  },
+  }
 
 
-  import_delegate_cert: function(context, webid, parent) 
+  import_delegate_cert(context, webid, parent) 
   {
     var self = this;
 
@@ -1118,8 +1202,9 @@ Certificate.prototype = {
     };
 
     var btnOk = DOM.qSel('#import-delegate-dlg #btn-ok');
-    btnOk.onclick = async () =>
+    btnOk.onclick = async (e) =>
        {
+         e.preventDefault();
          const val = DOM.qSel('#import-delegate-dlg #file_data');
 
          if (val.files.length > 0) {
@@ -1170,10 +1255,11 @@ Certificate.prototype = {
     dlg.width(620);
     $('#import-delegate-dlg').modal('show');
 
-  },
+  }
 
 
-  showCertKeys: function(gen, parent) {
+  showCertKeys(gen, parent) 
+  {
      var self = this;
      var tbody = DOM.qSel('#cert-key-dlg #cert-key-tbl tbody');
      var keys = gen.delegate_keys;
@@ -1238,6 +1324,7 @@ Certificate.prototype = {
            r.querySelector('#chk').checked = true;
 
          r.querySelector('#chk').onclick = (ev) => {
+            ev.preventDefault();
             var chk = ev.target;
             if (chk.checked) {
               console.log(ev);
@@ -1249,6 +1336,7 @@ Certificate.prototype = {
             }
           };
          r.querySelector('#det_btn').onclick = (ev) => {
+            ev.preventDefault();
             var btn = ev.target;
             var item = btn.closest('table.certkeys_item');
             var tbl = item.querySelector('table.dettable');
@@ -1262,7 +1350,8 @@ Certificate.prototype = {
      }
 
      $('#cert-key-dlg').modal('show');
-     DOM.qSel('#cert-key-dlg #btn-ok').onclick = () => {
+     DOM.qSel('#cert-key-dlg #btn-ok').onclick = (e) => {
+        e.preventDefault();
         
         var lst = tbody.querySelectorAll('#chk');
         for (var i=0; i < lst.length; i++) {
@@ -1282,9 +1371,11 @@ Certificate.prototype = {
         }
        };
 
-  },
+  }
 
-  uploadCSR: async function(pem) {
+
+  async uploadCSR(pem) 
+  {
     var rc;
     var url = "http://id.myopenlink.net/YouidSave/idhCsr"
 
@@ -1306,10 +1397,11 @@ Certificate.prototype = {
     } catch (e) {
       return {retcode:'0', error: ''+e};
     }
-  },
+  }
 
   
-  zipIdCard: async function(gen, webid, certData) {
+  async zipIdCard(gen, webid, certData) 
+  {
     var done_ok = false;
     try {
       const up = new Uploader_Manual();
@@ -1372,10 +1464,11 @@ Certificate.prototype = {
       }
       return done_ok ? 0 : -1;
     }
-  },
+  }
 
 
-  uploadCert: async function (gen, webid, certData) {
+  async uploadCert(gen, webid, certData) 
+  {
     var done_ok = false;
     try {
       var up = null;
@@ -1485,9 +1578,11 @@ Certificate.prototype = {
       }
       return done_ok ? 0 : -1;
     }
-  },
+  }
 
-  fetchDelegate: async function (gen, webid, parent) {
+
+  async fetchDelegate(gen, webid, parent) 
+  {
     var done_ok = false;
     DOM.qShow(`${parent} #delegate_wait`);
     var uri = DOM.qSel(`${parent} #delegate_uri`).value;
@@ -1532,10 +1627,10 @@ Certificate.prototype = {
     finally {
       DOM.qHide(`${parent} #delegate_wait`);
     }
-  },
+  }
 
 
-  loadDelegateCert: function (gen, webid, parent, cert) 
+  loadDelegateCert(gen, webid, parent, cert) 
   {
     var rc;
 
@@ -1567,10 +1662,11 @@ Certificate.prototype = {
 
     this.setDelegateText(gen, parent);
     this.setDelegatorText(gen, parent);
-  },
+  }
 
 
-  setDelegateText: function(gen, parent) {
+  setDelegateText(gen, parent) 
+  {
     var s = '';
     
     if (gen.delegate_uri && gen.delegator_webid 
@@ -1625,9 +1721,11 @@ oplcert:hasCertificate :cert .
     }
 
     DOM.qSel(`${parent} #delegate-text`).value = s;
-  },
+  }
 
-  setDelegatorText: function(gen, parent) {
+
+  setDelegatorText(gen, parent) 
+  {
     var s = '';
     var s_ttl = ''
     var s_json = '';
@@ -1745,11 +1843,12 @@ INSERT {
       btn.childNodes[0].nodeValue = gen.delegate_key_label;
     else
       btn.childNodes[0].nodeValue = 'Certificate Key';
-  },
+  }
 
 
 
-  uploadDelegate: async function (gen, webid, parent) {
+  async uploadDelegate(gen, webid, parent) 
+  {
     if (!gen.delegate_uri) {
       alert('Delegate profile must be fetched at first');
       return;
@@ -1792,10 +1891,11 @@ INSERT {
       DOM.qSel(`${parent} #u_msg`).innerText = '';
       DOM.qHide(`${parent} #u_wait`);
     }
-  },
+  }
 
 
-  uploadDelegator: async function (gen, webid, parent) {
+  async uploadDelegator(gen, webid, parent) 
+  {
     var url = new URL(webid);
     url.hash = '';
 
@@ -1830,11 +1930,12 @@ INSERT {
       DOM.qSel(`${parent} #u_msg`).innerText = '';
       DOM.qHide(`${parent} #u_wait`);
     }
-  },
+  }
 
 
-  genManualCard: function (webid, certData) {
-    var {ttl, jsonld, rdfxml} = genManualUploads(webid, certData);
+  async genManualCard(webid, certData, gen) 
+  {
+    var {ttl, jsonld, rdfxml} = await genManualUploads(webid, certData, gen);
 
     var nano_ttl = '## Turtle Start ##\n'+ttl+'\n## Turtle End ##\n';
     var nano_jsonld = '## JSON-LD Start ##\n'+jsonld+'\n## JSON-LD End ##\n';
@@ -1851,10 +1952,11 @@ INSERT {
                    +'\n</script>\n';
 
     return {nano_ttl, nano_jsonld, nano_rdfxml, i_ttl, i_jsonld, i_rdfxml};
-  },
+  }
 
 
-  genSolidInsertCert: function (webid, cert) {
+  genSolidInsertCert(webid, cert) 
+  {
     var profileUri = webid.split('#')[0];
     var keyUri = profileUri + '#key-' + cert.validity.notBefore.getTime();
     var CN = cert.subject.getField('CN');
@@ -1883,10 +1985,11 @@ INSERT {
     cert:modulus "${modulus}"^^xsd:hexBinary.
   } `;
     return card_text;
-  },
+  }
 
 
-  genCACert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) {
+  genCACert(certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) 
+  {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -1970,11 +2073,11 @@ INSERT {
       publicKey: keys.publicKey,
       cert
     };
-  },
+  }
 
 
-
-  genCert: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen, CA_privKey, CA_cert) {
+  genCert(certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen, CA_privKey, CA_cert) 
+  {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -2090,11 +2193,11 @@ INSERT {
       publicKey: keys.publicKey,
       cert
     };
-  },
+  }
 
 
-
-  genCSR: function (certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) {
+  genCSR(certName, certEmail, certOrg, certOrgUnit, certCity, certState, certCountry, webId, gen) 
+  {
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -2196,10 +2299,10 @@ INSERT {
       publicKey: keys.publicKey, // pki.publicKeyToPem(keys.publicKey),
       pem: pki.certificationRequestToPem(csr)
     };
-  },
+  }
 
 
-  genCertInfo: function(certPEM, cert, privateKey, certName, pwd)
+  genCertInfo(certPEM, cert, privateKey, certName, pwd)
   {
     var pki = forge.pki;
 
@@ -2293,7 +2396,7 @@ INSERT {
              fingerprint_di_tab: fp_di_tab,
            };
 
-  },
+  }
 
 }
 

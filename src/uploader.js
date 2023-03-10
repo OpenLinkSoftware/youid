@@ -23,6 +23,7 @@ class Uploader {
   constructor() {
     this.files = {};
     this.uploadTimeout = 500;
+    this.tpl_data = {};
   }
 
   create_qrcode(text) 
@@ -87,6 +88,15 @@ class Uploader {
   }
 
   async loadCardFiles() {
+    this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
+    this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
+    this.files["p_insta_32.png"] = new CardFileBinary('p_insta_32.png', 'image/png');
+    this.files["p_linkedin_32.png"] = new CardFileBinary('p_linkedin_32.png', 'image/png');
+    this.files["p_linktree_32.png"] = new CardFileBinary('p_linktree_32.png', 'image/png');
+    this.files["p_mastodon_32.png"] = new CardFileBinary('p_mastodon_32.png', 'image/png');
+    this.files["p_tiktok_32.png"] = new CardFileBinary('p_tiktok_32.png', 'image/png');
+    this.files["p_twitter_32.png"] = new CardFileBinary('p_twitter_32.png', 'image/png');
+
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
     this.files["qrcode.js"] = new CardFileBinary('qrcode.js', 'text/javascript');
     this.files["lock.png"] = new CardFileBinary('lock.png', 'image/png');
@@ -235,6 +245,55 @@ class Uploader {
       tpl_data['ca_cert_url'] = ca_cert_url;
     }
 
+    certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
+
+    if (gen.relList && gen.relList.length > 0) {
+      var s_ttl = '';
+      var s_rdfa = '';
+      var s_json = '';
+      var s_micro = '';
+      var s_rdf = '';
+      var s_html = '';
+
+      for(var i=0; i < gen.relList.length; i++) {
+        const r_url = gen.relList[i].v;
+        const r_type = gen.relList[i].type;
+        var nl = (i==gen.relList.length-1) ? '' : '\n';
+        s_ttl += `	<${r_url}#identity> ,${nl}`;
+
+        s_json += '        {\n'
+                 +`          "@id": "${r_url}#identity"\n`
+                 +`        },${nl}`;
+
+        s_rdfa += `    <div rel="owl:sameAs" resource="${r_url}#identity"></div>${nl}`;
+        s_micro += `    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="${r_url}#identity" />${nl}`;
+        s_rdf += `        <owl:sameAs rdf:resource="${r_url}"/>\n`;
+
+        var p_image = '';
+        var p_alt = ''
+        switch(r_type) {
+          case 'fb': p_image = 'p_facebook_32.png'; p_alt='Facebook'; break;
+          case 'in': p_image = 'p_insta_32.png'; p_alt='Instagram'; break;
+          case 'li': p_image = 'p_linkedin_32.png'; p_alt='LinkedIn'; break;
+          case 'lt': p_image = 'p_linktree_32.png'; p_alt='Linktree'; break;
+          case 'ma': p_image = 'p_mastodon_32.png'; p_alt='Mastodon'; break;
+          case 'ti': p_image = 'p_tiktok_32.png'; p_alt='TikTok'; break;
+          case 'tw': p_image = 'p_twitter_32.png'; p_alt='Twitter'; break;
+          default: p_image = 'p_none.png'; break;
+        }
+        s_html += `		  <a href="${r_url}"><img src="${p_image}" alt="${p_alt}" class="rel_item"></a>\n`;
+
+      }
+
+      tpl_data['relList']  = s_ttl;
+      tpl_data['relList_json']  = s_json;
+      tpl_data['relList_rdfa']  = s_rdfa;
+      tpl_data['relList_rdf']  = s_rdf;
+      tpl_data['relList_micro']  = s_micro;
+      tpl_data['relList_html'] = s_html;
+    }
+
+
     tpl_data['qr_card_img'] = this.create_qrcode(dir_url + this.files["index.html"].fname);
     tpl_data['qr_rdfa_img'] = this.create_qrcode(dir_url + this.files["profile_rdfa.html"].fname);
 
@@ -275,8 +334,6 @@ class Uploader {
     tpl_data['prof_url'] = dir_url + this.files["profile.ttl"].fname;
     tpl_data['pubkey_url'] = dir_url + this.files["public_key.ttl"].fname;
     tpl_data['cert_url'] = dir_url + this.files["certificate.ttl"].fname;
-
-    certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
 
     tpl_data['jsonld_prof_url'] = dir_url + this.files["prof_jsonld"].fname;
     tpl_data['jsonld_cert_url'] = dir_url + this.files["certificate.jsonld"].fname;
@@ -328,8 +385,12 @@ class Uploader {
 
     this.getProfilesData(tpl_data, this.files);
 
+    this.tpl_data = tpl_data;
+
     for (var key in this.files) {
       var f = this.files[key];
+      if (key === 'profile.ttl')
+        console.log(key);
       if (f.tpl && f.tpl_text)
         f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     }
@@ -339,9 +400,6 @@ class Uploader {
 
 
 class Uploader_Manual extends Uploader {
-// updateTemplate
-// uploadCardFiles
-// uploadFile
   constructor() 
   {
     super();

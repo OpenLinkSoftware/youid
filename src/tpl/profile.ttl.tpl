@@ -34,8 +34,6 @@
     <http://schema.org/sameAs> <%{prof_url}> ;
     oplcert:owns <%{cert_url}#cert> .
 
-
-
 <> 
    a <http://schema.org/CreativeWork>, 
      <http://schema.org/WebPage> , 
@@ -113,6 +111,7 @@ rdfs:label           "Profile Document Subject: %{subj_name}" ;
    xhv:alternate <%{prof_url}#identity> .
 
 <%{card_url}#identity> owl:sameAs <%{jsonld_prof_url}#identity> ,
+!{relList} %{relList}
 	<%{rdfa_prof_url}#identity> ,
 	<%{prof_url}#identity> .
 

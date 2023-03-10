@@ -135,6 +135,7 @@
   </div>
 
   <div typeof="rdfs:Resource" about="%{card_url}#identity">
+!{relList_rdfa} %{relList_rdfa}
     <div rel="owl:sameAs" resource="%{jsonld_prof_url}#identity"></div>
     <div rel="owl:sameAs" resource="%{prof_url}#identity"></div>
     <div rel="owl:sameAs" resource="%{rdfa_prof_url}#identity"></div>

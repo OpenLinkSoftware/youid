@@ -135,3 +135,30 @@
   text-shadow: 0 1px 0 rgba(255,255,255,.5);
   padding: 4px;
 }
+
+
+
+.vtable {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border: solid #ccc 1px;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  font-family: 'trebuchet MS' , 'Lucida sans' , Arial;
+  font-size: 14px;
+  color: #444;
+}
+
+.vtable > tbody > tr:hover {
+  background: #fbf8e9;
+}
+
+.vtable > tbody > tr > td {
+  border-left: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  padding: 4px;
+  text-align: left;
+}
+

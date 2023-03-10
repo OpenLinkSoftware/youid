@@ -808,8 +808,10 @@ Msg.showYN = function (msg1, msg2, callback)
 
     var btnYes = document.querySelector('#alert-dlg #btn-yes');
     btnYes.style.display = 'initial'
-    btnYes.onclick = () =>
+    btnYes.onclick = (e) =>
        {
+         e.preventDefault();
+
          if (callback) callback(); 
      
          $('#alert-dlg').modal('hide');

@@ -112,6 +112,7 @@
   </div>
 
   <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_url}#identity" itemscope>
+!{relList_micro} %{relList_micro}
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{jsonld_prof_url}#identity" />
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{rdfa_prof_url}#identity" />
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{prof_url}#identity" />

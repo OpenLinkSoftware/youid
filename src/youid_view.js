@@ -260,6 +260,8 @@ class YouId_View {
 
   click_det(e)
   {
+    e.preventDefault();
+
     var el = e.target;
     var det_data = el.closest('table.youid_item').querySelector('tr.det_data');
      
@@ -275,6 +277,8 @@ class YouId_View {
 
   async select_youid_item(ev)
   {
+    ev.preventDefault();
+
     var chk = ev.target;
 
     if (chk.checked) {
@@ -312,6 +316,8 @@ class YouId_View {
 
   click_uri(e)
   {
+    e.preventDefault();
+
     var href = e.target.href;
     if (href)
       Browser.openTab(href);
@@ -321,6 +327,8 @@ class YouId_View {
 
   async click_remove_youid(e)
   {
+    e.preventDefault();
+
     var self = this;
     var row = e.target.closest('table').closest('tr');
     var data = row.querySelector('table');
@@ -351,6 +359,8 @@ class YouId_View {
 
   click_refresh_youid(e)
   {
+    e.preventDefault();
+
     var self = this;
     var row = e.target.closest('table').closest('tr');
     var data = row.querySelector('table');
@@ -379,13 +389,18 @@ class YouId_View {
   }
 
 
-  click_add_youid()
+  click_add_youid(e)
   {
+    if (e)
+      e.preventDefault();
+
     var self = this;
 
     var btnOk = DOM.qSel('#add-dlg #btn-ok');
-    btnOk.onclick = async () =>
+    btnOk.onclick = async (e) =>
        {
+         e.preventDefault();
+
          var uri = $('#add-dlg #uri').val().trim();
          self.load_data_from_uri(uri, null);
        };
@@ -405,8 +420,10 @@ class YouId_View {
   }
 
 
-  async click_add_certid()
+  async click_add_certid(e)
   {
+    e.preventDefault();
+
     var self = this;
     var cert_file = null;
 
@@ -431,8 +448,10 @@ class YouId_View {
 
 
     var btnOk = DOM.qSel('#add-certid-dlg #btn-ok');
-    btnOk.onclick = async () =>
+    btnOk.onclick = async (e) =>
        {
+         e.preventDefault();
+
          if (cert_file) {
            try {
            var data = await loadBinaryFile(cert_file);
@@ -528,8 +547,10 @@ class YouId_View {
     $("#verify1-dlg #verify-pkey-lst").hide();
 
     var btnOk = DOM.qSel('#verify1-dlg #btn-ok');
-    btnOk.onclick = async () =>
+    btnOk.onclick = async (e) =>
        {
+         e.preventDefault();
+
          if (_success) {
            if (row)
              await self.updateYouIdItem(row, _webid);
@@ -686,8 +707,10 @@ class YouId_View {
 
 
     var btnOk = DOM.qSel('#verify1-dlg #btn-ok');
-    btnOk.onclick = async () =>
+    btnOk.onclick = async (e) =>
        {
+         e.preventDefault();
+
          if (_success) {
            self.addYouIdItem(_certid, false);
 

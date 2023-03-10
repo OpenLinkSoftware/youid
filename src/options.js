@@ -40,7 +40,7 @@ async function init()
         DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
         DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
 
-        DOM.qSel('#hdr_add').onclick = (e) => { hdr_add() }
+        DOM.qSel('#hdr_add').onclick = (e) => { e.preventDefault(); hdr_add() }
         $('#hdr_add').button({
           icons: { primary: 'ui-icon-plusthick' },
           text: false
@@ -49,28 +49,34 @@ async function init()
 
 	// Tabs
 	DOM.qSel('#tabs a[href="#webid"').onclick = (e) => {
+	  e.preventDefault();
           selectTab('#webid');
           return false;
 	}
 	DOM.qSel('#tabs a[href="#certificate"').onclick = (e) => {
+	  e.preventDefault();
           selectTab('#certificate');
           v_cert.click_gen_cert(v_youid.cur_webid);
           return false;
 	}
 	DOM.qSel('#tabs a[href="#delegate"').onclick = (e) => {
+	  e.preventDefault();
           selectTab('#delegate');
           v_cert.showTab_delegate('#delegate-tab');
           return false;
 	}
 	DOM.qSel('#tabs a[href="#accounts"').onclick = (e) => {
+	  e.preventDefault();
           selectTab('#accounts');
           return false;
 	}
 	DOM.qSel('#tabs a[href="#headers"').onclick = (e) => {
+	  e.preventDefault();
           selectTab('#headers');
           return false;
 	}
 	DOM.qSel('#tabs a[href="#about"').onclick = (e) => {
+	  e.preventDefault();
           selectTab('#about');
           return false;
 	}
@@ -79,11 +85,12 @@ async function init()
 
         await loadPref();
 
-        DOM.iSel('OK_btn').onclick = (e) => { savePref() }
-        DOM.iSel('Cancel_btn').onclick = (e) => { closeOptions() }
+        DOM.iSel('OK_btn').onclick = (e) => { e.preventDefault(); savePref() }
+        DOM.iSel('Cancel_btn').onclick = (e) => { e.preventDefault(); closeOptions() }
 
         DOM.qSel('#announce #btn-reset-announce').onclick = (e) => {
-           DOM.qSel('#announce #message-text').value = gPref.getDef_Fingerprint();
+          e.preventDefault();
+          DOM.qSel('#announce #message-text').value = gPref.getDef_Fingerprint();
         }
 
 
@@ -217,6 +224,7 @@ function addHdrItem(v)
   var r = tbody.insertRow(-1);
   r.innerHTML = createHdrRow(v);
   r.querySelector('.hdr_del').onclick = (ev) => {
+     ev.preventDefault();
      var row = ev.target.closest('tr');
      row.remove();
     };

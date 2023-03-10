@@ -27,15 +27,15 @@ $(document).ready(function()
 {
   DOM.iSel("c_year").innerText = new Date().getFullYear();
 
-  DOM.qSel('#prefs_btn').onclick = (e) => { Prefs_exec(); }
+  DOM.qSel('#prefs_btn').onclick = (e) => { e.preventDefault(); Prefs_exec(); }
 
   gPref = new Settings();
   v_youid = new YouId_View(true);
 
   DOM.qSel('#ext_ver').innerText = 'Version: '+ Browser.api.runtime.getManifest().version;
 
-  DOM.qSel('#add_youid').onclick = (e) => { v_youid.click_add_youid(e); };
-  DOM.qSel('#add_certid').onclick = (e) => { v_youid.click_add_certid(e); };
+  DOM.qSel('#add_youid').onclick = (e) => { e.preventDefault(); v_youid.click_add_youid(e); };
+  DOM.qSel('#add_certid').onclick = (e) => { e.preventDefault(); v_youid.click_add_certid(e); };
   DOM.qSel('#btn-gen-cert').onclick = (e) => { Browser.openTab("options.html#certificate"); window.close(); };
   DOM.qSel('#btn-delegate').onclick = (e) => { Browser.openTab("options.html#delegate"); window.close(); };
 

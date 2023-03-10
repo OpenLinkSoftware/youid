@@ -22,6 +22,22 @@
 
 <link href="style.css" rel="stylesheet" type="text/css">
 
+<style type="text/css">
+   .rel_block {
+     position: absolute;
+     top: 170px;
+     display: grid;
+     grid-template-columns: 1fr 1fr 1fr;
+/*     grid-gap: 15px;*/
+   }
+   .rel_item {
+     width: 32px;
+     height: 32px;
+     padding-right: 15px;
+     padding-bottom: 2px;
+   }
+</style>
+
 <script type="text/javascript" src="./qrcode.js"></script>
 
 </head>
@@ -42,6 +58,11 @@
                 	<img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
                 
                 </div><!-- end cardPic -->
+!!{relList_html}
+                <div class="rel_block">
+%{relList_html}
+                </div>
+!!.
                 
                 <div class="cardDetails">
                 

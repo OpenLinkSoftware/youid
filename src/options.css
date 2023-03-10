@@ -79,7 +79,6 @@ table.verify-tbl > tbody > tr > td:first-child {
 
 
 .dettable {
-     width:590px; 
      table-layout: fixed;
 }
 

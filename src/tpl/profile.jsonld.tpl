@@ -111,7 +111,7 @@
         }
       ],
       "schema:url": {
-???        "@id": "#this"
+        "@id": "#this"
       },
       "schema:name": "%{subj_name}",
       "schema:author": {
@@ -270,6 +270,7 @@
     {
       "@id": "%{card_url}#identity",
       "owl:sameAs": [
+!{relList_json} %{relList_json}
         {
           "@id": "%{jsonld_prof_url}#identity"
         },
