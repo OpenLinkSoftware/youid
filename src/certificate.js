@@ -1407,7 +1407,7 @@ class Certificate {
   {
     var done_ok = false;
     try {
-      const up = new Uploader_Manual();
+      const up = new Uploader_Manual(webid);
 
       var rc = await up.loadCardFiles();
       if (!rc) {
@@ -1565,15 +1565,15 @@ class Certificate {
     finally {
       DOM.qHide('#gen-cert-ready-dlg #u_wait');
       if (done_ok) {
-        setTimeout(function () {
-          DOM.qSel('#gen-cert-ready-dlg #btn-upload_card').disabled = true;
-          DOM.qHide('#gen-cert-ready-dlg #webid-card-upload');
+        DOM.qSel('#gen-cert-ready-dlg #btn-upload_card').disabled = true;
+        DOM.qHide('#gen-cert-ready-dlg #webid-card-upload');
 
-          DOM.qShow('#gen-cert-ready-dlg #webid-card');
-          var v = DOM.qSel('#webid-card #card_href');
-          v.href = certData.card;
-          v.innerText = certData.card;
-          
+        DOM.qShow('#gen-cert-ready-dlg #webid-card');
+        var v = DOM.qSel('#webid-card #card_href');
+        v.href = certData.card;
+        v.innerText = certData.card;
+
+        setTimeout(function () {
           alert('Done. Profile Document was uploaded.');
         }, 500);
       } else {

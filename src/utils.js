@@ -25,6 +25,7 @@ const rdf_nano_pattern = /(## RDF(\/|-)XML +Start ##)((.|\n|\r)*?)((## RDF(\/|-)
 
 class YouID_Loader {
   constructor() {
+
   this.load_webid = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
   PREFIX schema: <http://schema.org/> 
@@ -42,7 +43,9 @@ class YouID_Loader {
   SELECT * WHERE 
     { 
        {{?url foaf:primaryTopic ?webid .} UNION 
-        {?url schema:mainEntity ?webid .} 
+        {?url schema:mainEntity ?webid .} UNION
+        {?url foaf:primaryTopic ?webid_x . ?webid owl:sameAs ?webid_x .} UNION
+        {?url schema:mainEntity ?webid_x . ?webid owl:sameAs ?webid_x .}
        }
        {{?webid schema:name ?schema_name} UNION 
         {?webid foaf:name ?foaf_name} UNION 
@@ -99,7 +102,10 @@ class YouID_Loader {
   SELECT * WHERE 
     { 
       {
-       <#{webid}> cert:key ?pubkey .
+       { 
+         {<#{webid}> cert:key ?pubkey .} UNION
+         {<#{webid}> owl:sameAs ?webid_x .  ?webid_x cert:key ?pubkey .}
+       }
        ?pubkey a ?alg ;
               cert:modulus  ?cert_mod ;
               cert:exponent ?cert_exp .
@@ -276,7 +282,6 @@ class YouID_Loader {
   async exec_verify_query(store, profile) 
   {
     var self = this;
-
     var ret;
     var i = 0;
 

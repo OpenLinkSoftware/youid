@@ -8,6 +8,11 @@
     </div>
   </div>
 
+  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_ident_url}" itemscope>
+    <div itemprop="http://www.w3.org/ns/auth/cert#key" itemtype="http://www.w3.org/ns/auth/cert#RSAPublicKey" itemid="%{pubkey_url}#PublicKey" itemscope>
+    </div>
+  </div>
+
   <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{prof_url}#identity" itemscope>
     <link itemprop="http://www.openlinksw.com/schemas/cert#hasCertificate" href="%{cert_url}#cert" />
   </div>
@@ -31,8 +36,9 @@
     <link itemprop="http://schema.org/sameAs" href="%{prof_url}" />
     <link itemprop="http://www.openlinksw.com/schemas/cert#owns" href="%{cert_url}#cert" />
   </div>
+!!.
 
-  <div itemtype="http://schema.org/CreativeWork"  itemscope>
+  <div itemtype="http://schema.org/CreativeWork" itemid="%{card_url}"  itemscope>
     <link itemprop="http://schema.org/additionalType" href="http://schema.org/CreativeWork" />
     <link itemprop="http://schema.org/additionalType" href="http://www.openlinksw.com/schemas/cert#Certificate" />
     <link itemprop="http://schema.org/additionalType" href="http://schema.org/WebPage" />
@@ -45,14 +51,14 @@
     <link itemprop="http://www.w3.org/ns/auth/cert#key" href="%{pubkey_url}#PublicKey" />
   </div>
 
-  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemscope>
-    <link itemprop="http://schema.org/isRelatedTo" href="%{card_url}#identity" />
+  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_url}" itemscope>
+    <link itemprop="http://schema.org/isRelatedTo" href="%{card_ident_url}" />
     <link itemprop="http://schema.org/isRelatedTo" href="%{jsonld_prof_url}#identity" />
     <link itemprop="http://schema.org/isRelatedTo" href="%{rdfa_prof_url}#identity" />
     <link itemprop="http://schema.org/isRelatedTo" href="%{prof_url}#identity" />
   </div>
 
-  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_url}#identity" itemscope>
+  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_ident_url}" itemscope>
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{jsonld_prof_url}#identity" />
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{rdfa_prof_url}#identity" />
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{prof_url}#identity" />
@@ -63,10 +69,10 @@
   </div>
 
   <div itemtype="http://schema.org/WebPage" itemid="%{card_url}" itemscope>
-    <link itemprop="http://schema.org/mainEntity" href="%{card_url}#identity" />
+    <link itemprop="http://schema.org/mainEntity" href="%{card_ident_url}" />
   </div>
 
-  <div itemtype="http://schema.org/Person" itemid="%{card_url}#identity" itemscope>
+  <div itemtype="http://schema.org/Person" itemid="%{card_ident_url}" itemscope>
 !{subj_email}    <meta itemprop="http://schema.org/email" content="%{subj_email}" />
 !{subj_email}    <link itemprop="http://xmlns.com/foaf/0.1/mbox" href="mailto:%{subj_email}" />
     <div itemprop="http://schema.org/worksFor" itemtype="http://schema.org/Organization" itemscope>
@@ -77,16 +83,16 @@
 !{subj_state}      <meta itemprop="http://schema.org/addressRegion" content="%{subj_state}" />
     </div>
     <meta itemprop="http://schema.org/name" content="%{subj_name}" />
-    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{pdp_url}#this" />
-    <link itemprop="http://schema.org/sameAs" href="%{pdp_url}" />
+!{pdp_url}    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{pdp_url}#this" />
+!{pdp_url}    <link itemprop="http://schema.org/sameAs" href="%{pdp_url}" />
   </div>
 
-  <div itemtype="http://schema.org/Person" itemid="%{prof_url}#identity" itemscope>
+  <div itemtype="http://schema.org/Person" itemid="%{prof_url}" itemscope>
     <link itemprop="http://schema.org/sameAs" href="%{card_url}" />
     <link itemprop="http://schema.org/sameAs" href="%{rdfa_prof_url}" />
     <link itemprop="http://schema.org/sameAs" href="%{jsonld_prof_url}" />
   </div>
-!!.
+
 
 !!{pdp_mail}
   <div itemtype="http://xmlns.com/foaf/0.1/Agent" itemid="%{prof_url}#identity" itemscope>
@@ -105,13 +111,14 @@
     <link itemprop="http://www.w3.org/ns/auth/cert#key" href="%{pubkey_url}#PublicKey" />
   </div>
 
-  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_url}#identity" itemscope>
+  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_url}" itemscope>
+    <link itemprop="http://www.w3.org/1999/xhtml/vocab#alternate" href="%{card_ident_url}" />
     <link itemprop="http://www.w3.org/1999/xhtml/vocab#alternate" href="%{rdfa_prof_url}#identity" />
     <link itemprop="http://www.w3.org/1999/xhtml/vocab#alternate" href="%{prof_url}#identity" />
     <link itemprop="http://www.w3.org/1999/xhtml/vocab#alternate" href="%{jsonld_prof_url}#identity" />
   </div>
 
-  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_url}#identity" itemscope>
+  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_ident_url}" itemscope>
 !{relList_micro} %{relList_micro}
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{jsonld_prof_url}#identity" />
     <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{rdfa_prof_url}#identity" />

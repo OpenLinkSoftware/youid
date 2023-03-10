@@ -25,6 +25,13 @@
     </div>
   </div>
 
+  <div typeof="rdfs:Resource" about="%{card_ident_url}">
+    <div rel="cert:key">
+      <div typeof="cert:RSAPublicKey" about="%{rdfa_pubkey_url}#PublicKey">
+      </div>
+    </div>
+  </div>
+
   <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">
     <div rel="oplcert:hasCertificate" resource="%{rdfa_cert_url}#cert"></div>
   </div>
@@ -48,8 +55,9 @@
     <div rel="http://schema.org/sameAs" resource="%{rdfa_prof_url}"></div>
     <div rel="oplcert:owns" resource="%{rdfa_cert_url}#cert"></div>
   </div>
+!!.
 
-  <div typeof="http://schema.org/WebPage" about="%{rdfa_prof_url}#identity">
+  <div typeof="http://schema.org/WebPage" about="%{card_url}">
     <div rel="rdf:type" resource="http://www.openlinksw.com/schemas/cert#Certificate"></div>
     <div rel="rdf:type" resource="http://schema.org/CreativeWork"></div>
     <div rel="http://schema.org/additionalType" resource="http://www.openlinksw.com/schemas/cert#Certificate"></div>
@@ -64,14 +72,14 @@
     <div rel="cert:key" resource="%{rdfa_pubkey_url}#PublicKey"></div>
   </div>
 
-  <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">
-    <div rel="http://schema.org/isRelatedTo" resource="%{card_url}#identity"></div>
+  <div typeof="rdfs:Resource" about="%{card_url}">
+    <div rel="http://schema.org/isRelatedTo" resource="%{card_ident_url}"></div>
     <div rel="http://schema.org/isRelatedTo" resource="%{prof_url}#identity"></div>
     <div rel="http://schema.org/isRelatedTo" resource="%{jsonld_prof_url}#identity"></div>
     <div rel="http://schema.org/isRelatedTo" resource="%{rdfa_prof_url}#identity"></div>
   </div>
 
-  <div typeof="rdfs:Resource" about="%{card_url}#identity">
+  <div typeof="rdfs:Resource" about="%{card_ident_url}">
     <div rel="owl:sameAs" resource="%{jsonld_prof_url}#identity"></div>
     <div rel="owl:sameAs" resource="%{rdfa_prof_url}#identity"></div>
     <div rel="owl:sameAs" resource="%{prof_url}#identity"></div>
@@ -82,10 +90,10 @@
   </div>
 
   <div typeof="http://schema.org/WebPage" about="%{card_url}">
-    <div rel="http://schema.org/mainEntity" resource="%{card_url}#identity"></div>
+    <div rel="http://schema.org/mainEntity" resource="%{card_ident_url}"></div>
   </div>
 
-  <div typeof="http://schema.org/Person" about="%{card_url}#identity">
+  <div typeof="http://schema.org/Person" about="%{card_ident_url}">
 !{subj_email}    <div property="http://schema.org/email" content="%{subj_email}"></div>
 !{subj_email}    <div rel="foaf:mbox" resource="mailto:%{subj_email}"></div>
     <div rel="http://schema.org/worksFor">
@@ -100,8 +108,8 @@
       </div>
     </div>
     <div property="http://schema.org/name" content="%{subj_name}"></div>
-    <div rel="http://schema.org/sameAs" resource="%{pdp_url}"></div>
-    <div rel="owl:sameAs" resource="%{pdp_url}#this"></div>
+!{pdp_url}    <div rel="http://schema.org/sameAs" resource="%{pdp_url}"></div>
+!{pdp_url}    <div rel="owl:sameAs" resource="%{pdp_url}#this"></div>
   </div>
 
   <div typeof="http://schema.org/Person" about="%{prof_url}#identity">
@@ -109,7 +117,7 @@
     <div rel="http://schema.org/sameAs" resource="%{rdfa_prof_url}"></div>
     <div rel="http://schema.org/sameAs" resource="%{jsonld_prof_url}"></div>
   </div>
-!!.
+
 
 !!{pdp_mail}
   <div typeof="foaf:Agent" about="%{rdfa_prof_url}#identity">
@@ -129,12 +137,13 @@
   </div>
 
   <div typeof="rdfs:Resource" about="%{card_url}">
+    <div rel="xhv:alternate" resource="%{card_ident_url}"></div>
     <div rel="xhv:alternate" resource="%{rdfa_prof_url}#identity"></div>
     <div rel="xhv:alternate" resource="%{jsonld_prof_url}#identity"></div>
     <div rel="xhv:alternate" resource="%{prof_url}#identity"></div>
   </div>
 
-  <div typeof="rdfs:Resource" about="%{card_url}#identity">
+  <div typeof="rdfs:Resource" about="%{card_ident_url}">
 !{relList_rdfa} %{relList_rdfa}
     <div rel="owl:sameAs" resource="%{jsonld_prof_url}#identity"></div>
     <div rel="owl:sameAs" resource="%{prof_url}#identity"></div>

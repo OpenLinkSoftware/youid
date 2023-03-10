@@ -13,6 +13,12 @@
   },
   "@graph": [
     {
+      "@id": "%{card_ident_url}",
+      "cert:key": {
+        "@id": "%{jsonld_pubkey_url}#PublicKey"
+      }
+    },
+    {
       "@id": "%{jsonld_prof_url}#identity",
       "cert:key": {
         "@id": "%{jsonld_pubkey_url}#PublicKey"
@@ -91,9 +97,9 @@
         "@id": "%{jsonld_prof_url}"
       }
     },
-
+!!.
     {
-      "@id": "%{jsonld_prof_url}#identity",
+      "@id": "%{card_url}",
       "@type": [
         "schema:CreativeWork",
         "oplcert:Certificate",
@@ -132,10 +138,13 @@
     },
 
     {
-      "@id": "%{jsonld_prof_url}#identity",
+      "@id": "%{card_url}",
       "schema:isRelatedTo": [
         {
-          "@id": "%{card_url}#identity"
+          "@id": "%{card_ident_url}"
+        },
+        {
+          "@id": "%{jsonld_prof_url}#identity"
         },
         {
           "@id": "%{rdfa_prof_url}#identity"
@@ -147,7 +156,7 @@
     },
 
     {
-      "@id": "%{card_url}#identity",
+      "@id": "%{card_ident_url}",
       "owl:sameAs": [
         {
           "@id": "%{jsonld_prof_url}#identity"
@@ -172,33 +181,28 @@
       "@id": "%{card_url}",
       "@type": "schema:WebPage",
       "schema:mainEntity": {
-        "@id": "%{card_url}#identity"
+        "@id": "%{card_ident_url}"
       }
     },
 
     {
-      "@id": "%{card_url}#identity",
+      "@id": "%{card_ident_url}",
       "@type": "schema:Person",
 !{subj_email}      "schema:email": "%{subj_email}",
 !{subj_email}      "foaf:mbox": {  "@id": "mailto:%{subj_email}"  },
 !{subj_org}      "schema:worksFor": { "@type": "schema:Organization", "schema:name": "%{subj_org}" },
       "schema:address": {
-        "@type": "schema:Place",
-!{subj_country}        "schema:addressCountry": "%{subj_country}",
-!{subj_state}        "schema:addressRegion": "%{subj_state}"
-
+        "@type": "schema:Place"
+!{subj_country}      , "schema:addressCountry": "%{subj_country}"
+!{subj_state}        , "schema:addressRegion": "%{subj_state}"
       },
-      "schema:name": "%{subj_name}",
-      "owl:sameAs": {
-        "@id": "%{pdp_url}#this"
-      },
-      "schema:sameAs": {
-        "@id": "%{pdp_url}"
-      }
+!{pdp_url}      "owl:sameAs": { "@id": "%{pdp_url}#this" },
+!{pdp_url}      "schema:sameAs": { "@id": "%{pdp_url}" },
+      "schema:name": "%{subj_name}"
     },
 
     {
-      "@id": "%{prof_url}#identity",
+      "@id": "%{prof_url}",
       "@type": "schema:Person",
       "schema:sameAs": [
         {
@@ -211,8 +215,8 @@
           "@id": "%{jsonld_prof_url}"
         }
       ]
-    }
-!!.
+    },
+
 
 !!{pdp_mail}
     {
@@ -253,8 +257,11 @@
     },
 
     {
-      "@id": "%{card_url}#identity",
+      "@id": "%{card_url}",
       "xhv:alternate": [
+        {
+          "@id": "%{card_ident_url}"
+        },
         {
           "@id": "%{prof_url}#identity"
         },
@@ -268,7 +275,7 @@
     },
 
     {
-      "@id": "%{card_url}#identity",
+      "@id": "%{card_ident_url}",
       "owl:sameAs": [
 !{relList_json} %{relList_json}
         {

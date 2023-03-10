@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 
-<link rel="describes" href="index.html#identity" title="Describes" />
-<link rev="describedby" href="index.html#identity" title="Described By" />
+<link rel="describes" href="%{card_ident_url}" title="Describes" />
+<link rev="describedby" href="%{card_ident_url}" title="Described By" />
 
 <link rel="related" href="%{cert_url}" title="Related Document" type="text/turtle" />
 <link rel="related" href="%{rdfa_prof_url}" title="Related Document"  type="text/html" />
 <link rel="related" href="%{jsonld_prof_url}" title="Related Document" type="application/json+ld" />
-<link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="index.html#identity" title="This Document's Primary Topic" />
+<link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="%{card_ident_url}" title="This Document's Primary Topic" />
 %{pdp_url_head}
 %{rel_header_html}
 

@@ -8,10 +8,31 @@
 <link rel="related" href="%{jsonld_prof_url}" title="Related Document" type="application/json+ld" />
 <link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="%{rdfa_prof_url}#identity" title="This Document's Primary Topic" />
 %{pdp_url_head}
+%{rel_header_html}
+
+<link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />
+<link rel="alternate" href="vcard.vcf" title="Identity Card (vCard Format)" type="text/vcard" />
+<link rel="alternate" href="%{pubkey_pem_url}" title="Identity Card (PKIX X.509 Certificate Format)" type="application/x-x509-ca-cert" />
 
 <title>Profile RDFa for %{subj_name}</title>
 
 <link href="style.css" rel="stylesheet" type="text/css">
+
+<style type="text/css">
+   .rel_block {
+     position: absolute;
+     top: 170px;
+     display: grid;
+     grid-template-columns: 1fr 1fr 1fr;
+/*     grid-gap: 15px;*/
+   }
+   .rel_item {
+     width: 32px;
+     height: 32px;
+     padding-right: 15px;
+     padding-bottom: 2px;
+   }
+</style>
 
 <script type="text/javascript" src="./qrcode.js"></script>
 
@@ -33,6 +54,11 @@
                 	<img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
                 
                 </div><!-- end cardPic -->
+!!{relList_html}
+                <div class="rel_block">
+%{relList_html}
+                </div>
+!!.
                 
                 <div class="cardDetails">
                 
@@ -51,7 +77,10 @@
                         <p class="fieldName">Email Address</p>
                         <p class="fieldContent">%{subj_email_mailto_href}</p>
                     
-%{pdp_url_row}
+!!{pdp_url}
+                        <p class="fieldName">Web Page</p>
+                        <p class="fieldContent"><a href="%{pdp_url}">%{pdp_url}</a></p>
+!!.
                         <p class="fieldName">Issued</p>
                         <p class="fieldContent">%{date_before}</p>
                         
@@ -81,7 +110,12 @@
                 
                 </div><!-- end pKey -->
 
-%{ca_key_row}
+!!{ca_cert_url}
+                <div class="caKey">
+                	<a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="Issuer Public Key"/></a>
+                        <a href="%{ca_cert_url}">Issuer Public Key</a>
+                </div>
+!!.
                 <div class="cardQr">
                 	%{qr_rdfa_img}
                 </div>

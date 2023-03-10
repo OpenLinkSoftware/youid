@@ -248,7 +248,28 @@ class Uploader {
       tpl_data['ca_cert_url'] = ca_cert_url;
     }
 
-    certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
+    if (this.manual_card_url) {
+      try {
+        let card = new URL(this.manual_card_url);
+        let card_ident = new URL(this.manual_card_url);
+        if (card_ident.hash.length <= 1)
+          card_ident.hash = "identity";
+
+        card.hash = '';
+
+        certData.card = card.toString();
+        certData.card_ident = card_ident.toString();
+      } catch(e) {
+        certData.card = dir_url + this.files["index.html"].fname;
+        certData.card_ident = certData.card + '#identity';
+      }
+      tpl_data['card_url'] = certData.card;
+      tpl_data['card_ident_url'] = certData.card_ident;
+    }
+    else {
+      certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
+      certData.card_ident = tpl_data['card_ident_url'] = certData.card + '#identity';
+    }
 
     if (gen.relList && gen.relList.length > 0) {
       var s_ttl = '';
@@ -303,13 +324,11 @@ class Uploader {
       tpl_data['rel_header_html'] = s_header;
     }
 
+    const pdp_html = '';
 
     tpl_data['qr_card_img'] = this.create_qrcode(dir_url + this.files["index.html"].fname);
     tpl_data['qr_rdfa_img'] = this.create_qrcode(dir_url + this.files["profile_rdfa.html"].fname);
 
-    tpl_data['pdp_url_head'] = '';
-    tpl_data['pdp_url_row'] = '';
-    tpl_data['pdp_add'] = '';
     tpl_data['ian'] = '';
 
     tpl_data['modulus'] = cert.publicKey.n.toString(16).toUpperCase();
@@ -334,10 +353,14 @@ class Uploader {
     tpl_data['date_before'] = cert.validity.notBefore.toISOString();
     tpl_data['date_after'] = cert.validity.notAfter.toISOString();
     tpl_data['webid'] = webid;
+
     tpl_data['pdp_url'] = '';
-    tpl_data['pdp_url_row'] = '';
     tpl_data['pdp_url_head'] = '';
-    tpl_data['ca_key_row'] = '';
+
+    if (pdp_html) {
+      tpl_data['pdp_url'] = pdp_html;
+      tpl_data['pdp_url_head'] = `<link rel="related" href="${pdp_html}" title="Related Document"  type="text/html" />`;
+    }
 
     tpl_data['pubkey_pem_url'] = dir_url + gen.cert_name + '.crt';
     tpl_data['vcard_url'] = dir_url + this.files["vcard.vcf"].fname;
@@ -395,7 +418,7 @@ class Uploader {
 
     this.getProfilesData(tpl_data, this.files);
 
-    this.tpl_data = tpl_data;
+    this.tpl_data = certData.tpl_data = tpl_data;
 
     for (var key in this.files) {
       var f = this.files[key];
@@ -410,11 +433,12 @@ class Uploader {
 
 
 class Uploader_Manual extends Uploader {
-  constructor() 
+  constructor(netid) 
   {
     super();
     this.zip = new JSZip();
     this.uploadTimeout = 0;
+    this.manual_card_url = netid;
   }
 
   async uploadFile(dir, fname, data, type) 

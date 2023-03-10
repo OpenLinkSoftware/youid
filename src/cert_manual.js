@@ -30,36 +30,30 @@
     var modulus = cert.publicKey.n.toString(16).toUpperCase();
     var timeCreated = cert.validity.notBefore.toISOString();
 
-    const up = new Uploader();
-    var rc = await up.loadCardFiles();
-    if (!rc) {
-      alert('Could not load card template files');
-      return -1;
-    }
-    rc = await up.updateTemplate(certData, webid, '.', gen);
-    var relList_ttl = up.tpl_data['relList'];
-    var relList_json = up.tpl_data['relList_json'];
-    var relList_rdf = up.tpl_data['relList_rdf'];
+    var relList_ttl = certData.tpl_data['relList'];
+    var relList_json = certData.tpl_data['relList_json'];
+    var relList_rdf = certData.tpl_data['relList_rdf'];
+
     var add_ttl = '';
     var add_json = '';
     var add_rdf = '';
     if (relList_ttl) {
       var l = relList_ttl.lastIndexOf(',');
       relList_ttl = l!=-1 ? relList_ttl.substring(0, l) : relList_ttl;
-      add_ttl = `  <#identity> owl:sameAs ${relList_ttl} .\n`;
+      add_ttl = `  <${webid}> owl:sameAs ${relList_ttl} .\n`;
     }
     if (relList_json) {
       var l = relList_json.lastIndexOf(',');
       relList_json = l!=-1 ? relList_json.substring(0, l) : relList_json;
       add_json = '      {\n'
-                +'        "@id": "#identity",\n'
+                +`        "@id": "${webid}",\n`
                 +'        "owl:sameAs": [\n'
       add_json += relList_json +'\n';
       add_json += '        ]\n'
                  +'      },\n'
     }
     if (relList_rdf) {
-      add_rdf += '    <rdf:Description rdf:about="#identity">\n';
+      add_rdf += `    <rdf:Description rdf:about="${webid}">\n`;
       add_rdf += relList_rdf;
       add_rdf += '    </rdf:Description>';
     }
