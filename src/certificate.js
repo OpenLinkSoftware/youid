@@ -29,7 +29,10 @@ class Relations {
   {
     const sel = '<select id="c_rel_type">'
                +' <option value="none">--</option>'
+               +' <option value="cr">Carrd</option>'
                +' <option value="fb">Facebook</option>'
+               +' <option value="gh">Github</option>'
+               +' <option value="id">ID.MyOpenLink.NET</option>'
                +' <option value="in">Instagram</option>'
                +' <option value="li">LinkedIn</option>'
                +' <option value="lt">Linktree</option>'

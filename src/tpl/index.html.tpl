@@ -11,6 +11,8 @@
 <link rel="related" href="%{jsonld_prof_url}" title="Related Document" type="application/json+ld" />
 <link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="index.html#identity" title="This Document's Primary Topic" />
 %{pdp_url_head}
+%{rel_header_html}
+
 
 <link rel="alternate" href="%{rdfa_prof_url}" title="Identity Card (Turtle Format)"  type="text/html" />
 <link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />

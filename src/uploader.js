@@ -89,11 +89,14 @@ class Uploader {
 
   async loadCardFiles() {
     this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
+    this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
     this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
+    this.files["p_github_32.png"] = new CardFileBinary('p_github_32.png', 'image/png');
     this.files["p_insta_32.png"] = new CardFileBinary('p_insta_32.png', 'image/png');
     this.files["p_linkedin_32.png"] = new CardFileBinary('p_linkedin_32.png', 'image/png');
     this.files["p_linktree_32.png"] = new CardFileBinary('p_linktree_32.png', 'image/png');
     this.files["p_mastodon_32.png"] = new CardFileBinary('p_mastodon_32.png', 'image/png');
+    this.files["p_myopenlink_32.png"] = new CardFileBinary('p_myopenlink_32.png', 'image/png');
     this.files["p_tiktok_32.png"] = new CardFileBinary('p_tiktok_32.png', 'image/png');
     this.files["p_twitter_32.png"] = new CardFileBinary('p_twitter_32.png', 'image/png');
 
@@ -254,6 +257,7 @@ class Uploader {
       var s_micro = '';
       var s_rdf = '';
       var s_html = '';
+      var s_header = '';
 
       for(var i=0; i < gen.relList.length; i++) {
         const r_url = gen.relList[i].v;
@@ -269,19 +273,24 @@ class Uploader {
         s_micro += `    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="${r_url}#identity" />${nl}`;
         s_rdf += `        <owl:sameAs rdf:resource="${r_url}"/>\n`;
 
+        s_header += `<link rel="me" href="${r_url}" />${nl}`;
+
         var p_image = '';
         var p_alt = ''
         switch(r_type) {
-          case 'fb': p_image = 'p_facebook_32.png'; p_alt='Facebook'; break;
-          case 'in': p_image = 'p_insta_32.png'; p_alt='Instagram'; break;
+          case 'cr': p_image = 'p_carrd_32.png';          p_alt='Carrd'; break;
+          case 'fb': p_image = 'p_facebook_32.png';   p_alt='Facebook'; break;
+          case 'gh': p_image = 'p_github_32.png';     p_alt='Github'; break;
+          case 'id': p_image = 'p_myopenlink_32.png'; p_alt='ID.MyOpenLink.NET'; break;
+          case 'in': p_image = 'p_insta_32.png';      p_alt='Instagram'; break;
           case 'li': p_image = 'p_linkedin_32.png'; p_alt='LinkedIn'; break;
           case 'lt': p_image = 'p_linktree_32.png'; p_alt='Linktree'; break;
           case 'ma': p_image = 'p_mastodon_32.png'; p_alt='Mastodon'; break;
-          case 'ti': p_image = 'p_tiktok_32.png'; p_alt='TikTok'; break;
-          case 'tw': p_image = 'p_twitter_32.png'; p_alt='Twitter'; break;
+          case 'ti': p_image = 'p_tiktok_32.png';   p_alt='TikTok'; break;
+          case 'tw': p_image = 'p_twitter_32.png';  p_alt='Twitter'; break;
           default: p_image = 'p_none.png'; break;
         }
-        s_html += `		  <a href="${r_url}"><img src="${p_image}" alt="${p_alt}" class="rel_item"></a>\n`;
+        s_html += `		  <a href="${r_url}" target="_blank"><img src="${p_image}" alt="${p_alt}" class="rel_item"></a>\n`;
 
       }
 
@@ -291,6 +300,7 @@ class Uploader {
       tpl_data['relList_rdf']  = s_rdf;
       tpl_data['relList_micro']  = s_micro;
       tpl_data['relList_html'] = s_html;
+      tpl_data['rel_header_html'] = s_header;
     }
 
 
