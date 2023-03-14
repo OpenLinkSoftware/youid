@@ -90,8 +90,10 @@ class Uploader {
   async loadCardFiles() {
     this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
     this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
+    this.files["p_disha_32.png"] = new CardFileBinary('p_disha_32.png', 'image/png');
     this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
     this.files["p_github_32.png"] = new CardFileBinary('p_github_32.png', 'image/png');
+    this.files["p_glitch_32.png"] = new CardFileBinary('p_glitch_32.png', 'image/png');
     this.files["p_insta_32.png"] = new CardFileBinary('p_insta_32.png', 'image/png');
     this.files["p_linkedin_32.png"] = new CardFileBinary('p_linkedin_32.png', 'image/png');
     this.files["p_linktree_32.png"] = new CardFileBinary('p_linktree_32.png', 'image/png');
@@ -299,9 +301,11 @@ class Uploader {
         var p_image = '';
         var p_alt = ''
         switch(r_type) {
-          case 'cr': p_image = 'p_carrd_32.png';          p_alt='Carrd'; break;
+          case 'cr': p_image = 'p_carrd_32.png';      p_alt='Carrd'; break;
+          case 'di': p_image = 'p_disha_32.png';      p_alt='Disha'; break;
           case 'fb': p_image = 'p_facebook_32.png';   p_alt='Facebook'; break;
           case 'gh': p_image = 'p_github_32.png';     p_alt='Github'; break;
+          case 'gl': p_image = 'p_glitch_32.png';     p_alt='Glitch'; break;
           case 'id': p_image = 'p_myopenlink_32.png'; p_alt='ID.MyOpenLink.NET'; break;
           case 'in': p_image = 'p_insta_32.png';      p_alt='Instagram'; break;
           case 'li': p_image = 'p_linkedin_32.png'; p_alt='LinkedIn'; break;

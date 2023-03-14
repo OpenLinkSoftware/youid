@@ -30,8 +30,10 @@ class Relations {
     const sel = '<select id="c_rel_type">'
                +' <option value="none">--</option>'
                +' <option value="cr">Carrd</option>'
+               +' <option value="di">Disha</option>'
                +' <option value="fb">Facebook</option>'
                +' <option value="gh">Github</option>'
+               +' <option value="gl">Glitch</option>'
                +' <option value="id">ID.MyOpenLink.NET</option>'
                +' <option value="in">Instagram</option>'
                +' <option value="li">LinkedIn</option>'
@@ -53,6 +55,30 @@ class Relations {
     const tbody = DOM.qSel('#tbl_rels tbody');
     const r = tbody.insertRow(-1);
     r.innerHTML = this.createRow();
+    r.querySelector('#c_rel_type').onchange = (e) => {
+      e.preventDefault();
+      const row = e.target.closest('tr');
+      var sel = row.querySelector('#c_rel_type option:checked').value;
+      var url = '';
+      switch (sel) {
+        case 'cr': url = 'https://{username}.carrd.co/'; break;
+        case 'di': url = 'https://{username}.disha.page'; break;
+        case 'fb': url = 'https://facebook.com/'; break;
+        case 'gh': url = 'https://github.com/'; break;
+        case 'gl': url = 'https://glitch.com/~{username}'; break;
+        case 'id': url = 'https://id.myopenlink.net/DAV/home/'; break;
+        case 'in': url = 'https://www.instagram.com/'; break;
+        case 'li': url = 'https://linkedin.com/in/'; break;
+        case 'lt': url = 'https://linktr.ee/'; break;
+        case 'ma': url = 'https://mastodon.social/'; break;
+        case 'ti': url = 'https://www.tiktok.com/@'; break;
+        case 'tw': url = 'https://twitter.com/'; break;
+        default:
+          break;
+      }
+      if (url)
+        row.querySelector('#rel_v').value = url;
+    }
     r.querySelector('#rel_del').onclick = (e) => {
       e.preventDefault();
       const row = e.target.closest('tr');
