@@ -27,7 +27,7 @@ class Relations {
 
   createRow()
   {
-    const sel = '<select id="c_rel_type">'
+    const sel = '<select class="form-control" id="c_rel_type">'
                +' <option value="none">--</option>'
                +' <option value="cr">Carrd</option>'
                +' <option value="di">Disha</option>'
