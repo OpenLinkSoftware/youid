@@ -11,11 +11,10 @@ The YouID browser extension (currently for for
 [Google Chrome](http://www.google.com/chrome/browser/),
 [Mozilla Firefox](http://www.mozilla.org/firefox/) and 
 [Opera](http://www.opera.com/)) 
-enables you to register and switch Web Identities (WebIDs) across 
+enables you to register and switch Web Identities (NetIDs) across 
 a single HTTPS (TLS) session without restarting your browser. Each 
-WebID is a hyperlink that both identifies an application user and 
-resolves to a user profile document containing claims (readable by 
-both machines and humans) that are verifiable using existing Public 
+NetID is a hyperlink that names (i.e., denotes and connotes) a user by resolving to said user's profile document comprising verifiable credentials (readable by 
+humans and computable by machines) that are authenticated cryptographically using existing Public 
 Key Infrastructure (PKI) standards.
 
 Support for additional browsers like
@@ -24,7 +23,7 @@ Support for additional browsers like
 is under investigation.
 
 ## License
-Copyright © 2013-2021 [OpenLink Software](mailto:opensource@openlinksw.com)
+Copyright © 2013-2022 [OpenLink Software](mailto:opensource@openlinksw.com)
 
 This software is licensed under the GNU General Public License (see
 [`COPYING`](https://github.com/OpenLinkSoftware/youid/blob/master/COPYING)).

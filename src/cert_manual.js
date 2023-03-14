@@ -18,7 +18,7 @@
  *
  */
 
-  function genManualUploads(webid, certData)
+  async function genManualUploads(webid, certData, gen)
   {
     var cert = certData.cert;
     var url = new URL(webid);
@@ -29,6 +29,35 @@
     var exponent = cert.publicKey.e.toString(10);
     var modulus = cert.publicKey.n.toString(16).toUpperCase();
     var timeCreated = cert.validity.notBefore.toISOString();
+
+    var relList_ttl = certData.tpl_data['relList'];
+    var relList_json = certData.tpl_data['relList_json'];
+    var relList_rdf = certData.tpl_data['relList_rdf'];
+
+    var add_ttl = '';
+    var add_json = '';
+    var add_rdf = '';
+    if (relList_ttl) {
+      var l = relList_ttl.lastIndexOf(',');
+      relList_ttl = l!=-1 ? relList_ttl.substring(0, l) : relList_ttl;
+      add_ttl = `  <${webid}> owl:sameAs ${relList_ttl} .\n`;
+    }
+    if (relList_json) {
+      var l = relList_json.lastIndexOf(',');
+      relList_json = l!=-1 ? relList_json.substring(0, l) : relList_json;
+      add_json = '      {\n'
+                +`        "@id": "${webid}",\n`
+                +'        "owl:sameAs": [\n'
+      add_json += relList_json +'\n';
+      add_json += '        ]\n'
+                 +'      },\n'
+    }
+    if (relList_rdf) {
+      add_rdf += `    <rdf:Description rdf:about="${webid}">\n`;
+      add_rdf += relList_rdf;
+      add_rdf += '    </rdf:Description>';
+    }
+
 
     var ttl = `
   @prefix : <#>.
@@ -51,7 +80,6 @@
     foaf:name "${commonName}" ;
     cert:key <${keyUri}>.
 
-
   <${keyUri}>
     a cert:RSAPublicKey;
     dcterms:created "${timeCreated}"^^xsd:dateTime;
@@ -60,7 +88,10 @@
     cert:exponent "${exponent}"^^xsd:int;
     cert:modulus "${modulus}"^^xsd:hexBinary;
     owl:sameAs <${certData.fingerprint_ni}>, <${certData.fingerprint_di}> . 
+
+${add_ttl}
   `;
+
   
     var jsonld = `
   {
@@ -86,6 +117,7 @@
           "@id": "${webid}"
         }
       },
+${add_json}
       {
         "@id": "${webid}",
         "@type": [
@@ -147,6 +179,7 @@
           <cert:key rdf:resource="${keyUri}"/>
           <foaf:name>${commonName}</foaf:name>
       </rdf:Description>
+${add_rdf}
       <rdf:Description rdf:about="${keyUri}">
           <dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">${timeCreated}</dcterms:created>
           <dcterms:title>Created by YouID</dcterms:title>

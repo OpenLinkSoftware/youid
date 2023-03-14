@@ -22,6 +22,8 @@
 class Uploader {
   constructor() {
     this.files = {};
+    this.uploadTimeout = 500;
+    this.tpl_data = {};
   }
 
   create_qrcode(text) 
@@ -86,7 +88,22 @@ class Uploader {
   }
 
   async loadCardFiles() {
+    this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
+    this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
+    this.files["p_disha_32.png"] = new CardFileBinary('p_disha_32.png', 'image/png');
+    this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
+    this.files["p_github_32.png"] = new CardFileBinary('p_github_32.png', 'image/png');
+    this.files["p_glitch_32.png"] = new CardFileBinary('p_glitch_32.png', 'image/png');
+    this.files["p_insta_32.png"] = new CardFileBinary('p_insta_32.png', 'image/png');
+    this.files["p_linkedin_32.png"] = new CardFileBinary('p_linkedin_32.png', 'image/png');
+    this.files["p_linktree_32.png"] = new CardFileBinary('p_linktree_32.png', 'image/png');
+    this.files["p_mastodon_32.png"] = new CardFileBinary('p_mastodon_32.png', 'image/png');
+    this.files["p_myopenlink_32.png"] = new CardFileBinary('p_myopenlink_32.png', 'image/png');
+    this.files["p_tiktok_32.png"] = new CardFileBinary('p_tiktok_32.png', 'image/png');
+    this.files["p_twitter_32.png"] = new CardFileBinary('p_twitter_32.png', 'image/png');
+
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
+    this.files["qrcode.js"] = new CardFileBinary('qrcode.js', 'text/javascript');
     this.files["lock.png"] = new CardFileBinary('lock.png', 'image/png');
     this.files["museo-500-webfont.eot"] = new CardFileBinary('museo-500-webfont.eot', 'application/vnd.ms-fontobject');
     this.files["museo-500-webfont.ttf"] = new CardFileBinary('museo-500-webfont.ttf', 'application/x-font-ttf');
@@ -157,7 +174,9 @@ class Uploader {
 
       if (!rc.ok)
         return rc.ok;
-      await this.timeout(500);
+
+      if (this.uploadTimeout > 0)
+        await this.timeout(500);
     }
     return true;
   }
@@ -231,12 +250,89 @@ class Uploader {
       tpl_data['ca_cert_url'] = ca_cert_url;
     }
 
+    if (this.manual_card_url) {
+      try {
+        let card = new URL(this.manual_card_url);
+        let card_ident = new URL(this.manual_card_url);
+        if (card_ident.hash.length <= 1)
+          card_ident.hash = "identity";
+
+        card.hash = '';
+
+        certData.card = card.toString();
+        certData.card_ident = card_ident.toString();
+      } catch(e) {
+        certData.card = dir_url + this.files["index.html"].fname;
+        certData.card_ident = certData.card + '#identity';
+      }
+      tpl_data['card_url'] = certData.card;
+      tpl_data['card_ident_url'] = certData.card_ident;
+    }
+    else {
+      certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
+      certData.card_ident = tpl_data['card_ident_url'] = certData.card + '#identity';
+    }
+
+    if (gen.relList && gen.relList.length > 0) {
+      var s_ttl = '';
+      var s_rdfa = '';
+      var s_json = '';
+      var s_micro = '';
+      var s_rdf = '';
+      var s_html = '';
+      var s_header = '';
+
+      for(var i=0; i < gen.relList.length; i++) {
+        const r_url = gen.relList[i].v;
+        const r_type = gen.relList[i].type;
+        var nl = (i==gen.relList.length-1) ? '' : '\n';
+        s_ttl += `	<${r_url}#identity> ,${nl}`;
+
+        s_json += '        {\n'
+                 +`          "@id": "${r_url}#identity"\n`
+                 +`        },${nl}`;
+
+        s_rdfa += `    <div rel="owl:sameAs" resource="${r_url}#identity"></div>${nl}`;
+        s_micro += `    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="${r_url}#identity" />${nl}`;
+        s_rdf += `        <owl:sameAs rdf:resource="${r_url}"/>\n`;
+
+        s_header += `<link rel="me" href="${r_url}" />${nl}`;
+
+        var p_image = '';
+        var p_alt = ''
+        switch(r_type) {
+          case 'cr': p_image = 'p_carrd_32.png';      p_alt='Carrd'; break;
+          case 'di': p_image = 'p_disha_32.png';      p_alt='Disha'; break;
+          case 'fb': p_image = 'p_facebook_32.png';   p_alt='Facebook'; break;
+          case 'gh': p_image = 'p_github_32.png';     p_alt='Github'; break;
+          case 'gl': p_image = 'p_glitch_32.png';     p_alt='Glitch'; break;
+          case 'id': p_image = 'p_myopenlink_32.png'; p_alt='ID.MyOpenLink.NET'; break;
+          case 'in': p_image = 'p_insta_32.png';      p_alt='Instagram'; break;
+          case 'li': p_image = 'p_linkedin_32.png'; p_alt='LinkedIn'; break;
+          case 'lt': p_image = 'p_linktree_32.png'; p_alt='Linktree'; break;
+          case 'ma': p_image = 'p_mastodon_32.png'; p_alt='Mastodon'; break;
+          case 'ti': p_image = 'p_tiktok_32.png';   p_alt='TikTok'; break;
+          case 'tw': p_image = 'p_twitter_32.png';  p_alt='Twitter'; break;
+          default: p_image = 'p_none.png'; break;
+        }
+        s_html += `		  <a href="${r_url}" target="_blank"><img src="${p_image}" alt="${p_alt}" class="rel_item"></a>\n`;
+
+      }
+
+      tpl_data['relList']  = s_ttl;
+      tpl_data['relList_json']  = s_json;
+      tpl_data['relList_rdfa']  = s_rdfa;
+      tpl_data['relList_rdf']  = s_rdf;
+      tpl_data['relList_micro']  = s_micro;
+      tpl_data['relList_html'] = s_html;
+      tpl_data['rel_header_html'] = s_header;
+    }
+
+    const pdp_html = '';
+
     tpl_data['qr_card_img'] = this.create_qrcode(dir_url + this.files["index.html"].fname);
     tpl_data['qr_rdfa_img'] = this.create_qrcode(dir_url + this.files["profile_rdfa.html"].fname);
 
-    tpl_data['pdp_url_head'] = '';
-    tpl_data['pdp_url_row'] = '';
-    tpl_data['pdp_add'] = '';
     tpl_data['ian'] = '';
 
     tpl_data['modulus'] = cert.publicKey.n.toString(16).toUpperCase();
@@ -261,18 +357,20 @@ class Uploader {
     tpl_data['date_before'] = cert.validity.notBefore.toISOString();
     tpl_data['date_after'] = cert.validity.notAfter.toISOString();
     tpl_data['webid'] = webid;
+
     tpl_data['pdp_url'] = '';
-    tpl_data['pdp_url_row'] = '';
     tpl_data['pdp_url_head'] = '';
-    tpl_data['ca_key_row'] = '';
+
+    if (pdp_html) {
+      tpl_data['pdp_url'] = pdp_html;
+      tpl_data['pdp_url_head'] = `<link rel="related" href="${pdp_html}" title="Related Document"  type="text/html" />`;
+    }
 
     tpl_data['pubkey_pem_url'] = dir_url + gen.cert_name + '.crt';
     tpl_data['vcard_url'] = dir_url + this.files["vcard.vcf"].fname;
     tpl_data['prof_url'] = dir_url + this.files["profile.ttl"].fname;
     tpl_data['pubkey_url'] = dir_url + this.files["public_key.ttl"].fname;
     tpl_data['cert_url'] = dir_url + this.files["certificate.ttl"].fname;
-
-    certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
 
     tpl_data['jsonld_prof_url'] = dir_url + this.files["prof_jsonld"].fname;
     tpl_data['jsonld_cert_url'] = dir_url + this.files["certificate.jsonld"].fname;
@@ -324,14 +422,53 @@ class Uploader {
 
     this.getProfilesData(tpl_data, this.files);
 
+    this.tpl_data = certData.tpl_data = tpl_data;
+
     for (var key in this.files) {
       var f = this.files[key];
+      if (key === 'profile.ttl')
+        console.log(key);
       if (f.tpl && f.tpl_text)
         f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     }
     return true;
   }
 }
+
+
+class Uploader_Manual extends Uploader {
+  constructor(netid) 
+  {
+    super();
+    this.zip = new JSZip();
+    this.uploadTimeout = 0;
+    this.manual_card_url = netid;
+  }
+
+  async uploadFile(dir, fname, data, type) 
+  {
+    if (data instanceof Blob) {
+      this.zip.file(fname, data);
+    } else {
+      this.zip.file(fname, data);
+    } 
+
+    return {ok: true};
+  }
+
+  async genZIP_base64()
+  {
+    return await this.zip.generateAsync({type:"base64"});
+  }
+
+  async genZIP_base64_href()
+  {
+    const v = await this.zip.generateAsync({type:"base64"});
+    return "data:application/zip;base64,"+v;
+  }
+
+}
+
 
 
 class Uploader_Solid_OIDC extends Uploader {

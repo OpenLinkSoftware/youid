@@ -25,6 +25,7 @@ const rdf_nano_pattern = /(## RDF(\/|-)XML +Start ##)((.|\n|\r)*?)((## RDF(\/|-)
 
 class YouID_Loader {
   constructor() {
+
   this.load_webid = `
   PREFIX foaf:<http://xmlns.com/foaf/0.1/> 
   PREFIX schema: <http://schema.org/> 
@@ -42,7 +43,9 @@ class YouID_Loader {
   SELECT * WHERE 
     { 
        {{?url foaf:primaryTopic ?webid .} UNION 
-        {?url schema:mainEntity ?webid .} 
+        {?url schema:mainEntity ?webid .} UNION
+        {?url foaf:primaryTopic ?webid_x . ?webid owl:sameAs ?webid_x .} UNION
+        {?url schema:mainEntity ?webid_x . ?webid owl:sameAs ?webid_x .}
        }
        {{?webid schema:name ?schema_name} UNION 
         {?webid foaf:name ?foaf_name} UNION 
@@ -99,7 +102,10 @@ class YouID_Loader {
   SELECT * WHERE 
     { 
       {
-       <#{webid}> cert:key ?pubkey .
+       { 
+         {<#{webid}> cert:key ?pubkey .} UNION
+         {<#{webid}> owl:sameAs ?webid_x .  ?webid_x cert:key ?pubkey .}
+       }
        ?pubkey a ?alg ;
               cert:modulus  ?cert_mod ;
               cert:exponent ?cert_exp .
@@ -276,7 +282,6 @@ class YouID_Loader {
   async exec_verify_query(store, profile) 
   {
     var self = this;
-
     var ret;
     var i = 0;
 
@@ -657,7 +662,6 @@ class YouID_Loader {
   async loadPKey_Fp(store, pkey) 
   {
     var self = this;
-    var store;
 
     var query = this.load_pubkey_fp.replace(/#\{pubkey\}/g, pkey);
 
@@ -690,7 +694,6 @@ class YouID_Loader {
   async loadCert_Fp(store, webid) 
   {
     var self = this;
-    var store;
 
     var query = this.load_cert_fp.replace(/#\{webid\}/g, webid);
 
@@ -801,17 +804,17 @@ var Msg = {};
 
 Msg.showYN = function (msg1, msg2, callback)
   {
-    if (msg1) 
-      document.querySelector('#alert-dlg #alert-msg1').textContent = msg1;
-    if (msg2)
-      document.querySelector('#alert-dlg #alert-msg2').textContent = msg2;
+    DOM.qSel('#alert-dlg #alert-msg1').textContent = msg1 ? msg1 : '';
+    DOM.qSel('#alert-dlg #alert-msg2').textContent = msg2 ? msg2 : '';
 
-    document.querySelector('#alert-dlg #btn-cancel').textContent = 'No';
+    DOM.qSel('#alert-dlg #btn-cancel').textContent = 'No';
 
     var btnYes = document.querySelector('#alert-dlg #btn-yes');
     btnYes.style.display = 'initial'
-    btnYes.onclick = () =>
+    btnYes.onclick = (e) =>
        {
+         e.preventDefault();
+
          if (callback) callback(); 
      
          $('#alert-dlg').modal('hide');
@@ -825,11 +828,12 @@ Msg.showYN = function (msg1, msg2, callback)
 
 Msg.showInfo = function (msg)
   {
-    if (msg) 
-      document.querySelector('#alert-dlg #alert-msg1').textContent = msg;
+    DOM.qSel('#alert-dlg #alert-msg1').textContent = msg ? msg : '';
+    DOM.qSel('#alert-dlg #alert-msg2').textContent = '';
 
-    document.querySelector('#alert-dlg #btn-cancel').textContent = 'Cancel';
-    var btnYes = document.querySelector('#alert-dlg #btn-yes');
+
+    DOM.qSel('#alert-dlg #btn-cancel').textContent = 'Cancel';
+    var btnYes = DOM.qSel('#alert-dlg #btn-yes');
     btnYes.style.display = 'none'
 
     var dlg = $('#alert-dlg .modal-content');
@@ -851,9 +855,22 @@ function create_UUID(){
 var DOM = {};
 
 DOM.qSel = (sel) => { return document.querySelector(sel); };
+DOM.qSelAll = (sel) => { return document.querySelectorAll(sel); };
 DOM.iSel = (id) => { return document.getElementById(id); };
 DOM.qShow = (sel) => { DOM.qSel(sel).classList.remove('hidden'); };
 DOM.qHide = (sel) => { DOM.qSel(sel).classList.add('hidden'); };
+DOM.qShowAll = (sel) => { 
+  var lst = DOM.qSelAll(sel); 
+  for(var i of lst) {
+    i.classList.remove('hidden');
+  }
+};
+DOM.qHideAll = (sel) => { 
+  var lst = DOM.qSelAll(sel); 
+  for(var i of lst) {
+    i.classList.add('hidden');
+  }
+};
 
 DOM.qGetValue = function (sel)
   {
@@ -1575,11 +1592,14 @@ Coin.btc_check = function (pub, addr)
   const addr1 = addr.substring(8);
 
   if (!pub)
-    return 0;
+    return {rc:0, err:'Public key is empty'};
 
   const addr0 = Coin.bip_p2pkh_address_from_pub(pub);
   
-  return (addr0 === addr1) ? 1 : 0;
+  if (addr0 === addr1)
+    return {rc: 1};
+  else
+    return {rc:0, err:"Could not verify Wallet address"};
 }
 
 Coin.eth_check = function(pub, addr)
@@ -1590,12 +1610,39 @@ Coin.eth_check = function(pub, addr)
   const addr1 = addr.substring(9);
 
   if (!pub)
-    return 0;
+    return {rc:0, err:'Public key is empty'};
 
   var addr0 = Coin.hash_keccak256(pub.substring(1)).substring(24);
   addr0 = '0x' + Coin.eth_toChecksumAddress(addr0);
 
-  return (addr0 === addr1) ? 1 : 0;
+  if (addr0 === addr1)
+    return {rc: 1};
+  else
+    return {rc:0, err:"Could not verify Wallet address"};
+}
+
+Coin.is_coin_cert = function(cert)
+{
+  var san = '';
+  var is_coin = 0;
+
+  try {
+    var ext = cert.getExtension('subjectAltName');
+    if (ext) {
+      for(var nm of ext.altNames)
+        if (nm.type == 6)
+          san = nm.value;
+    }
+
+    ext = cert.getExtension({id: '2.16.840.1.2381.2'});
+    if (ext)
+      is_coin = 1;
+
+  } catch(e) {
+    console.log(e);
+  }
+  
+  return {is_coin, san};
 }
 
 
@@ -1608,7 +1655,7 @@ Coin.coin_cert_check = function (cert)
     if (ext)
       pub = ext.value;
     else
-      return {rc:0, err: "Could not found Coin PublicKey data in Certificate"}
+      return {rc:0, err: "Could not find Coin PublicKey data in Certificate"}
 
     ext = cert.getExtension('subjectAltName');
     if (ext) {
@@ -1622,18 +1669,23 @@ Coin.coin_cert_check = function (cert)
     const CN = cert.subject.getField('CN');
     const name = CN.value;
 
-
     if (san) {
       if (san.startsWith('bitcoin:')) {
-        rc = Coin.btc_check(pub, san);
         addr = san.substring(8);
+        var ret = Coin.btc_check(pub, san);
+        if (ret.rc != 1)
+          return {rc:ret.rc, err:ret.err};
+        rc = ret.rc;
       }
       else if (san.startsWith('ethereum:')) {
-        rc = Coin.eth_check(pub, san);
         addr = san.substring(9);
+        var ret = Coin.eth_check(pub, san);
+        if (ret.rc != 1)
+          return {rc:ret.rc, err:ret.err};
+        rc = ret.rc;
       }
       else
-      return {rc:0, err: "Could not found Account Address in Certificate"}
+        return {rc:0, err: "Could not find Account Address in Certificate"}
     }
 
     return {

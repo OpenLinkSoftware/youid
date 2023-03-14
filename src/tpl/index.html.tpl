@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8">
 
-<link rel="describes" href="index.html#identity" title="Describes" />
-<link rev="describedby" href="index.html#identity" title="Described By" />
+<link rel="describes" href="%{card_ident_url}" title="Describes" />
+<link rev="describedby" href="%{card_ident_url}" title="Described By" />
 
 <link rel="related" href="%{cert_url}" title="Related Document" type="text/turtle" />
 <link rel="related" href="%{rdfa_prof_url}" title="Related Document"  type="text/html" />
 <link rel="related" href="%{jsonld_prof_url}" title="Related Document" type="application/json+ld" />
-<link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="index.html#identity" title="This Document's Primary Topic" />
+<link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="%{card_ident_url}" title="This Document's Primary Topic" />
 %{pdp_url_head}
+%{rel_header_html}
+
 
 <link rel="alternate" href="%{rdfa_prof_url}" title="Identity Card (Turtle Format)"  type="text/html" />
 <link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />
@@ -22,6 +24,23 @@
 
 <link href="style.css" rel="stylesheet" type="text/css">
 
+<style type="text/css">
+   .rel_block {
+     position: absolute;
+     top: 170px;
+     display: grid;
+     grid-template-columns: 1fr 1fr 1fr;
+/*     grid-gap: 15px;*/
+   }
+   .rel_item {
+     width: 32px;
+     height: 32px;
+     padding-right: 15px;
+     padding-bottom: 2px;
+   }
+</style>
+
+<script type="text/javascript" src="./qrcode.js"></script>
 
 </head>
 <body>
@@ -41,6 +60,11 @@
                 	<img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
                 
                 </div><!-- end cardPic -->
+!!{relList_html}
+                <div class="rel_block">
+%{relList_html}
+                </div>
+!!.
                 
                 <div class="cardDetails">
                 
@@ -124,6 +148,33 @@
 </script> 
 <!-- end profile json_ld -->
 
+<script>
+(function () {
+
+  function create_qrcode(text) 
+  {
+    var errorCorrectionLevel = 'Q';
+    var typeNumber = 8;
+    qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+    var qr = qrcode(typeNumber || 4, errorCorrectionLevel || 'M');
+    qr.addData(text, 'Byte');
+    qr.make();
+
+    return qr.createImgTag(null, 2, 'QR code');
+  }
+
+
+  document.addEventListener('DOMContentLoaded', 
+    function()
+    {
+       var el = document.querySelector('.cardQr');
+       if (el)
+         el.innerHTML = create_qrcode(location.href);
+    });
+
+})();
+</script>
 
 </body>
 </html>

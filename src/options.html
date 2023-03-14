@@ -44,6 +44,8 @@
     <script type="text/javascript" src="lib/bn.js"></script>
     <script type="text/javascript" src="lib/secp256k1.js"></script>
     <script type="text/javascript" src="lib/sha3.js"></script>
+    <script type="text/javascript" src="lib/jszip.js"></script>
+
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
     <script type="text/javascript" src="oauth2/oauth1.js"></script>
@@ -67,6 +69,10 @@
 	}
 	.ml5 {margin-left:5px}
 	.ml10 {margin-left:10px}
+	select#c_rel_type {
+	  padding-top: 5px;
+	  padding-bottom: 5px;
+	}
     </style>
   </head>
 
@@ -158,6 +164,46 @@
           </div>
           <hr/>
 
+          <div class="form-group row" id="r_rels">
+            <label class="col-md-3 control-label"> Related profile pages: </label>
+            <div class="col-md-9">
+              <table id="tbl_rels" class="vtable">
+               <thead>
+                 <tr>
+                   <th style="width:20px"></th>
+                   <th style="width:100px"></th>
+                   <th style="width:calc(100%-20px)"></th>
+                 </tr>
+               </thead>
+               <tbody>
+<!--
+                 <tr>
+                   <td>
+                    <button> <input type="image" src="lib/css/img/minus.png" width="12" height="12"> </button>
+                   </td> 
+                   <td>
+                     <select id="c_rel_type">
+                       <option value="none">--</option>
+                       <option value="fb">Facebook</option>
+                       <option value="in">Instagram</option>
+                       <option value="li">LinkedIn</option>
+                       <option value="ma">Mastodon</option>
+                       <option value="ti">TikTok</option>
+                       <option value="tw">Twitter</option>
+                     </select>
+                   </td>
+                   <td><input type="text" class="form-control" id="c_rel" value=""></td>
+                 </tr>
+-->
+               </tbody>
+              </table>
+              <div style="margin-left:6px; margin-top: 5px">
+                <button id="rel_add"> <input type="image" src="lib/css/img/plus.png" width="12" height="12"> </button>
+              </div>
+            </div>
+          </div>
+          <hr/>
+          
           <div class="form-group row">
             <label for="c_name" class="col-md-3 control-label">Name:</label>
             <div class="col-md-6">
@@ -224,7 +270,7 @@
             <label for="c_idp" class="col-md-3 control-label">NetID-Profile Storage Providers:</label>
             <div class="col-md-6">
               <select name="profile" class="form-control" id="c_idp">
-                <option value="manual" selected>Manual</option>
+                <option id="manual" value="manual" selected>Manual</option>
                 <option value="opl_dav">MyOpenLink (WebDAV)</option>
                 <option value="opl_dav_https">MyOpenLink (Secure WebDAV)</option>
                 <option value="opl_ldp">MyOpenLink (LDP)</option>
@@ -322,9 +368,8 @@
             </div>
           </div>
 
-
           <div class="form-group row">
-            <label for="c_pwd" class="col-md-3 control-label">Password&nbsp;for&nbsp;PKCS12&nbsp;Store:</label>
+            <label for="c_pwd" class="col-md-3 control-label">Password&nbsp;for&nbsp;PKCS#12&nbsp;Store:</label>
             <div class="col-md-3">
               <input type="password" class="form-control" id="c_pwd" value="">
             </div>
@@ -420,9 +465,9 @@
               </div>
             </section>
 
-            <div id="u_wait" class="hidden">
+            <div id="u_wait" class="hidden" style="display:flex; flex-direction:row; align-items: baseline;">
              <img src="images/throbber.gif" width="16" /> Wait...
-             <div id="u_msg"></div>
+             <div style="margin-left:20px;" id="u_msg"></div>
             </div>
           </form>
 
@@ -557,6 +602,7 @@
         <h5 class="modal-title">Import Delegate data via Secure Credentials File</h5>
       </div>
       <div class="modal-body">
+        <form id="import-delegate-form">
         <p/>
         <table style="font-size: 14px;">
          <tr id="cert-file">
@@ -568,8 +614,8 @@
           <td style="padding-top:10px"> Password:&nbsp;</td>
           <td style="padding-top:10px"> <input id="file_pwd" type="password" style="WIDTH: 100px" value=""> </td>
          </tr>
-
         </table>
+        </form>
       </div>
       <div class="modal-footer">
         <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -691,7 +737,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h5 class="modal-title">Add via Secure Credentials File</h5>
+        <h5 class="modal-title">Import from Local PKCS#12 (.p12) file</h5>
       </div>
       <div class="modal-body">
         <p/>
@@ -783,19 +829,29 @@
           <section id="webid-card" style="padding-left:1em">
             Your identity card has been created.&nbsp;&nbsp;<a id="card_href" href="#" target="_blank"> </a>
           </section>
+
+          <section id="manual-idcard" class="hidden">
+            <div style="display:flex; flex-direction:column; padding-left:1em">
+              <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+                Credentials (Public & Private) Bundle:&nbsp;&nbsp;
+               <a id="idcard-download" download="idcard.zip">ZIP Archive</a>
+              </div>
+            </div>
+            <hr>
+          </section>
           <p/>
           <form class="form-horizontal" style="padding-left:1em">
            <section id="profile-card">
             <ul class="nav nav-tabs">
-              <li class="active"><a href="#n_ttl" data-toggle="tab">RDF-Turtle</a></li>
-              <li><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
-              <li><a href="#n_rdfxml" data-toggle="tab">RDF-XML</a></li>
-              <li><a href="#i_ttl" data-toggle="tab">HTML+RDF-Turtle</a></li>
-              <li><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
-              <li><a href="#i_rdfxml" data-toggle="tab">HTML+RDF-XML</a></li>
-              <li><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
-              <li><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
-              <li><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
+              <li id="tab_n_ttl" class="active"><a href="#n_ttl" data-toggle="tab">RDF-Turtle</a></li>
+              <li id="tab_n_jsonld"><a href="#n_jsonld" data-toggle="tab">JSON-LD</a></li>
+              <li id="tab_n_rdfxml"><a href="#n_rdfxml" data-toggle="tab">RDF-XML</a></li>
+              <li id="tab_i_ttl"><a href="#i_ttl" data-toggle="tab">HTML+RDF-Turtle</a></li>
+              <li id="tab_i_jsonld"><a href="#i_jsonld" data-toggle="tab">HTML+JSON-LD</a></li>
+              <li id="tab_i_rdfxml"><a href="#i_rdfxml" data-toggle="tab">HTML+RDF-XML</a></li>
+              <li id="tab_i_fp"><a href="#i_fp" data-toggle="tab">Fingerprint</a></li>
+              <li id="tab_i_ni"><a href="#i_ni" data-toggle="tab">Ni Fingerprint</a></li>
+              <li id="tab_i_di"><a href="#i_di" data-toggle="tab">Di Fingerprint</a></li>
             </ul>
 
             <!-- Tab panes -->
@@ -845,11 +901,20 @@
         <section id="p12-cert">
           <label for="private-cred" class="control-label"> Private Credentials</label>
           <div style="display:flex; flex-direction:column; padding-left:1em">
-            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
-             PKCS12 Credentials Store&nbsp;&nbsp;
-             <a id="pkcs12-download" download="certificate.p12">Download PKCS12</a>
+            <div style="padding-bottom:0.5em">Download the following private credentials documents and then click on each 
+              for automatic upload to the secure credentials store provided by your computing device.
             </div>
-            <div id="ready_msg_manual">Please save PKCS12 Credentials Store on local disk.</div>
+            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+               * Personal Credentials&nbsp;
+              <a style="margin-left:10px" id="pkcs12-download" download="certificate.p12">PKCS#12</a>
+            </div>
+          </div>
+          <div id="ca-cert" class="hidden" style="display:flex; flex-direction:column; padding-left:1em">
+            <div style="display:flex; flex-direction:row; padding-bottom:0.5em">
+              * Personal Certificate Authority Credentials&nbsp;
+              <a style="margin-left:10px" id="ca-pkcs12-download" download="ca_certificate.p12">PKCS#12</a>
+              <a style="margin-left:20px" id="ca-pem-download" download="ca_certificate.pem">PEM</a>
+            </div>
           </div>
           <hr>
         </section>
@@ -930,10 +995,11 @@
 
         </form>
 
-        <div id="u_wait" class="hidden">
+        <div id="u_wait" class="hidden" style="display:flex; flex-direction:row; align-items: baseline;">
          <img src="images/throbber.gif" width="16" /> Wait...
-         <div id="u_msg"></div>
+         <div style="margin-left:20px;" id="u_msg"></div>
         </div>
+
       </div>
     </div>
   </div>

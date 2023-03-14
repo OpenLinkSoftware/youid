@@ -9,6 +9,7 @@
 @prefix schema: <http://schema.org/> .
 @prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . 
 
+<%{card_ident_url}>    cert:key <%{pubkey_url}#PublicKey> . 
 <%{prof_url}#identity>    cert:key <%{pubkey_url}#PublicKey> . 
 <%{pubkey_url}#PublicKey>    a cert:RSAPublicKey ; 
          cert:modulus "%{modulus}"^^xsd:hexBinary ; 
@@ -33,32 +34,31 @@
 <%{pdp_url}> a <http://schema.org/Person> ; 
     <http://schema.org/sameAs> <%{prof_url}> ;
     oplcert:owns <%{cert_url}#cert> .
-
-
+!!.
 
 <> 
-   a <http://schema.org/CreativeWork>, 
-     <http://schema.org/WebPage> , 
-     oplcert:Certificate ;
-<http://schema.org/additionalType> <http://schema.org/CreativeWork>, 
-                      <http://schema.org/WebPage> , 
-                      oplcert:Certificate ;
-<http://schema.org/url>           <#this>  ;
-<http://schema.org/name>          "%{subj_name}" ;
-<http://schema.org/author>         <%{prof_url}#identity> ;
-<http://schema.org/mainEntity>     <%{prof_url}#identity> ;
-oplcert:SAN           <%{prof_url}#identity> ;
-oplcert:hasPublicKey  <%{pubkey_url}#PublicKey> ;
-cert:key  <%{pubkey_url}#PublicKey> .
+    a     <http://schema.org/CreativeWork>, 
+          <http://schema.org/WebPage> , 
+          oplcert:Certificate ;
+    <http://schema.org/additionalType> <http://schema.org/CreativeWork>, 
+                                      <http://schema.org/WebPage> , 
+                                      oplcert:Certificate ;
+    <http://schema.org/url>            <#this>  ;
+    <http://schema.org/name>          "%{subj_name}" ;
+    <http://schema.org/author>         <%{prof_url}#identity> ;
+    <http://schema.org/mainEntity>     <%{prof_url}#identity> ;
+    oplcert:SAN           <%{prof_url}#identity> ;
+    oplcert:hasPublicKey  <%{pubkey_url}#PublicKey> ;
+    cert:key  <%{pubkey_url}#PublicKey> .
 
 
-<> <http://schema.org/isRelatedTo> <%{card_url}#identity>;
+<> <http://schema.org/isRelatedTo> <%{card_ident_url}>;
    <http://schema.org/isRelatedTo> <%{jsonld_prof_url}#identity> ;
    <http://schema.org/isRelatedTo> <%{rdfa_prof_url}#identity> ;
    <http://schema.org/isRelatedTo> <%{prof_url}#identity> .
 
 
-<%{card_url}#identity> owl:sameAs <%{jsonld_prof_url}#identity> ,
+<%{card_ident_url}> owl:sameAs <%{jsonld_prof_url}#identity> ,
 	                          <%{rdfa_prof_url}#identity> ,
 	                          <%{prof_url}#identity> .
 
@@ -66,30 +66,29 @@ cert:key  <%{pubkey_url}#PublicKey> .
 <%{prof_url}#identity> <http://schema.org/isRelatedTo> <%{cert_url}#cert> .
 
 
-<%{card_url}> a <http://schema.org/WebPage> ;
-  <http://schema.org/mainEntity> <%{card_url}#identity> .
+<%{card_url}> a   <http://schema.org/WebPage> ;
+              <http://schema.org/mainEntity> <%{card_ident_url}> .
   
 
-<%{card_url}#identity> a <http://schema.org/Person> ;
-!{subj_email}   <http://schema.org/email> "%{subj_email}" ;
-!{subj_email}   foaf:mbox <mailto:%{subj_email}> ;
-!{subj_org}   <http://schema.org/worksFor> [ a <http://schema.org/Organization> ; <http://schema.org/name> "%{subj_org}" ] ;
-   <http://schema.org/address> 
-      [a <http://schema.org/Place>  
+<%{card_ident_url}> a <http://schema.org/Person> ;
+!{subj_email}       <http://schema.org/email> "%{subj_email}" ;
+!{subj_email}       foaf:mbox <mailto:%{subj_email}> ;
+!{subj_org}         <http://schema.org/worksFor> [ a <http://schema.org/Organization> ; <http://schema.org/name> "%{subj_org}" ] ;
+     <http://schema.org/address> 
+        [a <http://schema.org/Place>  
 !{subj_state}      ; <http://schema.org/addressRegion> "%{subj_state}" 
 !{subj_country}      ; <http://schema.org/addressCountry> "%{subj_country}"
-      ] ;
-   <http://schema.org/name>   "%{subj_name}" ;
-   owl:sameAs    <%{pdp_url}#this> ;
-   <http://schema.org/sameAs> <%{pdp_url}> .
+        ] ;
+!{pdp_url}     owl:sameAs    <%{pdp_url}#this> ;
+!{pdp_url}     <http://schema.org/sameAs> <%{pdp_url}> ;
+     <http://schema.org/name>   "%{subj_name}" .
 
-<%{prof_url}#identity> 
+<%{prof_url}> 
   a <http://schema.org/Person> ;
     <http://schema.org/sameAs> <%{card_url}>, 
                   <%{rdfa_prof_url}>, 
                   <%{jsonld_prof_url}> .
 
-!!.
 
 !!{pdp_mail}
 
@@ -101,20 +100,23 @@ cert:key  <%{pubkey_url}#PublicKey> .
 
 <> 
 a foaf:profileDocument , oplcert:Certificate ;
-rdfs:label           "Profile Document Subject: %{subj_name}" ;
- foaf:primaryTopic     <%{prof_url}#identity> ;
- oplcert:SAN           <%{prof_url}#identity> ;
- oplcert:hasPublicKey  <%{pubkey_url}#PublicKey> ;
- cert:key  <%{pubkey_url}#PublicKey> .
+  rdfs:label           "Profile Document Subject: %{subj_name}" ;
+  foaf:primaryTopic     <%{prof_url}#identity> ;
+  oplcert:SAN           <%{prof_url}#identity> ;
+  oplcert:hasPublicKey  <%{pubkey_url}#PublicKey> ;
+  cert:key  <%{pubkey_url}#PublicKey> .
 
-<> xhv:alternate <%{card_url}#identity>;
+<> xhv:alternate <%{card_ident_url}>;
    xhv:alternate <%{jsonld_prof_url}#identity> ;
    xhv:alternate <%{rdfa_prof_url}#identity> ;
    xhv:alternate <%{prof_url}#identity> .
 
-<%{card_url}#identity> owl:sameAs <%{jsonld_prof_url}#identity> ,
+
+<%{card_ident_url}> owl:sameAs <%{jsonld_prof_url}#identity> ,
+!{relList} %{relList}
 	<%{rdfa_prof_url}#identity> ,
 	<%{prof_url}#identity> .
 
 <%{prof_url}#identity> xhv:alt <%{cert_url}#cert> .
+
 
