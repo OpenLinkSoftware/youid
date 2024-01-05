@@ -89,6 +89,7 @@ class Uploader {
 
   async loadCardFiles() {
     this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
+    this.files["p_cal.com_32.png"] = new CardFileBinary('p_cal.com_32.png', 'image/png');
     this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
     this.files["p_disha_32.png"] = new CardFileBinary('p_disha_32.png', 'image/png');
     this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
@@ -276,9 +277,12 @@ class Uploader {
     if (gen.relList && gen.relList.length > 0) {
       var s_ttl = '';
       var s_rdfa = '';
+      var s_rdfa_schema = '';
       var s_json = '';
       var s_micro = '';
+      var s_micro_schema = '';
       var s_rdf = '';
+      var s_rdf_schema = '';
       var s_html = '';
       var s_header = '';
 
@@ -293,14 +297,18 @@ class Uploader {
                  +`        },${nl}`;
 
         s_rdfa += `    <div rel="owl:sameAs" resource="${r_url}#identity"></div>${nl}`;
+        s_rdfa_schema += `    <div rel="schema:sameAs" resource="${r_url}#identity"></div>${nl}`;
         s_micro += `    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="${r_url}#identity" />${nl}`;
+        s_micro_schema += `    <link itemprop="http://schema.org/sameAs" href="${r_url}#identity" />${nl}`;
         s_rdf += `        <owl:sameAs rdf:resource="${r_url}"/>\n`;
+        s_rdf_schema += `        <schema:sameAs rdf:resource="${r_url}"/>\n`;
 
         s_header += `<link rel="me" href="${r_url}" />${nl}`;
 
         var p_image = '';
         var p_alt = ''
         switch(r_type) {
+          case 'ca': p_image = 'p_cal.com_32.png';    p_alt='Cal.com'; break;
           case 'cr': p_image = 'p_carrd_32.png';      p_alt='Carrd'; break;
           case 'di': p_image = 'p_disha_32.png';      p_alt='Disha'; break;
           case 'fb': p_image = 'p_facebook_32.png';   p_alt='Facebook'; break;
@@ -324,6 +332,11 @@ class Uploader {
       tpl_data['relList_rdfa']  = s_rdfa;
       tpl_data['relList_rdf']  = s_rdf;
       tpl_data['relList_micro']  = s_micro;
+
+      tpl_data['relList_rdfa_schema']  = s_rdfa_schema;
+      tpl_data['relList_rdf_schema']  = s_rdf_schema;
+      tpl_data['relList_micro_schema']  = s_micro_schema;
+      
       tpl_data['relList_html'] = s_html;
       tpl_data['rel_header_html'] = s_header;
     }

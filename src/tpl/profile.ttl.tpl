@@ -117,6 +117,11 @@ a foaf:profileDocument , oplcert:Certificate ;
 	<%{rdfa_prof_url}#identity> ,
 	<%{prof_url}#identity> .
 
+<%{card_ident_url}> schema:sameAs <%{jsonld_prof_url}#identity> ,
+!{relList} %{relList}
+	<%{rdfa_prof_url}#identity> ,
+	<%{prof_url}#identity> .
+
 <%{prof_url}#identity> xhv:alt <%{cert_url}#cert> .
 
 

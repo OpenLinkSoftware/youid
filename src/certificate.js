@@ -29,6 +29,7 @@ class Relations {
   {
     const sel = '<select class="form-control" id="c_rel_type">'
                +' <option value="none">--</option>'
+               +' <option value="ca">Cal.com</option>'
                +' <option value="cr">Carrd</option>'
                +' <option value="di">Disha</option>'
                +' <option value="fb">Facebook</option>'
@@ -61,6 +62,7 @@ class Relations {
       var sel = row.querySelector('#c_rel_type option:checked').value;
       var url = '';
       switch (sel) {
+        case 'ca': url = 'https://cal.com/{username}'; break;
         case 'cr': url = 'https://{username}.carrd.co/'; break;
         case 'di': url = 'https://{username}.disha.page'; break;
         case 'fb': url = 'https://facebook.com/'; break;

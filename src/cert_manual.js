@@ -33,14 +33,17 @@
     var relList_ttl = certData.tpl_data['relList'];
     var relList_json = certData.tpl_data['relList_json'];
     var relList_rdf = certData.tpl_data['relList_rdf'];
+    var relList_rdf_schema = certData.tpl_data['relList_rdf_schema'];
 
     var add_ttl = '';
     var add_json = '';
     var add_rdf = '';
+
     if (relList_ttl) {
       var l = relList_ttl.lastIndexOf(',');
       relList_ttl = l!=-1 ? relList_ttl.substring(0, l) : relList_ttl;
       add_ttl = `  <${webid}> owl:sameAs ${relList_ttl} .\n`;
+      add_ttl+= `  <${webid}> schema:sameAs ${relList_ttl} .\n`;
     }
     if (relList_json) {
       var l = relList_json.lastIndexOf(',');
@@ -51,10 +54,22 @@
       add_json += relList_json +'\n';
       add_json += '        ]\n'
                  +'      },\n'
+
+      add_json +='      {\n'
+                +`        "@id": "${webid}",\n`
+                +'        "schema:sameAs": [\n'
+      add_json += relList_json +'\n';
+      add_json += '        ]\n'
+                 +'      },\n'
     }
     if (relList_rdf) {
       add_rdf += `    <rdf:Description rdf:about="${webid}">\n`;
       add_rdf += relList_rdf;
+      add_rdf += '    </rdf:Description>';
+    }
+    if (relList_rdf_schema) {
+      add_rdf += `\n    <rdf:Description rdf:about="${webid}">\n`;
+      add_rdf += relList_rdf_schema;
       add_rdf += '    </rdf:Description>';
     }
 
