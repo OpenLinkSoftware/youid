@@ -222,14 +222,14 @@ class YouId_View {
 
     var el = r.querySelector('.youid_chk');
     if (el)
-      el.onclick = async (e) =>{ return await self.select_youid_item(e); };
+      el.onclick = (e) =>{ self.select_youid_item(e); };
 
-    r.querySelector('.uri').onclick = (e) => { return self.click_uri(e);};
-    r.querySelector('.remove_youid').onclick = async (e) => { return await self.click_remove_youid(e);};
+    r.querySelector('.uri').onclick = (e) => { self.click_uri(e);};
+    r.querySelector('.remove_youid').onclick = (e) => { self.click_remove_youid(e);};
 
     el = r.querySelector('.refresh_youid');
     if (el)
-      el.onclick = (e) => { return self.click_refresh_youid(e);}
+      el.onclick = (e) => { self.click_refresh_youid(e);}
 
   }
 
@@ -277,8 +277,6 @@ class YouId_View {
 
   async select_youid_item(ev)
   {
-    ev.preventDefault();
-
     var chk = ev.target;
 
     if (chk.checked) {
@@ -310,7 +308,7 @@ class YouId_View {
     }
 
     if (this.is_popup) {
-      await this.save_youid_data();
+      this.save_youid_data();
     }
   }
 

@@ -291,6 +291,22 @@
     },
 
     {
+      "@id": "%{card_ident_url}",
+      "schema:sameAs": [
+!{relList_json} %{relList_json}
+        {
+          "@id": "%{jsonld_prof_url}#identity"
+        },
+        {
+          "@id": "%{rdfa_prof_url}#identity"
+        },
+        {
+          "@id": "%{prof_url}#identity"
+        }
+      ]
+    },
+
+    {
       "@id": "%{jsonld_prof_url}#identity",
       "xhv:alt": {
         "@id": "%{jsonld_cert_url}#cert"

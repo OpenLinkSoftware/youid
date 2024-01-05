@@ -27,8 +27,8 @@
 /*     grid-gap: 15px;*/
    }
    .rel_item {
-     width: 32px;
-     height: 32px;
+     width: 28px;
+     height: 28px;
      padding-right: 15px;
      padding-bottom: 2px;
    }
