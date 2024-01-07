@@ -439,8 +439,6 @@ class Uploader {
 
     for (var key in this.files) {
       var f = this.files[key];
-      if (key === 'profile.ttl')
-        console.log(key);
       if (f.tpl && f.tpl_text)
         f.out_text = new TplPrep(f.tpl_text, tpl_data).tplStrSubstVal();
     }
