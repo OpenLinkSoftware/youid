@@ -47,7 +47,7 @@ class Relations {
     return  '<tr>'
            +'<td> <button id="rel_del"> <input type="image" src="lib/css/img/minus.png" width="12" height="12"> </button> </td>' 
            +'<td>'+sel+'</td>'
-           +'<td><input id="rel_v" type="text" class="form-control" id="c_rel" value=""></td>';
+           +'<td><input id="rel_v" type="text" class="form-control" id="c_rel" value=""></td>'
            +'</tr>';
   }
 
@@ -547,9 +547,9 @@ class Certificate {
     DOM.qSel('#gen-cert-dlg #btn-solid-oidc-login')
       .onclick = async (e) => {
         e.preventDefault();
-        if (this.gOidc.webid) {
+        if (this.gOidc.getWebId()) {
           await this.gOidc.logout();
-          self.oidc_changed();
+          self.oidc_changed(true);
         } else {
           this.gOidc.login();
         }
@@ -775,21 +775,23 @@ class Certificate {
   }
 
 
-  async oidc_changed() 
+  async oidc_changed(logout) 
   {
     try {
-      await this.gOidc.checkSession();
+      if (!logout)
+        await this.gOidc.restoreConn();
 
-      var webid_href = DOM.qSel('#gen-cert-dlg #c_oidc_webid');
+      const webid = this.gOidc.getWebId();
+      const webid_href = DOM.iSel('webid_href');
 
-      if (this.gOidc.webid) {
-        webid_href.href = this.gOidc.webid;
-        webid_href.title = this.gOidc.webid;
+      if (webid) {
+        webid_href.href = webid;
+        webid_href.title = webid;
         webid_href.classList.remove('hidden');
 
-        DOM.qSel('#gen-cert-dlg #c_webid').value = this.gOidc.webid;
+        DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
 
-        var url = new URL(this.gOidc.webid);
+        var url = new URL(webid);
         url.hash = '';
         var cert_path = url.pathname.substring(1);
         var i = cert_path.lastIndexOf('/');
@@ -799,10 +801,10 @@ class Certificate {
 
         try {
           var youid = new YouID_Loader();
-          var rc = await youid.verify_ID(this.gOidc.webid, this.gOidc);
+          var rc = await youid.verify_ID(webid, this.gOidc);
           if (rc) {
-            for(var webid in rc) {
-              var data = rc[webid];
+            for(var v_webid in rc) {
+              var data = rc[v_webid];
               if (data.success) {
                 DOM.iSel('c_name').value = data.name;
                 break;
@@ -818,10 +820,11 @@ class Certificate {
         webid_href.title = '';
         webid_href.classList.add('hidden');
         DOM.qSel('#gen-cert-dlg #c_cert_path').value = '';
+        DOM.qSel('#gen-cert-dlg #c_webid').value = '';
       }
 
       var oidc_login_btn = DOM.qSel('#gen-cert-dlg #btn-solid-oidc-login');
-      oidc_login_btn.innerText = this.gOidc.webid ? 'Logout' : 'Login';
+      oidc_login_btn.innerText = webid ? 'Logout' : 'Login';
 
     } catch (e) {
       console.log(e);
@@ -1506,9 +1509,26 @@ class Certificate {
       if (gen.idp === 'solid_oidc') {
         var url = new URL(webid);
         up = new Uploader_Solid_OIDC(this.gOidc, url.origin + '/');
+        let dir = new URL(webid);
+        dir.hash = '';
+        let pos = dir.pathname.lastIndexOf('/');
+        if (pos!=-1)
+          dir.pathname = dir.pathname.substring(0, pos);
+        dir = dir.href;
+
+        let rc = await up.loadCardFiles();
+        if (!rc) {
+          alert('Could not load card template files');
+          return -1;
+        }
+        rc = await up.updateTemplate(certData, webid, dir, gen);
+        if (!rc) {
+          alert('Could not update card templates');
+          return -1;
+        }
 
         var query = this.genSolidInsertCert(webid, certData.cert);
-        var rc = await up.updateProfileCard(webid, query);
+        rc = await up.updateProfileCard(webid, query);
         if (!rc.ok) {
           alert('Could not update profile card');
           return -1;

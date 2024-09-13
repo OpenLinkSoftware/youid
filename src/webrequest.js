@@ -20,36 +20,6 @@
 
 
 {
-  var setting = new Settings();
-
-  async function sync_Settings()
-  {
-    var pref_youid;
-    var hdr_list = [];
-
-    try {
-      var v = await setting.getValue("ext.youid.pref.id");
-      if (v)
-        pref_youid = JSON.parse(v);
-
-      if (pref_youid && pref_youid.id)
-        localStorage.setItem('cur_delegator', pref_youid.id);
-      else
-        localStorage.removeItem('cur_delegator');
-
-      v = await setting.getValue("ext.youid.pref.hdr_list");
-      if (v && v.length>0)
-        hdr_list = hdr_list.concat(JSON.parse(v));
-
-      if (hdr_list && hdr_list.length > 0)
-        localStorage.setItem('hdr_list', JSON.stringify(hdr_list));
-      else
-        localStorage.removeItem('hdr_list');
-    }catch(e) { }
-  }
-
-  sync_Settings();
-
   Browser.api.webRequest.onBeforeSendHeaders.addListener(
         function(details) 
         {
@@ -94,39 +64,5 @@
         },
         {urls: ["<all_urls>"]},
         ["blocking", "requestHeaders"]);
-
-
-
-
-  // iterace with YouID content script
-  Browser.api.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-      var pref_youid;
-
-      if (request.getWebId) {
-        try {
-          var v = await setting.getValue("ext.youid.pref.id");
-          if (v)
-            pref_youid = JSON.parse(v);
-        } catch(e){}
-
-        sendResponse({webid: pref_youid.id});
-      }
-      else if (request.cmd === "settings_updated") {
-        await sync_Settings();
-        sendResponse({});  // stop
-      }
-      else
-        sendResponse({});  // stop
-  });
-
-
-  Browser.api.runtime.onMessageExternal.addListener(
-    async function(request, sender, sendResponse) {
-      if (request.getWebId) {
-        var v = await setting.getValue("ext.youid.pref.id");
-        sendResponse({webid: v});
-      }
-    });
-
 
 }

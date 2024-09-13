@@ -23,11 +23,13 @@ var Browser = {
     is_ff: true,
     isEdgeWebExt: false,
     is_safari: false,
+    is_chrome_v3: false,
+    is_ff_v3: true,
 
     api: null,
 
     openTab : function(uri, tab_index) {
-      if (Browser.isEdgeWebExt) {
+      if (Browser.is_safari) {
         if (tab_index!==undefined) 
           Browser.api.tabs.create({url:uri, index:tab_index+1 });
         else
@@ -41,7 +43,16 @@ var Browser = {
           )
       }else
         window.open(uri);
-    }
+    },
+    createTab : function(url) {
+      if (Browser.is_ff || Browser.is_chrome_v3 || is_safari) {
+        Browser.api.tabs.create({url:url});
+      }
+      else if (window && window.open)
+        window.open(url);
+      else
+        Browser.api.tabs.create({url:url});
+    },
 }
 
 try {

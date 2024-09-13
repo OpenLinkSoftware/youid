@@ -1,7 +1,7 @@
 /*
- *  This file is part of the OpenLink YouID
+ *  This file is part of the OpenLink Structured Data Sniffer
  *
- *  Copyright (C) 2015-2020 OpenLink Software
+ *  Copyright (C) 2015-2021 OpenLink Software
  *
  *  This project is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -17,10 +17,12 @@
  *  51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
+  
 
 (function () {
 
-const prefix = "oidc-webid:";
+const prefix_code = "oidc-code:";
+const prefix_code1 = "oidc-code1:";
 
 window.addEventListener("message", recvMessage, false);
 
@@ -30,32 +32,29 @@ async function recvMessage(event)
   var session = null;
   var idp = null;
 
-  if (!String(event.data).startsWith("oidc-webid:"))
+  const ev = String(event.data);
+  if (!ev.startsWith(prefix_code) && !ev.startsWith(prefix_code1))
     return;
 
-  var s_session = localStorage.getItem('oidc.session');
-  try {
-    session = JSON.parse(s_session);
-  } catch(e) {
+  const authData = (ev.startsWith(prefix_code)) ? ev.substring(prefix_code.length) : ev.substring(prefix_code1.length);
+  const auth = JSON.parse(atob(authData));
+
+  const callback_url = new URL(auth.url);
+  if (callback_url.searchParams.get('app') !== 'youid')
+    return;
+
+  await save_data('oidc_code', authData);
+
+//??  const options = {url:auth.url, restorePreviousSession: true};
+  const options = {url:auth.url};
+  const ret = await solidClientAuthentication.default.handleIncomingRedirect(options);
+  if (ret && ret.tokens) {
+    await save_data('oidc_saved_tokens', JSON.stringify(ret.tokens));
+    Browser.api.runtime.sendMessage({cmd:'store_updated', key:'oidc_code'});
   }
 
-  if (session)
-    idp = session.issuer;
-
-  if (session && idp) {
-    var s_client = localStorage.getItem('oidc.clients.'+idp);
-
-    if (s_client) {
-      await save_data('oidc.session', s_session);
-      await save_data('oidc.clients.'+idp, s_client);
-      Browser.api.runtime.sendMessage({cmd:'store_updated', key:'oidc.session'});
-
-    }
-  }    
-
-
   setTimeout(function (){
-     Browser.api.runtime.sendMessage({cmd:'close_oidc_web', url: document.location.href});
+       Browser.api.runtime.sendMessage({cmd:'close_oidc_web', url: document.location.href});
   }, 1500);
 }
 
@@ -74,7 +73,6 @@ async function save_data(key, val)
       return Browser.api.storage.local.set(rec);
     }
 }
-
 
 
 })();

@@ -20,7 +20,7 @@ SRC_DIR=$EXT_SRC
 DST_DIR=$EXT_DIRNAME
 
 #copy common files
-for I_DIR in background.html background.js cert_manual.js certificate.js content-script.js countries.js; do
+for I_DIR in background.js cert_manual.js certificate.js content-script.js countries.js; do
   cp -va $SRC_DIR/$I_DIR "$DST_DIR/"
 done
 
@@ -28,11 +28,12 @@ for I_DIR in OidcWebid.js oidc-webid-inject.js options.css options.html options.
   cp -va $SRC_DIR/$I_DIR "$DST_DIR/"
 done
 
-for I_DIR in popup.css popup.html popup.js settings.js uploader.js utils.js webrequest.js youid_view.js; do
+for I_DIR in popup.css popup.html popup.js settings.js uploader.js utils.js utils2.js youid_view.js; do
   cp -va $SRC_DIR/$I_DIR "$DST_DIR/"
 done
 
 
+cp -va $SRC_DIR/service_worker.js    $DST_DIR/
 cp -va $SRC_DIR/browser.js    $DST_DIR/
 cp -va $SRC_DIR/manifest.json $DST_DIR/
 

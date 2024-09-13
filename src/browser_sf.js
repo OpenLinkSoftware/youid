@@ -23,6 +23,8 @@ var Browser = {
     is_ff: false,
     isEdgeWebExt: false,
     is_safari: true,
+    is_chrome_v3: false,
+    is_ff_v3: false,
 
     api: null,
 
