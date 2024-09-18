@@ -21,7 +21,6 @@
 var Browser = {
     is_chrome: false,
     is_ff: true,
-    isEdgeWebExt: false,
     is_safari: false,
     is_chrome_v3: false,
     is_ff_v3: true,
