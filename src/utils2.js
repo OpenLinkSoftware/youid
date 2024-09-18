@@ -71,7 +71,7 @@ async function setRules_for_Headers(uid, hdr_list)
 
 async function setRule_OnBehalfOf(chk, UID) {
   if (Browser.is_chrome_v3 || Browser.is_ff_v3) {
-    if (chk==="1" && UID && UID.length > 1) {
+    if (chk==="1" && UID?.length > 1) {
       try { 
         const oldRules = await Browser.api.declarativeNetRequest.getDynamicRules();
         const oldRuleIds = oldRules.map(rule => rule.id);

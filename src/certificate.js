@@ -2064,30 +2064,30 @@ INSERT {
     //   cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1)
 
     var attrs = [];
-    if (certName && certName.length > 1) {
+    if (certName?.length > 1) {
       attrs.push({ name: 'commonName', value: certName+' CA' });
     }
 
-    if (certCountry && certCountry.length > 1) {
+    if (certCountry?.length > 1) {
       attrs.push({ name: 'countryName', value: certCountry });
     }
 
-    if (certState && certState.length > 1) {
+    if (typeof certState==='string' && certState.length > 1) {
       attrs.push({ shortName: 'ST', value: certState });
     }
-    if (certCity && certCity.length > 1) {
+    if (certCity?.length > 1) {
       attrs.push({ name: 'localityName', value: certCity });
     }
-    if (certOrgUnit && certOrgUnit.length > 1) {
+    if (certOrgUnit?.length > 1) {
       attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
     }
 
-    if (certOrg && certOrg.length > 1) {
+    if (certOrg?.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
       attrs.push({ name: 'organizationName', value: 'NetID' });
     }
-    if (certEmail && certEmail.length > 1) {
+    if (certEmail?.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 
@@ -2152,30 +2152,30 @@ INSERT {
     //   cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1)
 
     var attrs = [];
-    if (certName && certName.length > 1) {
+    if (certName?.length > 1) {
       attrs.push({ name: 'commonName', value: certName });
     }
 
-    if (certCountry && certCountry.length > 1) {
+    if (certCountry?.length > 1) {
       attrs.push({ name: 'countryName', value: certCountry });
     }
 
-    if (certState && certState.length > 1) {
+    if (certState?.length > 1) {
       attrs.push({ shortName: 'ST', value: certState });
     }
-    if (certCity && certCity.length > 1) {
+    if (certCity?.length > 1) {
       attrs.push({ name: 'localityName', value: certCity });
     }
-    if (certOrgUnit && certOrgUnit.length > 1) {
+    if (certOrgUnit?.length > 1) {
       attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
     }
 
-    if (certOrg && certOrg.length > 1) {
+    if (certOrg?.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
       attrs.push({ name: 'organizationName', value: 'NetID' });
     }
-    if (certEmail && certEmail.length > 1) {
+    if (certEmail?.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 
@@ -2264,30 +2264,30 @@ INSERT {
     csr.publicKey = keys.publicKey;
 
     var attrs = [];
-    if (certName && certName.length > 1) {
+    if (certName?.length > 1) {
       attrs.push({ name: 'commonName', value: certName });
     }
 
-    if (certCountry && certCountry.length > 1) {
+    if (certCountry?.length > 1) {
       attrs.push({ name: 'countryName', value: certCountry });
     }
 
-    if (certState && certState.length > 1) {
+    if (certState?.length > 1) {
       attrs.push({ shortName: 'ST', value: certState });
     }
-    if (certCity && certCity.length > 1) {
+    if (certCity?.length > 1) {
       attrs.push({ name: 'localityName', value: certCity });
     }
-    if (certOrgUnit && certOrgUnit.length > 1) {
+    if (certOrgUnit?.length > 1) {
       attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
     }
 
-    if (certOrg && certOrg.length > 1) {
+    if (certOrg?.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
       attrs.push({ name: 'organizationName', value: 'NetID' });
     }
-    if (certEmail && certEmail.length > 1) {
+    if (certEmail?.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 
