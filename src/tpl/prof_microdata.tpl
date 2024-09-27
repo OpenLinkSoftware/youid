@@ -31,6 +31,12 @@
     <meta itemprop="fingerprint-digest" content="%{fingerprint_256_hex}" />
   </div>
 
+!!{ca_cert_url}
+  <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{cert_url}#cert" itemscope>
+    <link itemprop="http://www.w3.org/1999/xhtml/vocab#alternate" href="%{ca_cert_url}" />
+  </div>
+!!.
+
 !!{pdp_url}
   <div itemtype="http://schema.org/Person" itemid="%{pdp_url}" itemscope>
     <link itemprop="http://schema.org/sameAs" href="%{prof_url}" />

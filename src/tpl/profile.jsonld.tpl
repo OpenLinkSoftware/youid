@@ -85,7 +85,14 @@
         }
       ]
     },
-
+!!{ca_cert_url}
+    {
+      "@id": "%{cert_url}#cert",
+      "xhv:alternate": {
+        "@id": "%{ca_cert_url}"
+      }
+    },
+!!.
 !!{pdp_url}
     {
       "@id": "%{pdp_url}",

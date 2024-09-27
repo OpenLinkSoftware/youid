@@ -28,7 +28,10 @@
          oplcert:hasPublicKey <%{pubkey_url}#PublicKey> ;
          oplcert:fingerprint "%{fingerprint_hex}" ; 
          oplcert:fingerprint-digest "%{fingerprint_hex}"^^xsig:sha1, "%{fingerprint_256_hex}"^^xsig:sha256 .
-         
+
+!!{ca_cert_url}
+<%{cert_url}#cert> xhv:alternate <%{ca_cert_url}> .
+!!.
 
 !!{pdp_url}
 <%{pdp_url}> a <http://schema.org/Person> ; 

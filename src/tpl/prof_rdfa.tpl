@@ -50,6 +50,12 @@
     <div property="oplcert:fingerprint-digest" datatype="xsig:sha256" content="%{fingerprint_256_hex}"></div>
   </div>
 
+!!{ca_cert_url}
+  <div typeof="rdfs:Resource" about="%{cert_url}#cert">
+    <div rel="xhv:alternate" resource="%{ca_cert_url}"></div>
+  </div>
+!!.
+
 !!{pdp_url}
   <div typeof="http://schema.org/Person" about="%{pdp_url}">
     <div rel="http://schema.org/sameAs" resource="%{rdfa_prof_url}"></div>

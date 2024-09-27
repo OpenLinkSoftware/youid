@@ -18,6 +18,7 @@
 <link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />
 <link rel="alternate" href="vcard.vcf" title="Identity Card (vCard Format)" type="text/vcard" />
 <link rel="alternate" href="%{pubkey_pem_url}" title="Identity Card (PKIX X.509 Certificate Format)" type="application/x-x509-ca-cert" />
+!{ca_cert_url} <link rel="alternate" href="%{ca_cert_url}" title="Issuer Public Key (PKIX X.509 Certificate Format)" type="application/x-x509-ca-cert" />
 
 
 <title> Web-Scale Verifiable Digital Identity Card for %{subj_name}</title>
