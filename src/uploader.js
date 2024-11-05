@@ -267,6 +267,16 @@ class Uploader {
         tpl_data['w_funcs'] = gen.w_funcs
     }
 
+    if (gen.em_indie_idp)
+      tpl_data['em_indie_idp'] = gen.em_indie_idp;
+    if (gen.em_microdata)
+      tpl_data['em_microdata'] = gen.em_microdata;
+    if (gen.em_jsonld)
+      tpl_data['em_jsonld'] = gen.em_jsonld;
+    if (gen.em_ttl)
+      tpl_data['em_ttl'] = gen.em_ttl;
+
+
     if (certData.ca_fname && certData.ca_fname.length > 0) {
       var ca_cert_url = dir_url + certData.ca_fname+'#this';
       tpl_data['ca_cert_url'] = ca_cert_url;

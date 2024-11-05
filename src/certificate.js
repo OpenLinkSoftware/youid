@@ -890,6 +890,14 @@ class Certificate {
         gen.w_funcs = '';
     }
 
+    gen.em_microdata = DOM.qSel('#gen-cert-dlg #c_em_microdata').checked ? "1": "";
+    gen.em_ttl = DOM.qSel('#gen-cert-dlg #c_em_ttl').checked ? "1": "";
+    gen.em_jsonld = DOM.qSel('#gen-cert-dlg #c_em_jsonld').checked ? "1": "";
+    gen.em_indie_idp = DOM.qSel('#gen-cert-dlg #c_em_indieauth_idp').value;
+    if (gen.em_indie_idp) {
+      const idp = new URL(gen.em_indie_idp);
+      gen.em_indie_idp = idp.origin;
+    }
 
     if (certPwd.length < 1) {
       alert('Certificate password could not be empty');

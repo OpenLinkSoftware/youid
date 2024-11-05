@@ -26,6 +26,15 @@
 %{rel_header_html}
 <!-- RelMeAuth Relations End -->
 
+!!{em_indie_idp}
+<!-- IndieAuth Relations Start -->
+<!-- URIBurner IdP -->
+<link rel="indieauth-metadata" href="%{em_indie_idp}/indieauth/indieauth_metadata">
+<link rel="authorization_endpoint" href="%{em_indie_idp}/indieauth/indieauth_authorize">
+<link rel="token_endpoint" href="%{em_indie_idp}/indieauth/indieauth_token">
+<!-- IndieAuth Relations End -->
+!!.
+
 <link rel="alternate" href="%{rdfa_prof_url}" title="Identity Card (Turtle Format)"  type="text/html" />
 <link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />
 <link rel="alternate" href="vcard.vcf" title="Identity Card (vCard Format)" type="text/vcard" />
@@ -147,21 +156,27 @@
         
         </div><!-- end cardWrapper -->
 
+!!{em_microdata}
 <!-- microdata -->
 %{microdata}
 <!-- end microdata -->
+!!.
 
+!!{em_ttl}
 <!-- profile turtles -->
 <script type="text/turtle">
 %{profile_ttl}
 </script> 
 <!-- end profile turtles -->
+!!.
 
+!!{em_jsonld}
 <!-- profile json_ld -->
 <script type="application/ld+json">
 %{json_ld}
 </script> 
 <!-- end profile json_ld -->
+!!.
 
 <script>
 (function () {

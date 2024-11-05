@@ -276,7 +276,7 @@
             <div class="form-group row">
               <label for="c_opl_key" class="col-md-3 control-label">OPAL API Key:</label>
               <div class="col-md-6">
-                <input type="text" class="form-control" id="c_opl_key" placeholder="xxxxxxx......."/>
+                <input type="text" class="form-control" id="c_opl_key" placeholder="xxxxxxx..."/>
               </div>
             </div>
             <div class="form-group row">
@@ -309,6 +309,35 @@
                 <input type="number" class="form-control" id="c_temperature" value="0.2" min="0.0" />
               </div>
             </div>
+          </div>
+        </form>
+
+        <form class="form-horizontal">
+          <div class="form-group row">
+            <hr/>
+              <label class="col-md-3 control-label">Embeded data in card HTML:</label>
+              <div class="checkbox col-md-6">
+               <fieldset>
+                <label>
+                  <input type="checkbox" id="c_em_microdata" /> Microdata
+                </label>
+                <label style="margin-left:20px">
+                  <input type="checkbox" id="c_em_ttl" /> Turtle data
+                </label>
+                <label style="margin-left:20px">
+                  <input type="checkbox" id="c_em_jsonld" checked /> JSON-LD data
+                </label>
+               </fieldset>
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-md-3 control-label">Embeded IndieAuth for IdP:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_em_indieauth_idp" 
+                 placeholder="https://hostname"
+                 value="https://linkeddata.uriburner.com"
+               />
+              </div>
           </div>
         </form>
 
