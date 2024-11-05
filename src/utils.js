@@ -131,24 +131,20 @@ class YouID_Loader {
 
   this.load_cert_fp = `
   PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
+  PREFIX owl:  <http://www.w3.org/2002/07/owl#>
 
   SELECT * WHERE 
     { 
-         <#{webid}> oplcert:hasCertificate ?cert .
+       { 
+         {<#{webid}> oplcert:hasCertificate ?cert .} UNION
+         {<#{webid}> owl:sameAs ?webid_x .  ?webid_x oplcert:hasCertificate ?cert .}
+       }
          ?cert oplcert:fingerprint ?fp ;
+               oplcert:subject ?subject ;
                oplcert:fingerprint-digest ?fp_dg .
     }`;
-
-
   }
 
-/**
-       OPTIONAL { 
-         <#{webid}> oplcert:hasCertificate ?cert .
-         ?cert oplcert:fingerprint ?fp ;
-               oplcert:fingerprint-digest ?fp_dg .
-       }
-***/
 
   async parse_data(data, content_type, baseURI)
   {
@@ -321,6 +317,10 @@ class YouID_Loader {
       var ret = await this.loadCertKeys(store, webid);
       if (!ret.error && ret.keys)
         youid.keys = ret.keys;
+
+      var ret = await this.loadCert_Fp(store, webid);
+      if (!ret.error && ret.subject)
+        youid.subject = ret.subject;
 
       if (r.schema_name)
         schema_name = r.schema_name.value;
@@ -707,6 +707,7 @@ class YouID_Loader {
     } catch(err) {
       return { "error": err};
     }
+
     if (rc.err) {
       return { "error": rc.err};
     } 
@@ -719,6 +720,8 @@ class YouID_Loader {
         var v = {cert: r.cert.value, fp_dg:[]};
         if (r.fp)
           v["fp"] = r.fp.value;
+        if (r.subject)
+          v["subject"] = r.subject.value;
 
         if (!certs[v.cert])
           certs[v.cert] = v;
@@ -726,7 +729,7 @@ class YouID_Loader {
         if(r.fp_dg)
           certs[v.cert].fp_dg.push(r.fp_dg.value);
       }
-      var ret = Object.values(pkeys)
+      var ret = Object.values(certs)
 
       return ret.length > 0 ? ret[0] : null;
    }
@@ -1080,6 +1083,7 @@ function sniff_text_data(txt, uri)
         }
 
         //try get Turtle Nano in CurlyBraces { ... }
+        /**
         var j = 0;
         var inCurly = 0;
         var str = "";
@@ -1105,6 +1109,7 @@ function sniff_text_data(txt, uri)
                 str += ch;
             }
         }
+        **/
 
         //try get JSON-LD Nano
         while (true) {

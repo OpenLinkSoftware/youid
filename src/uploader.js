@@ -88,22 +88,9 @@ class Uploader {
   }
 
   async loadCardFiles(use_opal_widget) {
-    this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
-    this.files["p_bluesky_32.png"] = new CardFileBinary('p_bluesky_32.png', 'image/png');
-    this.files["p_cal.com_32.png"] = new CardFileBinary('p_cal.com_32.png', 'image/png');
-    this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
-    this.files["p_disha_32.png"] = new CardFileBinary('p_disha_32.png', 'image/png');
-    this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
-    this.files["p_github_32.png"] = new CardFileBinary('p_github_32.png', 'image/png');
-    this.files["p_glitch_32.png"] = new CardFileBinary('p_glitch_32.png', 'image/png');
-    this.files["p_insta_32.png"] = new CardFileBinary('p_insta_32.png', 'image/png');
-    this.files["p_linkedin_32.png"] = new CardFileBinary('p_linkedin_32.png', 'image/png');
-    this.files["p_linktree_32.png"] = new CardFileBinary('p_linktree_32.png', 'image/png');
-    this.files["p_mastodon_32.png"] = new CardFileBinary('p_mastodon_32.png', 'image/png');
-    this.files["p_myopenlink_32.png"] = new CardFileBinary('p_myopenlink_32.png', 'image/png');
-    this.files["p_tiktok_32.png"] = new CardFileBinary('p_tiktok_32.png', 'image/png');
-    this.files["p_threads_32.png"] = new CardFileBinary('p_threads_32.png', 'image/png');
-    this.files["p_twitter_32.png"] = new CardFileBinary('p_twitter_32.png', 'image/png');
+    const rels = new Relations();
+    for(const v of rels.getImagesList())
+      this.files[v] = new CardFileBinary(v, 'image/png');
 
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
     this.files["qrcode.js"] = new CardFileBinary('qrcode.js', 'text/javascript');
@@ -320,7 +307,10 @@ class Uploader {
       for(var i=0; i < gen.relList.length; i++) {
         const r_url = gen.relList[i].v;
         const r_type = gen.relList[i].type;
+        const r_rel = gen.relations.getRelForId(r_type);
+
         var nl = (i==gen.relList.length-1) ? '' : '\n';
+
         s_ttl += `	<${r_url}> ,${nl}`;
 
         s_json += '        {\n'
@@ -334,28 +324,11 @@ class Uploader {
         s_rdf += `        <owl:sameAs rdf:resource="${r_url}#identity"/>\n`;
         s_rdf_schema += `        <schema:sameAs rdf:resource="${r_url}"/>\n`;
 
-        s_header += `<link rel="me" href="${r_url}" />${nl}`;
+        s_header += `<link rel="me" name="${r_rel.name}" href="${r_url}" />${nl}`;
 
-        var p_image = '';
-        var p_alt = ''
-        switch(r_type) {
-          case 'bs': p_image = 'p_bluesky_32.png';    p_alt='Bluesky'; break;
-          case 'ca': p_image = 'p_cal.com_32.png';    p_alt='Cal.com'; break;
-          case 'cr': p_image = 'p_carrd_32.png';      p_alt='Carrd'; break;
-          case 'di': p_image = 'p_disha_32.png';      p_alt='Disha'; break;
-          case 'fb': p_image = 'p_facebook_32.png';   p_alt='Facebook'; break;
-          case 'gh': p_image = 'p_github_32.png';     p_alt='Github'; break;
-          case 'gl': p_image = 'p_glitch_32.png';     p_alt='Glitch'; break;
-          case 'id': p_image = 'p_myopenlink_32.png'; p_alt='ID.MyOpenLink.NET'; break;
-          case 'in': p_image = 'p_insta_32.png';      p_alt='Instagram'; break;
-          case 'li': p_image = 'p_linkedin_32.png'; p_alt='LinkedIn'; break;
-          case 'lt': p_image = 'p_linktree_32.png'; p_alt='Linktree'; break;
-          case 'ma': p_image = 'p_mastodon_32.png'; p_alt='Mastodon'; break;
-          case 'ti': p_image = 'p_tiktok_32.png';   p_alt='TikTok'; break;
-          case 'th': p_image = 'p_threads_32.png';   p_alt='Threads'; break;
-          case 'tw': p_image = 'p_twitter_32.png';  p_alt='Twitter'; break;
-          default: p_image = 'p_none.png'; break;
-        }
+        var p_image = r_rel.img??'';
+        var p_alt = r_rel.name??''
+
         s_html += `		  <a href="${r_url}" target="_blank"><img src="${p_image}" alt="${p_alt}" class="rel_item"></a>\n`;
 
       }

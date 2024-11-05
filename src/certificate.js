@@ -19,32 +19,38 @@
  */
 class Relations {
   constructor() {
+    this.rels = [];
+    const add_el = (id, name, img, url, end, add) => {
+      const u = new URL(url);
+      this.rels.push({id, name, img, url, hostname: u.hostname, end:end??0, add:add??''});
+    } 
+
+    add_el('atom', 'Atom',     'p_atom_32.png',      'https://....atom')
+    add_el('bs',   'Bluesky',  'p_bluesky_32.png',   'https://bsky.app/profile/{user-id}.bsky.social')
+    add_el('ca',   'Cal.com',  'p_cal.com_32.png',   'https://cal.com/{username}')
+    add_el('cr',   'Carrd',    'p_carrd_32.png',     'https://{username}.carrd.co/', 1, 'carrd.co')
+    add_el('fb',   'Facebook', 'p_facebook_32.png',  'https://facebook.com/')
+    add_el('gh',   'Github',   'p_github_32.png',    'https://github.com/')
+    add_el('gl',   'Glitch',   'p_glitch_32.png',    'https://glitch.com/~{username}')
+    add_el('id',   'ID.MyOpenLink.NET', 'p_myopenlink_32.png', 'https://id.myopenlink.net/DAV/home/', 0, 'kingsley.idehen.net')
+    add_el('in',   'Instagram', 'p_insta_32.png',    'https://www.instagram.com/')
+    add_el('li',   'LinkedIn',  'p_linkedin_32.png', 'https://linkedin.com/in/')
+    add_el('lt',   'Linktree',  'p_linktree_32.png', 'https://linktr.ee/')
+    add_el('ma',   'Mastodon',  'p_mastodon_32.png', 'https://mastodon.social/@{user-id}')
+    add_el('opml', 'OPML',      'p_opml_32.png',     'https://...opml')
+    add_el('rss',  'RSS',       'p_rss_32.png',      'https://...rss')
+    add_el('ti',   'TikTok',    'p_tiktok_32.png',   'https://www.tiktok.com/@')
+    add_el('th',   'Threads',   'p_threads_32.png',  'https://www.threads.net/@')
+    add_el('tw',   'Twitter',   'p_twitter_32.png',  'https://twitter.com/', 0, 'x.com')
+//    add_el('xx', 'X', 'https://x.com/')
+  }
+
+  initEvents()
+  {
     DOM.qSel('#rel_add').onclick = (e) => {
       e.preventDefault();
       this.addItem();
     }
-
-    this.rels = [];
-    const add_el = (id, name, url) => {
-      const u = new URL(url);
-      this.rels.push({id, name, url, origin: u.origin});
-    } 
-
-    add_el('bs', 'Bluesky', 'https://bsky.app/profile/{user-id}.bsky.social')
-    add_el('ca', 'Cal.com', 'https://cal.com/{username}')
-    add_el('cr', 'Carrd', 'https://{username}.carrd.co/')
-    add_el('fb', 'Facebook', 'https://facebook.com/')
-    add_el('gh', 'Github', 'https://github.com/')
-    add_el('gl', 'Glitch', 'https://glitch.com/~{username}')
-    add_el('id', 'ID.MyOpenLink.NET', 'https://id.myopenlink.net/DAV/home/')
-    add_el('in', 'Instagram', 'https://www.instagram.com/')
-    add_el('li', 'LinkedIn', 'https://linkedin.com/in/')
-    add_el('lt', 'Linktree', 'https://linktr.ee/')
-    add_el('ma', 'Mastodon', 'https://mastodon.social/@{user-id}')
-    add_el('ti', 'TikTok', 'https://www.tiktok.com/@')
-    add_el('th', 'Threads', 'https://www.threads.net/@')
-    add_el('tw', 'Twitter', 'https://twitter.com/')
-//    add_el('xx', 'X', 'https://x.com/')
   }
 
   createRow()
@@ -63,7 +69,7 @@ class Relations {
            +'</tr>';
   }
 
-  addItem(href)
+  addItem(href, name)
   {
     const tbody = DOM.qSel('#tbl_rels tbody');
     const r = tbody.insertRow(-1);
@@ -87,9 +93,21 @@ class Relations {
         const u = new URL(href)
         let sel = 'none'
         for(const v of this.rels) {
-          if (v.origin === u.origin) {
+          if (name && v.name===name) {
             sel = v.id;
             break;
+          }
+          else if (v.end!=1) {
+            if (u.hostname===v.hostname || (v.add && u.hostname==v.add)) {
+              sel = v.id;
+              break;
+            }
+          } 
+          else {
+            if (u.hostname.endsWith(v.hostname) || (v.add && u.hostname.endsWith(v.add))) {
+              sel = v.id;
+              break;
+            }
           }
         }
         r.querySelector(`#c_rel_type option[value="${sel}"]`).selected = true;
@@ -116,10 +134,28 @@ class Relations {
       var v = el.querySelector('#rel_v').value;
       var type = el.querySelector('#c_rel_type option:checked').value;
       if (v)
-        list.push({v,type});
+        list.push({v, type});
     }
     return list;
   }
+
+  getRelForId(id)
+  {
+    for(const v of this.rels) 
+      if (v.id===id) {
+        return {name:v.name, img:v.img};
+      }
+    return {name:"Other", img:"p_none.png"}
+  }
+
+  getImagesList()
+  {
+    var lst = ['p_none.png'];
+    for(const v of this.rels)
+      lst.push(v.img);
+    return lst;
+  }
+
 }
 
 
@@ -130,6 +166,7 @@ class Certificate {
     this.gOidc = new OidcWeb();
     this.pdp = null;
     this.relations = new Relations();
+    this.relations.initEvents();
     this.relations.emptyList(true);
   }
 
@@ -211,48 +248,72 @@ class Certificate {
         }
   } 
 
-  sniff_HTML_profile(dom)
+  sniff_HTML_profile(dom, subject)
   {
-    if (!dom)
-      return;
-
-    /* sniff relations */
-    const rels = dom.querySelectorAll("link[rel='me']");
-    if (rels.length > 1)
-      this.relations.emptyList();
-    for(const r of rels)
-       this.relations.addItem(r.href);
-
-    /* Sniff card details */
-    const data = dom.querySelector("div.cardDetails");
     let det = {};
-    if (data) {
-      for(const el of data.querySelectorAll('p')) {
-        if (el.textContent === 'Common Name')
-          det.cn = el.nextElementSibling.textContent;
-        else if (el.textContent === 'Organization')
-          det.org = el.nextElementSibling.textContent;
-        else if (el.textContent === 'Country')
-          det.country = el.nextElementSibling.textContent;
-        else if (el.textContent === 'State/Province')
-          det.state = el.nextElementSibling.textContent;
-        else if (el.textContent === 'Email Address')
-          det.email = el.nextElementSibling.textContent;
+    if (subject) {
+      /* parse subject */
+      for(const v of subject.split('/')) {
+        if (v.startsWith('CN='))
+          det.cn = v.substring(3)
+        else if (v.startsWith('O='))
+          det.org = v.substring(2)
+        else if (v.startsWith('OU='))
+          det.orgUnit = v.substring(3)
+        else if (v.startsWith('C='))
+          det.country = v.substring(2)
+        else if (v.startsWith('ST='))
+          det.state = v.substring(3)
+        else if (v.startsWith('L='))
+          det.locality = v.substring(2)
+        else if (v.startsWith('E='))
+          det.email = v.substring(2)
       }
-      det.cn      = data.querySelector(".cardDetails #cn")?.textContent ?? det.cn;
-      det.org     = data.querySelector(".cardDetails #org")?.textContent ?? det.org;
-      det.country = data.querySelector(".cardDetails #country")?.textContent ?? det.country;
-      det.state   = data.querySelector(".cardDetails #state")?.textContent ?? det.state;
-      det.email   = data.querySelector(".cardDetails #email")?.textContent ?? det.email;
     }
+
+    if (dom) {
+      /* sniff relations */
+      const rels = dom.querySelectorAll("link[rel='me']");
+      if (rels.length > 1)
+        this.relations.emptyList();
+      for(const r of rels)
+         this.relations.addItem(r.href, r.attributes.name?.value);
+
+      /* Sniff card details */
+      const data = dom.querySelector("div.cardDetails");
+      if (data) {
+        for(const el of data.querySelectorAll('p')) {
+          if (el.textContent === 'Common Name')
+            det.cn = el.nextElementSibling.textContent;
+          else if (el.textContent === 'Organization')
+            det.org = el.nextElementSibling.textContent;
+          else if (el.textContent === 'Country')
+            det.country = el.nextElementSibling.textContent;
+          else if (el.textContent === 'State/Province')
+            det.state = el.nextElementSibling.textContent;
+          else if (el.textContent === 'Email Address')
+            det.email = el.nextElementSibling.textContent;
+        }
+        det.cn      = data.querySelector(".cardDetails #cn")?.textContent ?? det.cn;
+        det.org     = data.querySelector(".cardDetails #org")?.textContent ?? det.org;
+        det.country = data.querySelector(".cardDetails #country")?.textContent ?? det.country;
+        det.state   = data.querySelector(".cardDetails #state")?.textContent ?? det.state;
+        det.email   = data.querySelector(".cardDetails #email")?.textContent ?? det.email;
+      }
+    }
+
     if (det.cn)
       DOM.iSel('c_name').value = det.cn;
     if (det.org)
       DOM.iSel('c_org').value = det.org;
+    if (det.orgUnit)
+      DOM.iSel('c_org_unit').value = det.orgUnit;
     if (det.country)
       DOM.iSel('c_country').value = det.country;
     if (det.state)
       DOM.iSel('c_state').value = det.state;
+    if (det.locality)
+      DOM.iSel('c_city').value = det.locality;
     if (det.email)
       DOM.iSel('c_email').value = det.email;
   }
@@ -481,9 +542,7 @@ class Certificate {
              DOM.iSel('c_webid').value = webid;
              DOM.iSel('c_name').value = rc.name ? rc.name: "";
              DOM.iSel('c_email').value = rc.email ? rc.email : "";
-             if (ret.dom) {
-               this.sniff_HTML_profile(ret.dom)
-             }
+             this.sniff_HTML_profile(ret.dom, rc.subject)
           }
 
         } catch(e) {
@@ -846,6 +905,7 @@ class Certificate {
           }
         }
 
+        gen.relations = this.relations;
         this.genCertificate(gen);
       };
 

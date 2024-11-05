@@ -22,7 +22,7 @@ font-family: 'Museo500Regular';
 }
 
 /* Headings */
-h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center; margin-top: 15px}
+h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center; font-weight:normal;}
 
 /* Card Wrapper */
 .cardWrapper { 
@@ -35,7 +35,7 @@ h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center;
 }
 
 /* Card Header */
-.cardHeader { background: #1D70B7; height: 60px; line-height: 60px; padding: 0 23px; color: #fff; -webkit-border-radius: 3px 3px 0 0; -moz-border-radius: 3px 3px 0 0; border-radius: 3px 3px 0 0; z-index: 2; }
+.cardHeader { background: #1D70B7; height: 60px; display: flex; align-items: center; justify-content: center;  color: #fff; -webkit-border-radius: 3px 3px 0 0; -moz-border-radius: 3px 3px 0 0; border-radius: 3px 3px 0 0; z-index: 2; }
 
 /* Card Content */
 
