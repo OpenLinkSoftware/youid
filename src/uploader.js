@@ -398,7 +398,7 @@ class Uploader {
     var email = v ? v.value : '';
     tpl_data['subj_email'] = email;
     tpl_data['subj_email_mailto'] = 'mailto:' + email;
-    tpl_data['subj_email_mailto_href'] = '<a href="mailto:' + email + '">' + email + '<a/>';
+    tpl_data['subj_email_mailto_href'] = '<a href="mailto:' + email + '">' + email + '</a>';
 
     tpl_data['date_before'] = cert.validity.notBefore.toISOString();
     tpl_data['date_after'] = cert.validity.notAfter.toISOString();

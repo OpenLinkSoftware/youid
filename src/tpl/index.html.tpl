@@ -46,20 +46,6 @@
 <link href="style.css" rel="stylesheet" type="text/css">
 <link href="style_opal.css" rel="stylesheet" type="text/css">
 
-<style type="text/css">
-   .rel_block {
-     position: absolute;
-     top: 170px;
-     display: grid;
-     grid-template-columns: 1fr 1fr 1fr;
-     grid-column-gap: 15px;
-     grid-row-gap: 5px;
-   }
-   .rel_item {
-     width: 28px;
-     height: 28px;
-   }
-</style>
 
 <script type="text/javascript" src="./qrcode.js"></script>
 
@@ -68,91 +54,86 @@
 
         <div class="xcard cardWrapper">
         
-            <div class="xcard cardHeader border">
+          <div class="xcard cardHeader border">
+            <h1>Your Web-Scale Verifiable Digital Identity Card</h1>
+          </div><!-- end cardHeader -->
             
-              <h1>Your Web-Scale Verifiable Digital Identity Card</h1>
-            
-            </div><!-- end cardHeader -->
-            
-            <div class="xcard cardContent">
-            
-                <div class="xcard cardPic">
-                
-                	<img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
-                
-                </div><!-- end cardPic -->
-!!{relList_html}
-                <div class="rel_block">
-%{relList_html}
-                </div>
-!!.
-                
-                <div class="cardDetails">
-                
-                        <p class="xcard fieldName">Common Name</p>
-                        <p class="xcard fieldContent"><a href="%{webid}">%{subj_name}</a></p>
-                   
-                        <p class="xcard fieldName">Organization</p>
-                        <p class="xcard fieldContent">%{subj_org}</p>
-                    
-                        <p class="xcard fieldName">Country</p>
-                        <p class="xcard fieldContent">%{subj_country}</p>
-                    
-                        <p class="xcard fieldName">State/Province</p>
-                        <p class="xcard fieldContent">%{subj_state}</p>
-                   
-                        <p class="xcard fieldName">Email Address</p>
-                        <p class="xcard fieldContent">%{subj_email_mailto_href}</p>
-!!{pdp_url}
-                        <p class="xcard fieldName">Web Page</p>
-                        <p class="xcard fieldContent"><a href="%{pdp_url}">%{pdp_url}</a></p>
-!!.
-                        <p class="xcard fieldName">Issued</p>
-                        <p class="xcard fieldContent">%{date_before}</p>
-                        
-                        <p class="xcard fieldName">Expiry</p>
-                        <p class="xcard fieldContent">%{date_after}</p>
+          <div class="cardBody">
 
-                </div><!-- end cardDetails -->
-                
-               <div class="cardBottom">
+            <div>
+              <div class="xcard cardPic">
+                <img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
+              </div><!-- end cardPic -->
+!!{relList_html}
+              <div class="rel_block">
+%{relList_html}
+              </div>
+            </div>
+!!.
+            <div class="cardDetails">
+                      <p class="xcard fieldName">Common Name</p>
+                      <p class="xcard fieldContent"><a href="%{webid}">%{subj_name}</a></p>
+                   
+                      <p class="xcard fieldName">Organization</p>
+                      <p class="xcard fieldContent">%{subj_org}</p>
+                    
+                      <p class="xcard fieldName">Country</p>
+                      <p class="xcard fieldContent">%{subj_country}</p>
+                    
+                      <p class="xcard fieldName">State/Province</p>
+                      <p class="xcard fieldContent">%{subj_state}</p>
+                   
+                      <p class="xcard fieldName">Email Address</p>
+                      <p class="xcard fieldContent">%{subj_email_mailto_href}</p>
+!!{pdp_url}
+                      <p class="xcard fieldName">Web Page</p>
+                      <p class="xcard fieldContent"><a href="%{pdp_url}">%{pdp_url}</a></p>
+!!.
+                      <p class="xcard fieldName">Issued</p>
+                      <p class="xcard fieldContent">%{date_before}</p>
+                        
+                      <p class="xcard fieldName">Expiry</p>
+                      <p class="xcard fieldContent">%{date_after}</p>
+            </div>
+
+            <div class="xcard cardQr">
+                	%{qr_card_img}
+            </div>
+            <!-- end cardQr -->
+
+          </div>
+
+          <div class="cardBottom">
                  <div class="xcard cardYouIdIcn">
                 	<a class="aimg" href="http://youid.openlinksw.com"><img src="youid_logo-35px.png" width="35" height="30" alt="YouID"></a>
-                	<a href="http://youid.openlinksw.com">Get Your ID Card</a>
+                	<a href="http://youid.openlinksw.com">Get&nbsp;Your&nbsp;ID&nbsp;Card</a>
                  </div><!-- end cardYouIdIcn -->
 
                  <div class="xcard vCard">
-                	<a class="aimg" href="vcard.vcf"><img src="addrbook.png" width="32" height="34" alt="Add to Contacts"/></a>
-                	<a href="vcard.vcf">Add to Contacts</a>
+                	<a class="aimg" href="vcard.vcf"><img src="addrbook.png" width="32" height="34" alt="Add to Contacts"></a>
+                	<a href="vcard.vcf">Add&nbsp;to&nbsp;Contacts</a>
                  </div><!-- end vCard -->
 
                  <div class="xcard pKey">
-                	<a class="aimg" href="%{pubkey_pem_url}"><img src="lock.png" width="38" height="38" alr="Certificate (.pem)"/></a>
-                	<a href="%{pubkey_pem_url}">Certificate (.pem)</a>
-                	<a href="%{pubkey_der_url}">Certificate (.crt)</a>
+                	<a class="aimg" href="%{pubkey_pem_url}"><img src="lock.png" width="38" height="38" alr="Certificate (.pem)"></a>
+                	<a href="%{pubkey_pem_url}">Certificate&nbsp;(.pem)</a>
+                	<a href="%{pubkey_der_url}">Certificate&nbsp;(.crt)</a>
                  </div><!-- end pKey -->
 
 !!{ca_cert_url}
                  <div class="xcard caKey">
-                    <a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="CA Certificate (.pem)"/></a>
-                    <a href="%{ca_cert_url}">CA Certificate (.pem)</a>
+                    <a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="CA Certificate (.pem)"></a>
+                    <a href="%{ca_cert_url}">CA&nbsp;Certificate&nbsp;(.pem)</a>
                  </div>
 !!.
 !!{use_opal_widget}
                  <div class="xcard agent open-button">
-                    <a class="aimg open-button" href="javascript:void(0)"><img src="chatbot-32px.png" width="32" height="32" alt="AI Agent"/></a>
-                    <a class="open-button" href="javascript:void(0)">AI Agent</a>
+                    <a class="aimg open-button" href="javascript:void(0)"><img src="chatbot-32px.png" width="32" height="32" alt="AI Agent"></a>
+                    <a class="open-button" href="javascript:void(0)">AI&nbsp;Agent</a>
                  </div>
-               </div>
 !!.
-                <div class="xcard cardQr">
-                	%{qr_card_img}
-                </div>
-                <!-- end cardQr -->
-                
-                <div class="clear"></div>
-            
-            </div><!-- end cardContent -->
+          </div>
+          <!-- end cardBottom -->
         
         </div><!-- end cardWrapper -->
 

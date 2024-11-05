@@ -25,20 +25,25 @@ font-family: 'Museo500Regular';
 h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center; margin-top: 15px}
 
 /* Card Wrapper */
-.cardWrapper { width: 592px; margin: auto; margin-top: 30px; background: #fff; }
+.cardWrapper { 
+   width: 600px; 
+   margin: auto; 
+   margin-top: 30px; 
+   background: #fff; 
+   display:grid; 
+   grid-template-rows:auto auto auto;
+}
 
 /* Card Header */
 .cardHeader { background: #1D70B7; height: 60px; line-height: 60px; padding: 0 23px; color: #fff; -webkit-border-radius: 3px 3px 0 0; -moz-border-radius: 3px 3px 0 0; border-radius: 3px 3px 0 0; z-index: 2; }
 
 /* Card Content */
-.cardContent { padding: 23px; padding-right: 131px; -moz-box-shadow: 0 0 2px #999998; -webkit-box-shadow: 0 0 2px #999998; box-shadow: 0 0 2px #999998; z-index: 1; position: relative; }
 
 /* User Photo */
-.cardPic { float: left; }
+.cardPic {  }
 
 /* Card Details Section */
-/*.cardDetails { float: left; padding-left: 23px; padding-bottom: 53px; width: 285px; }*/
-.cardDetails { float: left; padding-left: 23px; padding-bottom: 73px; width: 285px; }
+.cardDetails { float: left; width: 285px; }
 
 /* Card Fields */
 p.fieldName { font-size: 11px; color: #6F6F6E; margin-bottom: 4px; }
@@ -46,11 +51,20 @@ p.fieldContent { font-size: 14px; color: #000; background: #F5F5F5; padding-left
 .fieldContent:last-child { margin-bottom: 0; }
 
 div.cardBottom {
-  display: flex;
-  flex-flow: row;
-  position: absolute;
-  left: 20px;
-  bottom: 12px;
+  padding-bottom: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: #fff;
+  display: grid;
+  grid-template-columns:auto auto auto auto auto; 
+}
+
+div.cardBody {
+  display:grid; 
+  grid-template-columns:130px 1fr 102px; 
+  grid-column-gap: 20px; 
+  padding: 23px;
+  background: #fff;
 }
 
 /* Card YouID */
@@ -72,13 +86,29 @@ div.pKey {margin-left: 30px; display:flex; flex-flow:column;align-items:center;}
 div.caKey {margin-left: 30px; display:flex; flex-flow:column;align-items:center;}
 .caKey a { font-size: 11px; color: #6F6F6E; }
 
-
 /* Card QR Code */
-.cardQr { position: absolute; right: 23px; bottom: 96px; }
+.cardQr { 
+  display:flex; 
+  flex-flow:column-reverse; 
+  height:100%;
+}
+
 
 div.agent {margin-left: 30px; display:flex; flex-flow:column;}
 .agent a {font-size: 11px; color: #6F6F6E; }
 .agent .aimg { margin: 3px 0px; }
+
+.rel_block {
+  padding-top: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 15px;
+  grid-row-gap: 5px;
+}
+.rel_item {
+  width: 28px;
+  height: 28px;
+}
 
 
 .open-button_ {
