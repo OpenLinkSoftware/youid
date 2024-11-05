@@ -37,7 +37,8 @@ h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center;
 .cardPic { float: left; }
 
 /* Card Details Section */
-.cardDetails { float: left; padding-left: 23px; padding-bottom: 53px; width: 285px; }
+/*.cardDetails { float: left; padding-left: 23px; padding-bottom: 53px; width: 285px; }*/
+.cardDetails { float: left; padding-left: 23px; padding-bottom: 73px; width: 285px; }
 
 /* Card Fields */
 p.fieldName { font-size: 11px; color: #6F6F6E; margin-bottom: 4px; }
@@ -45,39 +46,35 @@ p.fieldContent { font-size: 14px; color: #000; background: #F5F5F5; padding-left
 .fieldContent:last-child { margin-bottom: 0; }
 
 /* Card YouID */
-.cardYouIdIcn p { font-size: 11px; position: absolute; bottom: 14px; left: 23px; color: #6F6F6E; }
-.cardYouIdIcn a { font-size: 11px; position: absolute; bottom: 14px; left: 23px; color: #6F6F6E; }
-.cardYouIdIcn .aimg{ vertical-align: bottom; position: absolute; bottom: 29px; left: 49px;}
+.cardYouIdIcn p { font-size: 11px; position: absolute; bottom: 34px; left: 23px; color: #6F6F6E; }
+.cardYouIdIcn a { font-size: 11px; position: absolute; bottom: 34px; left: 23px; color: #6F6F6E; }
+.cardYouIdIcn .aimg{ vertical-align: bottom; position: absolute; bottom: 49px; left: 49px;}
 
 /* vCard */
-.vCard p { font-size: 11px; position: absolute; bottom: 19px; left: 144px; color: #6F6F6E; }
-.vCard a { font-size: 11px; position: absolute; bottom: 14px; left: 144px; color: #6F6F6E; }
-.vCard .aimg{ vertical-align: bottom; position: absolute; bottom: 29px; left: 170px;}
+.vCard p { font-size: 11px; position: absolute; bottom: 39px; left: 144px; color: #6F6F6E; }
+.vCard a { font-size: 11px; position: absolute; bottom: 34px; left: 144px; color: #6F6F6E; }
+.vCard .aimg{ vertical-align: bottom; position: absolute; bottom: 49px; left: 170px;}
 
 /* pKey */
-.pKey p { font-size: 11px; position: absolute; bottom: 19px; left: 290px; color: #6F6F6E; }
-.pKey a { font-size: 11px; position: absolute; bottom: 14px; left: 290px; color: #6F6F6E; }
-.pKey .aimg { vertical-align: bottom; position: absolute; bottom: 29px; left: 300px; }
+.pKey p { font-size: 11px; position: absolute; bottom: 39px; left: 290px; color: #6F6F6E; }
+.pKey a { font-size: 11px; position: absolute; bottom: 34px; left: 290px; color: #6F6F6E; }
+.pKey .aimg { vertical-align: bottom; position: absolute; bottom: 49px; left: 300px; }
+.pKeyPem a { font-size: 11px; position: absolute; bottom: 14px; left: 290px; color: #6F6F6E; }
 
 /* caKey */
-.caKey p { font-size: 11px; position: absolute; bottom: 19px; left: 400px; color: #6F6F6E; }
-.caKey a { font-size: 11px; position: absolute; bottom: 14px; left: 400px; color: #6F6F6E; }
-.caKey .aimg { vertical-align: bottom; position: absolute; bottom: 29px; left: 420px; }
+.caKey p { font-size: 11px; position: absolute; bottom: 39px; left: 400px; color: #6F6F6E; }
+.caKey a { font-size: 11px; position: absolute; bottom: 34px; left: 400px; color: #6F6F6E; }
+.caKey .aimg { vertical-align: bottom; position: absolute; bottom: 49px; left: 420px; }
 
 /* Card QR Code */
-.cardQr { position: absolute; right: 23px; bottom: 76px; }
+.cardQr { position: absolute; right: 23px; bottom: 96px; }
 
 .open-button {
-  background-color: rgb(0, 137, 194);
-  color: white;
-  border: none;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
   cursor: pointer;
   vertical-align: bottom;
   position: absolute; 
-  bottom: 15px; 
+  bottom: 50px; 
   left: 520px;
+  z-index: 11;
 }
 

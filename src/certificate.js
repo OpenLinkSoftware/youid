@@ -1508,6 +1508,11 @@ class Certificate {
         alert('Could not upload file ' + gen.cert_name + '.crt');
         return -1;
       }
+      rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.pem', certData.pem, 'application/x-pem-file');
+      if (!rc.ok) {
+        alert('Could not upload file ' + gen.cert_name + '.pem');
+        return -1;
+      }
 
       if (certData.ca_pem && certData.ca_fname) {
         rc = await up.uploadFile(gen.cert_dir, certData.ca_fname, certData.ca_pem, 'application/x-pem-file');
@@ -1630,6 +1635,11 @@ class Certificate {
           rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', der, 'application/pkix-cert');
           if (!rc.ok) {
             alert('Could not upload file ' + gen.cert_name + '.crt');
+            return -1;
+          }
+          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.pem', certData.pem, 'application/x-pem-file');
+          if (!rc.ok) {
+            alert('Could not upload file ' + gen.cert_name + '.pem');
             return -1;
           }
 

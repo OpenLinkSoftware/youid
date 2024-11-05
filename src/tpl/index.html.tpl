@@ -118,20 +118,24 @@
 
                 <div class="xcard pKey">
                 
-                	<a class="aimg" href="%{pubkey_pem_url}"><img src="lock.png" width="38" height="38" alr="Public Key"/></a>
-                	<a href="%{pubkey_pem_url}">Public Key</a>
-
+                	<a class="aimg" href="%{pubkey_pem_url}"><img src="lock.png" width="38" height="38" alr="Certificate (.pem)"/></a>
+                	<a href="%{pubkey_pem_url}">Certificate (.pem)</a>
                 </div><!-- end pKey -->
+                <div class="xcard pKeyPem">
+                	<a href="%{pubkey_der_url}">Certificate (.crt)</a>
+                </div><!-- end pKey -->
+                
 
 !!{ca_cert_url}
                 <div class="xcard caKey">
-                	<a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="Issuer Public Key"/></a>
-                        <a href="%{ca_cert_url}">Issuer Public Key</a>
+                	<a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="CA Certificate (.pem)"/></a>
+                    <a href="%{ca_cert_url}">CA Certificate (.pem)</a>
                 </div>
 !!.
 !!{use_opal_widget}
-                <button class="open-button" title="OPAL">OPAL
-                </button>
+                <a class="open-button" href="javascript:void(0)">
+                  <img src="chatbot-32px.png" width="32" height="32" alt="AI Agent"/>
+                </a>
 !!.
                 <div class="xcard cardQr">
                 	%{qr_card_img}
@@ -212,14 +216,16 @@
 <textarea id="clipboard-text"></textarea>
 <div class="chat-popup" id="opal-form">
   <div class="form-container">
-    <h1>Talk with OPAL</h1>
-    <div class="questions">
-        <button type="button" class="prompt">How to install Virtuoso on Linux?</button>
-        <button type="button" class="prompt">How to install Virtuoso on Windows?</button>
-        <button type="button" class="prompt">How to install Virtuoso on MacOs?</button>
-        <button type="button" class="prompt">How to install Virtuoso license?</button>
+    <h1>Talk to Me</h1>
+    <div class="messages">
+      <div class="questions">
+        <button type="button" class="prompt">What is OpenLink YouID?</button>
+        <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
+        <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
+        <button type="button" class="prompt">How do I use OpenLink YouID?</button>
+        <button type="button" class="prompt">Where can I obtain OpenLink YouID?</button>
+      </div>
     </div>
-    <div class="messages"></div>
     <div class="input_wrapper">
         <label id="assistant-id"></label>
         <textarea placeholder="Type message.." id="message_input" required></textarea>
@@ -356,7 +362,7 @@ $(function () {
             $('.share-btn').on ('click', function () { opal.share('clipboard-link'); });
         }
         if (text.length) {
-            $messages.append ($(`<div class="user-message"><pre>${text}</pre></div>`));
+            $messages.append ($(`<div class="user-message"><p>${text}</p></div>`));
             $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
             $('.prompt').off();
             await opal.send (text);

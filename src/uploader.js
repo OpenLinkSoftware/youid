@@ -115,6 +115,7 @@ class Uploader {
 
     if (use_opal_widget) {
       this.files["style_opal.css"] = new CardFileBinary('style_opal.css', 'text/css');
+      this.files["chatbot-32px.png"] = new CardFileBinary('chatbot-32px.png', 'image/png');
       this.files["auth.js"] = new CardFileBinary('auth.js', 'text/javascript');
       this.files["opalx.js"] = new CardFileBinary('opalx.js', 'text/javascript');
     }
@@ -397,7 +398,8 @@ class Uploader {
       tpl_data['pdp_url_head'] = `<link rel="related" href="${pdp_html}" title="Related Document"  type="text/html" />`;
     }
 
-    tpl_data['pubkey_pem_url'] = dir_url + gen.cert_name + '.crt';
+    tpl_data['pubkey_der_url'] = dir_url + gen.cert_name + '.crt';
+    tpl_data['pubkey_pem_url'] = dir_url + gen.cert_name + '.pem';
     tpl_data['vcard_url'] = dir_url + this.files["vcard.vcf"].fname;
     tpl_data['prof_url'] = dir_url + this.files["profile.ttl"].fname;
     tpl_data['pubkey_url'] = dir_url + this.files["public_key.ttl"].fname;

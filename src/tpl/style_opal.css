@@ -14,6 +14,17 @@
 }
 **/
 
+.chat-popup * {
+    font-family: 'Open Sans', Helvetica,  Arial, sans-serif !important;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.open-button:hover {
+  transition: all .5s;
+  transform: scale(1.3);
+}
+
 .chat-popup {
   display: none;
   position: fixed;
@@ -22,18 +33,21 @@
   border: 1px solid lightgrey;
   border-radius: 10px;
   z-index: 10;
+  box-shadow: -3px -4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .form-container {
   min-width: 400px;
-  padding: 10px;
+/*  padding: 10px; */
+  padding-top: 10px;
+  padding-bottom: 10px;
   border-radius: 10px;
-  background-color: white;
+  background-color: rgb(80, 155, 219);
 }
 
 .form-container #message_input {
   width: 100%;
-  /*padding: 15px;*/
+  padding: 15px;
   margin: 5px 0 0px 0;
   border-radius: 10px;
   border: 1px solid lightgrey;
@@ -84,16 +98,32 @@
 
 .chat-popup h1 {
     font-size: 12pt;
+    color: white;
+    text-align: left;
+    margin-left: 10px;
 }
 
 .messages {
     overflow: scroll;
+    overflow-x: hidden;
     min-height: 400px;
-    max-height: 600px;
+    max-height: 400px;
     width: 400px;
     border: 1px solid lightgrey;
-    border-radius: 10px;
+/*    border-radius: 10px;*/
     display: block;
+    background-color: #fffefb;
+}
+
+.messages pre {
+    background-color: #fffefb;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .close-btn {
@@ -136,16 +166,69 @@
 }
 
 .user-message {
-    background-color: lightgreen;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    width: 95%;
+    padding: 1rem 0rem 1rem 2rem;
 }
 
-.user-message pre {
+.user-message p {
     margin: 0px;
+}
+.user-message p{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: end;
+  background-color: #f2f1f1;
+  padding: 1rem;
+  border-radius: 10px;
+  position: relative; /* Add this line */
+}
+
+.user-message p::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  right: 6px; /* Adjust as needed, controls the horizontal position of the tail */
+  top: 5px; /* Adjust as needed, controls the vertical position of the tail */
+  border: 15px solid transparent; /* Adjust size of the tail */
+  border-left-color: #f2f1f1; /* Color should match the bubble's background */
+  border-right: 0;
+  margin-top: -5px; /* Adjust to fine-tune the tail's vertical position */
+  margin-right: -15px; /*Adjust to fine-tune the tail's horizontal position */
 }
 
 .agent-message {
-    background-color: lightblue;
+  background-color: lightblue;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 95%;
+  margin-left: 0.8rem;
+  margin-bottom: 1.1rem;
+  border-radius: 5px;
+  padding: 10px;
+  position: relative; /* Add this line */
 }
+
+.agent-message::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -10px; /* Adjust as needed, controls the horizontal position of the tail */
+  top: 5px; /* Adjust as needed, controls the vertical position of the tail */
+  border: 15px solid transparent; /* Adjust size of the tail */
+  border-right-color: lightblue; /* Color should match the bubble's background */
+  border-left: 0;
+  margin-top: -5px; /* Adjust to fine-tune the tail's vertical position */
+  margin-left: 0; /* Adjust to fine-tune the tail's horizontal position */
+}
+
+
 
 .form-group {
     position: absolute;
@@ -167,25 +250,25 @@
     height: 35px;
 }
 
-.questions {
-    position: absolute;
-    bottom: 90px;
+.questions{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1rem;
 }
 
-.prompt {
-    background-color: lightgreen;
-    border-radius: 10px;
-    border: 1px solid lightgreen;
-    padding: 15px;
-    margin: 10px;
-    width: 90%;
-    cursor: pointer;
-}
-
-.prompt:hover {
-    opacity:1;
-    background-color: white;
-    cursor: pointer;
+.questions .prompt {
+  width: 50%;
+  background-color: rgb(238, 238, 238);  
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0 1rem 0;
+  text-align: center;
+  color: black;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-width: 0px;
 }
 
 span.cursor::after {
@@ -284,6 +367,8 @@ span.cursor::after {
 
 .input_wrapper {
     position: relative;
+    padding-left: 10px;
+    padding-right:10px;
 }
 
 #assistant-id {
