@@ -229,19 +229,20 @@ class YouID_Loader {
       }
     }
 
-    var rc = [];
+    var rc = {id_list:[]};
+    var id_list = [];
     if (content_type.indexOf('text/plain') != -1) {
        
        var idata = sniff_text_data(data, baseURI); //idata = {ttl:[], ldjson, rdfxml:[]}
 
        for(var i=0; i<idata.ldjson.length; i++) {
-         rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
+         id_list = await get_data(id_list, idata.ldjson[i], 'application/ld+json', idata.baseURI);
        }
        for(var i=0; i<idata.ttl.length; i++) {
-         rc = await get_data(rc, idata.ttl[i], 'text/turtle', idata.baseURI);
+         id_list = await get_data(id_list, idata.ttl[i], 'text/turtle', idata.baseURI);
        }
        for(var i=0; i<idata.rdfxml.length; i++) {
-         rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
+         id_list = await get_data(id_list, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
        }
 
     } else if (content_type.indexOf('text/html') != -1) {
@@ -250,14 +251,16 @@ class YouID_Loader {
        var doc = parser.parseFromString(data, 'text/html');
        var idata = sniff_doc_data(doc, baseURI);
 
+       rc["dom"] = doc;
+
        for(var i=0; i<idata.ldjson.length; i++) {
-         rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
+         id_list = await get_data(id_list, idata.ldjson[i], 'application/ld+json', idata.baseURI);
        }
        for(var i=0; i<idata.ttl.length; i++) {
-         rc = await get_data(rc, idata.ttl[i], 'text/turtle', idata.baseURI);
+         id_list = await get_data(id_list, idata.ttl[i], 'text/turtle', idata.baseURI);
        }
        for(var i=0; i<idata.rdfxml.length; i++) {
-         rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
+         id_list = await get_data(id_list, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
        }
 
     } else {
@@ -270,10 +273,11 @@ class YouID_Loader {
       var ret = await this.exec_verify_query(store, {data, content_type, baseURI});
       for(var webid in ret) {
         var data = ret[webid];
-        rc.push(data); 
+        id_list.push(data); 
       }
     }
 
+    rc.id_list = id_list;
     return rc;
   }
 

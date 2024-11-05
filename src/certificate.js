@@ -23,28 +23,38 @@ class Relations {
       e.preventDefault();
       this.addItem();
     }
+
+    this.rels = [];
+    const add_el = (id, name, url) => {
+      const u = new URL(url);
+      this.rels.push({id, name, url, origin: u.origin});
+    } 
+
+    add_el('bs', 'Bluesky', 'https://bsky.app/profile/{user-id}.bsky.social')
+    add_el('ca', 'Cal.com', 'https://cal.com/{username}')
+    add_el('cr', 'Carrd', 'https://{username}.carrd.co/')
+    add_el('fb', 'Facebook', 'https://facebook.com/')
+    add_el('gh', 'Github', 'https://github.com/')
+    add_el('gl', 'Glitch', 'https://glitch.com/~{username}')
+    add_el('id', 'ID.MyOpenLink.NET', 'https://id.myopenlink.net/DAV/home/')
+    add_el('in', 'Instagram', 'https://www.instagram.com/')
+    add_el('li', 'LinkedIn', 'https://linkedin.com/in/')
+    add_el('lt', 'Linktree', 'https://linktr.ee/')
+    add_el('ma', 'Mastodon', 'https://mastodon.social/@{user-id}')
+    add_el('ti', 'TikTok', 'https://www.tiktok.com/@')
+    add_el('th', 'Threads', 'https://www.threads.net/@')
+    add_el('tw', 'Twitter', 'https://twitter.com/')
+//    add_el('xx', 'X', 'https://x.com/')
   }
 
   createRow()
   {
-    const sel = '<select class="form-control" id="c_rel_type">'
+    let sel = '<select class="form-control" id="c_rel_type">'
                +' <option value="none">Other</option>'
-               +' <option value="bs">Bluesky</option>'
-               +' <option value="ca">Cal.com</option>'
-               +' <option value="cr">Carrd</option>'
-/*               +' <option value="di">Disha</option>'*/
-               +' <option value="fb">Facebook</option>'
-               +' <option value="gh">Github</option>'
-               +' <option value="gl">Glitch</option>'
-               +' <option value="id">ID.MyOpenLink.NET</option>'
-               +' <option value="in">Instagram</option>'
-               +' <option value="li">LinkedIn</option>'
-               +' <option value="lt">Linktree</option>'
-               +' <option value="ma">Mastodon</option>'
-               +' <option value="ti">TikTok</option>'
-               +' <option value="th">Threads</option>'
-               +' <option value="tw">Twitter</option>'
-               +'</select>';
+    for(const v of this.rels)
+      sel += ` <option value="${v.id}">${v.name}</option>`;
+
+    sel += '</select>';
 
     return  '<tr>'
            +'<td> <button id="rel_del"> <input type="image" src="lib/css/img/minus.png" width="12" height="12"> </button> </td>' 
@@ -53,7 +63,7 @@ class Relations {
            +'</tr>';
   }
 
-  addItem()
+  addItem(href)
   {
     const tbody = DOM.qSel('#tbl_rels tbody');
     const r = tbody.insertRow(-1);
@@ -62,41 +72,39 @@ class Relations {
       e.preventDefault();
       const row = e.target.closest('tr');
       var sel = row.querySelector('#c_rel_type option:checked').value;
-      var url = '';
-      switch (sel) {
-        case 'bs': url = 'https://bsky.app/profile/{user-id}.bsky.social'; break;
-        case 'ca': url = 'https://cal.com/{username}'; break;
-        case 'cr': url = 'https://{username}.carrd.co/'; break;
-        case 'di': url = 'https://{username}.disha.page'; break;
-        case 'fb': url = 'https://facebook.com/'; break;
-        case 'gh': url = 'https://github.com/'; break;
-        case 'gl': url = 'https://glitch.com/~{username}'; break;
-        case 'id': url = 'https://id.myopenlink.net/DAV/home/'; break;
-        case 'in': url = 'https://www.instagram.com/'; break;
-        case 'li': url = 'https://linkedin.com/in/'; break;
-        case 'lt': url = 'https://linktr.ee/'; break;
-        case 'ma': url = 'https://mastodon.social/@{user-id}'; break;
-        case 'ti': url = 'https://www.tiktok.com/@'; break;
-        case 'th': url = 'https://www.threads.net/@'; break;
-        case 'tw': url = 'https://twitter.com/'; break;
-        default:
-          break;
+      for(const v of this.rels) {
+        if (v.id === sel)
+          row.querySelector('#rel_v').value = v.url;
       }
-      if (url)
-        row.querySelector('#rel_v').value = url;
     }
     r.querySelector('#rel_del').onclick = (e) => {
       e.preventDefault();
       const row = e.target.closest('tr');
       row.remove();
     }
+    if (href) {
+      try {
+        const u = new URL(href)
+        let sel = 'none'
+        for(const v of this.rels) {
+          if (v.origin === u.origin) {
+            sel = v.id;
+            break;
+          }
+        }
+        r.querySelector(`#c_rel_type option[value="${sel}"]`).selected = true;
+        r.querySelector(`#c_rel_type`).dispatchEvent(new Event("change"));
+        r.querySelector(`#rel_v`).value = href;
+      } catch(_) {}
+    }
   }
 
-  emptyList()
+  emptyList(add)
   {
     const tbody = DOM.qSel('#tbl_rels tbody');
     tbody.innerHTML = '';
-    this.addItem();
+    if (add)
+      this.addItem();
   }
 
   getList()
@@ -122,7 +130,7 @@ class Certificate {
     this.gOidc = new OidcWeb();
     this.pdp = null;
     this.relations = new Relations();
-    this.relations.emptyList();
+    this.relations.emptyList(true);
   }
 
   reset_gen_cert() 
@@ -203,6 +211,51 @@ class Certificate {
         }
   } 
 
+  sniff_HTML_profile(dom)
+  {
+    if (!dom)
+      return;
+
+    /* sniff relations */
+    const rels = dom.querySelectorAll("link[rel='me']");
+    if (rels.length > 1)
+      this.relations.emptyList();
+    for(const r of rels)
+       this.relations.addItem(r.href);
+
+    /* Sniff card details */
+    const data = dom.querySelector("div.cardDetails");
+    let det = {};
+    if (data) {
+      for(const el of data.querySelectorAll('p')) {
+        if (el.textContent === 'Common Name')
+          det.cn = el.nextElementSibling.textContent;
+        else if (el.textContent === 'Organization')
+          det.org = el.nextElementSibling.textContent;
+        else if (el.textContent === 'Country')
+          det.country = el.nextElementSibling.textContent;
+        else if (el.textContent === 'State/Province')
+          det.state = el.nextElementSibling.textContent;
+        else if (el.textContent === 'Email Address')
+          det.email = el.nextElementSibling.textContent;
+      }
+      det.cn      = data.querySelector(".cardDetails #cn")?.textContent ?? det.cn;
+      det.org     = data.querySelector(".cardDetails #org")?.textContent ?? det.org;
+      det.country = data.querySelector(".cardDetails #country")?.textContent ?? det.country;
+      det.state   = data.querySelector(".cardDetails #state")?.textContent ?? det.state;
+      det.email   = data.querySelector(".cardDetails #email")?.textContent ?? det.email;
+    }
+    if (det.cn)
+      DOM.iSel('c_name').value = det.cn;
+    if (det.org)
+      DOM.iSel('c_org').value = det.org;
+    if (det.country)
+      DOM.iSel('c_country').value = det.country;
+    if (det.state)
+      DOM.iSel('c_state').value = det.state;
+    if (det.email)
+      DOM.iSel('c_email').value = det.email;
+  }
 
   async click_gen_cert(cur_webid) 
   {
@@ -399,7 +452,7 @@ class Certificate {
           var loader = new YouID_Loader();
           var ret = await loader.verify_ID(uri, this.gOidc);
               
-          for(var val of ret) {
+          for(var val of ret.id_list) {
             if (val.success && !rc0)
               rc0 = val;
             if (val.success && val.id.startsWith(url)) {
@@ -414,9 +467,23 @@ class Certificate {
             rc = rc0;
 
           if (rc && rc.success) {
-             DOM.iSel('c_webid').value = rc.id ? rc.id : "";
+             let webid = rc.id ? rc.id : "";
+             if (webid)
+               try {
+                 let u = new URL(webid);
+                 const li = u.pathname.lastIndexOf('/');
+                 let pathname = u.pathname.substring(0, u.pathname.lastIndexOf('/'));
+                 u.pathname = pathname + "/index.html";
+                 u.hash = '#identity';
+                 webid = u.toString()
+               } catch(_) {}
+
+             DOM.iSel('c_webid').value = webid;
              DOM.iSel('c_name').value = rc.name ? rc.name: "";
              DOM.iSel('c_email').value = rc.email ? rc.email : "";
+             if (ret.dom) {
+               this.sniff_HTML_profile(ret.dom)
+             }
           }
 
         } catch(e) {
@@ -816,7 +883,7 @@ class Certificate {
           var youid = new YouID_Loader();
           var rc = await youid.verify_ID(webid, this.gOidc);
           if (rc) {
-            for(var v_webid in rc) {
+            for(var v_webid in rc.id_list) {
               var data = rc[v_webid];
               if (data.success) {
                 DOM.iSel('c_name').value = data.name;
@@ -1702,7 +1769,7 @@ class Certificate {
     try {
       var rc = await (new YouID_Loader()).verify_ID(uri, this.gOidc);
       if (rc) {
-        for(var data of rc) {
+        for(var data of rc.id_list) {
           if (data.success && data.id.startsWith(uri)) {
             var s;
         
