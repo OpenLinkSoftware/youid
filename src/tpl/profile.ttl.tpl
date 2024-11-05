@@ -120,10 +120,10 @@ a foaf:profileDocument , oplcert:Certificate ;
 	<%{rdfa_prof_url}#identity> ,
 	<%{prof_url}#identity> .
 
-<%{card_ident_url}> schema:sameAs <%{jsonld_prof_url}#identity> ,
+<%{card_ident_url}> schema:sameAs <%{jsonld_prof_url}> ,
 !{relList} %{relList}
-	<%{rdfa_prof_url}#identity> ,
-	<%{prof_url}#identity> .
+	<%{rdfa_prof_url}> ,
+	<%{prof_url}> .
 
 <%{prof_url}#identity> xhv:alt <%{cert_url}#cert> .
 

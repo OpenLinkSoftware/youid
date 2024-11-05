@@ -105,39 +105,35 @@
 
                 </div><!-- end cardDetails -->
                 
-                <div class="xcard cardYouIdIcn">
-                
+               <div class="cardBottom">
+                 <div class="xcard cardYouIdIcn">
                 	<a class="aimg" href="http://youid.openlinksw.com"><img src="youid_logo-35px.png" width="35" height="30" alt="YouID"></a>
                 	<a href="http://youid.openlinksw.com">Get Your ID Card</a>
-                
-                </div><!-- end cardYouIdIcn -->
+                 </div><!-- end cardYouIdIcn -->
 
-                <div class="xcard vCard">
-                
+                 <div class="xcard vCard">
                 	<a class="aimg" href="vcard.vcf"><img src="addrbook.png" width="32" height="34" alt="Add to Contacts"/></a>
                 	<a href="vcard.vcf">Add to Contacts</a>
+                 </div><!-- end vCard -->
 
-                </div><!-- end vCard -->
-
-                <div class="xcard pKey">
-                
+                 <div class="xcard pKey">
                 	<a class="aimg" href="%{pubkey_pem_url}"><img src="lock.png" width="38" height="38" alr="Certificate (.pem)"/></a>
                 	<a href="%{pubkey_pem_url}">Certificate (.pem)</a>
-                </div><!-- end pKey -->
-                <div class="xcard pKeyPem">
                 	<a href="%{pubkey_der_url}">Certificate (.crt)</a>
-                </div><!-- end pKey -->
+                 </div><!-- end pKey -->
 
 !!{ca_cert_url}
-                <div class="xcard caKey">
-                	<a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="CA Certificate (.pem)"/></a>
+                 <div class="xcard caKey">
+                    <a class="aimg" href="%{ca_cert_url}"><img src="lock.png" width="38" height="38" alt="CA Certificate (.pem)"/></a>
                     <a href="%{ca_cert_url}">CA Certificate (.pem)</a>
-                </div>
+                 </div>
 !!.
 !!{use_opal_widget}
-                <a class="open-button" href="javascript:void(0)">
-                  <img src="chatbot-32px.png" width="32" height="32" alt="AI Agent"/>
-                </a>
+                 <div class="xcard agent open-button">
+                    <a class="aimg open-button" href="javascript:void(0)"><img src="chatbot-32px.png" width="32" height="32" alt="AI Agent"/></a>
+                    <a class="open-button" href="javascript:void(0)">AI Agent</a>
+                 </div>
+               </div>
 !!.
                 <div class="cardQr">
                 	%{qr_rdfa_img}

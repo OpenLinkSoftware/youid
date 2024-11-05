@@ -28,7 +28,7 @@ class Relations {
   createRow()
   {
     const sel = '<select class="form-control" id="c_rel_type">'
-               +' <option value="none">--</option>'
+               +' <option value="none">Other</option>'
                +' <option value="bs">Bluesky</option>'
                +' <option value="ca">Cal.com</option>'
                +' <option value="cr">Carrd</option>'
@@ -75,7 +75,7 @@ class Relations {
         case 'in': url = 'https://www.instagram.com/'; break;
         case 'li': url = 'https://linkedin.com/in/'; break;
         case 'lt': url = 'https://linktr.ee/'; break;
-        case 'ma': url = 'https://mastodon.social/'; break;
+        case 'ma': url = 'https://mastodon.social/@{user-id}'; break;
         case 'ti': url = 'https://www.tiktok.com/@'; break;
         case 'th': url = 'https://www.threads.net/@'; break;
         case 'tw': url = 'https://twitter.com/'; break;
@@ -866,7 +866,7 @@ class Certificate {
       var w_assistant = DOM.qSel('#gen-cert-dlg #c_assistant').value;
 
       if (w_opl_api_key.length<1) {
-        alert("OpenLink API KEY is empty")
+        alert("OPAL API KEY is empty")
         return
       }
       if (w_assistant.length<1) {

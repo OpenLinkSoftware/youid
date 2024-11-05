@@ -158,9 +158,9 @@
 
   <div typeof="rdfs:Resource" about="%{card_ident_url}">
 !{relList_rdfa_schema} %{relList_rdfa_schema}
-    <div rel="schema:sameAs" resource="%{jsonld_prof_url}#identity"></div>
-    <div rel="schema:sameAs" resource="%{prof_url}#identity"></div>
-    <div rel="schema:sameAs" resource="%{rdfa_prof_url}#identity"></div>
+    <div rel="schema:sameAs" resource="%{jsonld_prof_url}"></div>
+    <div rel="schema:sameAs" resource="%{prof_url}"></div>
+    <div rel="schema:sameAs" resource="%{rdfa_prof_url}"></div>
   </div>
 
   <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">

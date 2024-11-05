@@ -45,36 +45,43 @@ p.fieldName { font-size: 11px; color: #6F6F6E; margin-bottom: 4px; }
 p.fieldContent { font-size: 14px; color: #000; background: #F5F5F5; padding-left: 5px; margin: 0 0 7px -2px; -webkit-border-radius: 3px; -webkit-border-radius: 3px; -moz-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; min-height:5px}
 .fieldContent:last-child { margin-bottom: 0; }
 
+div.cardBottom {
+  display: flex;
+  flex-flow: row;
+  position: absolute;
+  left: 20px;
+  bottom: 12px;
+}
+
 /* Card YouID */
-.cardYouIdIcn p { font-size: 11px; position: absolute; bottom: 34px; left: 23px; color: #6F6F6E; }
-.cardYouIdIcn a { font-size: 11px; position: absolute; bottom: 34px; left: 23px; color: #6F6F6E; }
-.cardYouIdIcn .aimg{ vertical-align: bottom; position: absolute; bottom: 49px; left: 49px;}
+div.cardYouIdIcn {display:flex; flex-flow:column;align-items:center;}
+.cardYouIdIcn a { font-size: 11px; color: #6F6F6E; }
+.cardYouIdIcn .aimg { margin: 4px 0px; }
 
 /* vCard */
-.vCard p { font-size: 11px; position: absolute; bottom: 39px; left: 144px; color: #6F6F6E; }
-.vCard a { font-size: 11px; position: absolute; bottom: 34px; left: 144px; color: #6F6F6E; }
-.vCard .aimg{ vertical-align: bottom; position: absolute; bottom: 49px; left: 170px;}
+div.vCard {margin-left:30px; display:flex; flex-flow:column;align-items:center;}
+.vCard a { font-size: 11px; color: #6F6F6E; }
+.vCard .aimg { margin: 2px 0px; }
 
 /* pKey */
-.pKey p { font-size: 11px; position: absolute; bottom: 39px; left: 290px; color: #6F6F6E; }
-.pKey a { font-size: 11px; position: absolute; bottom: 34px; left: 290px; color: #6F6F6E; }
-.pKey .aimg { vertical-align: bottom; position: absolute; bottom: 49px; left: 300px; }
-.pKeyPem a { font-size: 11px; position: absolute; bottom: 14px; left: 290px; color: #6F6F6E; }
+div.pKey {margin-left: 30px; display:flex; flex-flow:column;align-items:center;}
+.pKey a { font-size: 11px; color: #6F6F6E; }
+
 
 /* caKey */
-.caKey p { font-size: 11px; position: absolute; bottom: 39px; left: 400px; color: #6F6F6E; }
-.caKey a { font-size: 11px; position: absolute; bottom: 34px; left: 400px; color: #6F6F6E; }
-.caKey .aimg { vertical-align: bottom; position: absolute; bottom: 49px; left: 420px; }
+div.caKey {margin-left: 30px; display:flex; flex-flow:column;align-items:center;}
+.caKey a { font-size: 11px; color: #6F6F6E; }
+
 
 /* Card QR Code */
 .cardQr { position: absolute; right: 23px; bottom: 96px; }
 
-.open-button {
+div.agent {margin-left: 30px; display:flex; flex-flow:column;}
+.agent a {font-size: 11px; color: #6F6F6E; }
+.agent .aimg { margin: 3px 0px; }
+
+
+.open-button_ {
   cursor: pointer;
-  vertical-align: bottom;
-  position: absolute; 
-  bottom: 50px; 
-  left: 520px;
-  z-index: 11;
 }
 

@@ -302,13 +302,13 @@
       "schema:sameAs": [
 !{relList_json} %{relList_json}
         {
-          "@id": "%{jsonld_prof_url}#identity"
+          "@id": "%{jsonld_prof_url}"
         },
         {
-          "@id": "%{rdfa_prof_url}#identity"
+          "@id": "%{rdfa_prof_url}"
         },
         {
-          "@id": "%{prof_url}#identity"
+          "@id": "%{prof_url}"
         }
       ]
     },

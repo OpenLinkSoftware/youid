@@ -133,9 +133,9 @@
 
   <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{card_ident_url}" itemscope>
 !{relList_micro_schema} %{relList_micro_schema}
-    <link itemprop="http://schema.org/sameAs" href="%{jsonld_prof_url}#identity" />
-    <link itemprop="http://schema.org/sameAs" href="%{rdfa_prof_url}#identity" />
-    <link itemprop="http://schema.org/sameAs" href="%{prof_url}#identity" />
+    <link itemprop="http://schema.org/sameAs" href="%{jsonld_prof_url}" />
+    <link itemprop="http://schema.org/sameAs" href="%{rdfa_prof_url}" />
+    <link itemprop="http://schema.org/sameAs" href="%{prof_url}" />
   </div>
 
   <div itemtype="http://www.w3.org/2000/01/rdf-schema#Resource" itemid="%{prof_url}#identity" itemscope>

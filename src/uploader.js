@@ -311,17 +311,17 @@ class Uploader {
         const r_url = gen.relList[i].v;
         const r_type = gen.relList[i].type;
         var nl = (i==gen.relList.length-1) ? '' : '\n';
-        s_ttl += `	<${r_url}#identity> ,${nl}`;
+        s_ttl += `	<${r_url}> ,${nl}`;
 
         s_json += '        {\n'
-                 +`          "@id": "${r_url}#identity"\n`
+                 +`          "@id": "${r_url}"\n`
                  +`        },${nl}`;
 
         s_rdfa += `    <div rel="owl:sameAs" resource="${r_url}#identity"></div>${nl}`;
-        s_rdfa_schema += `    <div rel="schema:sameAs" resource="${r_url}#identity"></div>${nl}`;
+        s_rdfa_schema += `    <div rel="schema:sameAs" resource="${r_url}"></div>${nl}`;
         s_micro += `    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="${r_url}#identity" />${nl}`;
-        s_micro_schema += `    <link itemprop="http://schema.org/sameAs" href="${r_url}#identity" />${nl}`;
-        s_rdf += `        <owl:sameAs rdf:resource="${r_url}"/>\n`;
+        s_micro_schema += `    <link itemprop="http://schema.org/sameAs" href="${r_url}" />${nl}`;
+        s_rdf += `        <owl:sameAs rdf:resource="${r_url}#identity"/>\n`;
         s_rdf_schema += `        <schema:sameAs rdf:resource="${r_url}"/>\n`;
 
         s_header += `<link rel="me" href="${r_url}" />${nl}`;
