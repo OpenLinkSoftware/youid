@@ -87,7 +87,7 @@ class Uploader {
     return { ok: false };
   }
 
-  async loadCardFiles() {
+  async loadCardFiles(use_opal_widget) {
     this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
     this.files["p_cal.com_32.png"] = new CardFileBinary('p_cal.com_32.png', 'image/png');
     this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
@@ -112,6 +112,12 @@ class Uploader {
     this.files["photo_130x145.jpg"] = new CardFileBinary('photo_130x145.jpg', 'image/jpeg');
     this.files["youid_logo-35px.png"] = new CardFileBinary('youid_logo-35px.png', 'image/png');
     this.files["style.css"] = new CardFileBinary('style.css', 'text/css');
+
+    if (use_opal_widget) {
+      this.files["style_opal.css"] = new CardFileBinary('style_opal.css', 'text/css');
+      this.files["auth.js"] = new CardFileBinary('auth.js', 'text/javascript');
+      this.files["opalx.js"] = new CardFileBinary('opalx.js', 'text/javascript');
+    }
 
     var v = new CardFileBase64('photo_130x145.jpg', 'image/jpeg');
     v.export = false;
@@ -244,6 +250,18 @@ class Uploader {
           rval += delim;
       }
       return rval;
+    }
+
+    if (gen.use_opal_widget) {
+      tpl_data['use_opal_widget'] = '1'
+      tpl_data['w_opl_api_key'] = gen.w_opl_api_key;
+      tpl_data['w_assistant'] = gen.w_assistant;
+      tpl_data['w_temperature'] = gen.w_temperature
+      tpl_data['w_top_p'] = gen.w_top_p
+      if (gen.w_model.length>1)
+        tpl_data['w_model'] = gen.w_model
+      if (gen.w_funcs.length>1)
+        tpl_data['w_funcs'] = gen.w_funcs
     }
 
     if (certData.ca_fname && certData.ca_fname.length > 0) {

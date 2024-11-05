@@ -449,6 +449,14 @@ class Certificate {
         }
       };
 
+    DOM.qSel('#gen-cert-dlg #c_use_widget')
+      .onchange = (e) => {
+        if (DOM.qSel('#gen-cert-dlg #c_use_widget').checked) 
+          DOM.qShow('#gen-cert-dlg #opal_params')
+        else
+          DOM.qHide('#gen-cert-dlg #opal_params')
+      };
+
     DOM.qSel('#gen-cert-dlg #c_dav_uid')
       .onchange = (e) => {
         var uid = DOM.qSel('#gen-cert-dlg #c_dav_uid').value;
@@ -580,6 +588,7 @@ class Certificate {
         gen.issued = DOM.qSel('#c_issued option:checked').value;
         gen.idp = DOM.qSel('#c_idp option:checked').value;
         gen.pdp = DOM.qSel('#c_pdp option:checked').value;
+        gen.use_opal_widget = DOM.qSel('#c_use_widget').checked;
 
         if (gen.pdp === 'pdp_btc') {
           gen.btc = {};
@@ -846,6 +855,37 @@ class Certificate {
     var certCountry = DOM.qSel('#gen-cert-dlg #c_country option:checked').value;
     var certPwd = DOM.qSel('#gen-cert-dlg #c_pwd').value;
     var certPwd1 = DOM.qSel('#gen-cert-dlg #c_pwd1').value;
+
+
+    if (gen.use_opal_widget) {
+      var w_opl_api_key = DOM.qSel('#gen-cert-dlg #c_opl_key').value;
+      var w_assistant = DOM.qSel('#gen-cert-dlg #c_assistant').value;
+
+      if (w_opl_api_key.length<1) {
+        alert("OpenLink API KEY is empty")
+        return
+      }
+      if (w_assistant.length<1) {
+        alert("Assistant ID is empty")
+        return
+      }
+      gen.w_opl_api_key = w_opl_api_key;
+      gen.w_assistant = w_assistant;
+      gen.w_temperature = DOM.qSel('#gen-cert-dlg #c_temperature').value;
+      gen.w_top_p = DOM.qSel('#gen-cert-dlg #c_top_p').value;
+      gen.w_model = DOM.qSel('#gen-cert-dlg #c_model').value;
+      const funcs = DOM.qSel('#gen-cert-dlg #c_funcs').value;
+      if (funcs.length>1) {
+        const lst = funcs.split(',');
+        var f_list = [];
+        for(var v of lst)
+          f_list.push(`${v.startsWith("'")?"":"'"}${v}${v.endsWith("'")?"":"'"}`);
+        gen.w_funcs = f_list.join(",");
+      }
+      else
+        gen.w_funcs = '';
+    }
+
 
     if (certPwd.length < 1) {
       alert('Certificate password could not be empty');
@@ -1440,7 +1480,7 @@ class Certificate {
     try {
       const up = new Uploader_Manual(webid);
 
-      var rc = await up.loadCardFiles();
+      var rc = await up.loadCardFiles(gen.use_opal_widget);
       if (!rc) {
         alert('Could not load card template files');
         return -1;
@@ -1516,7 +1556,7 @@ class Certificate {
           dir.pathname = dir.pathname.substring(0, pos);
         dir = dir.href;
 
-        let rc = await up.loadCardFiles();
+        let rc = await up.loadCardFiles(gen.use_opal_widget);
         if (!rc) {
           alert('Could not load card template files');
           return -1;
@@ -1565,7 +1605,7 @@ class Certificate {
 
         var rc = await up.createProfileDir(gen.cert_dir);
         if (rc && rc.ok) {
-          rc = await up.loadCardFiles();
+          rc = await up.loadCardFiles(gen.use_opal_widget);
           if (!rc) {
             alert('Could not load card template files');
             return -1;
