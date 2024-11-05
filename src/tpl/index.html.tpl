@@ -30,7 +30,6 @@
 <link rel="alternate" href="%{pubkey_pem_url}" title="Identity Card (PKIX X.509 Certificate Format)" type="application/x-x509-ca-cert" />
 !{ca_cert_url} <link rel="alternate" href="%{ca_cert_url}" title="Issuer Public Key (PKIX X.509 Certificate Format)" type="application/x-x509-ca-cert" />
 
-
 <title> Web-Scale Verifiable Digital Identity Card for %{subj_name}</title>
 
 <link href="style.css" rel="stylesheet" type="text/css">
@@ -72,7 +71,11 @@
                 	<img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
                 
                 </div><!-- end cardPic -->
-
+!!{relList_html}
+                <div class="rel_block">
+%{relList_html}
+                </div>
+!!.
                 
                 <div class="cardDetails">
                 
@@ -124,7 +127,6 @@
                 <div class="xcard pKeyPem">
                 	<a href="%{pubkey_der_url}">Certificate (.crt)</a>
                 </div><!-- end pKey -->
-                
 
 !!{ca_cert_url}
                 <div class="xcard caKey">
@@ -220,7 +222,6 @@
     <div class="messages">
       <div class="questions">
         <button type="button" class="prompt">What is OpenLink YouID?</button>
-        <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
         <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
         <button type="button" class="prompt">How do I use OpenLink YouID?</button>
         <button type="button" class="prompt">Where can I obtain OpenLink YouID?</button>
