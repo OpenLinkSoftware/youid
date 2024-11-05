@@ -22,7 +22,9 @@
 <link rel="related" href="%{jsonld_prof_url}" title="Related Document" type="application/json+ld" />
 <link rel="http://xmlns.com/foaf/0.1/primaryTopic" href="%{rdfa_prof_url}#identity" title="This Document's Primary Topic" />
 %{pdp_url_head}
+<!-- RelMeAuth Relations Start -->
 %{rel_header_html}
+<!-- RelMeAuth Relations End -->
 
 <link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />
 <link rel="alternate" href="vcard.vcf" title="Identity Card (vCard Format)" type="text/vcard" />
@@ -40,13 +42,12 @@
      top: 170px;
      display: grid;
      grid-template-columns: 1fr 1fr 1fr;
-/*     grid-gap: 15px;*/
+     grid-column-gap: 15px;
+     grid-row-gap: 5px;
    }
    .rel_item {
      width: 28px;
      height: 28px;
-     padding-right: 15px;
-     padding-bottom: 2px;
    }
 </style>
 
@@ -191,6 +192,8 @@
 </script>
 
 
+!!{use_opal_widget}
+
 <!-- OPAL -->
 <div class="form-group mt-3">
     <a class="loggedin-btn" data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a>
@@ -237,8 +240,6 @@
     <span type="button" class="close-btn"><img src="svg/x-circle.svg"/></span>
   </div>
 </div>
-
-!!{use_opal_widget}
 
 <!-- these two have to be included in order Opal() to work, the rest about jQuery/Bootstrap/design is deveoper choice -->
 <script src="auth.js"></script>

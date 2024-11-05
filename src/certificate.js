@@ -29,9 +29,10 @@ class Relations {
   {
     const sel = '<select class="form-control" id="c_rel_type">'
                +' <option value="none">--</option>'
+               +' <option value="bs">Bluesky</option>'
                +' <option value="ca">Cal.com</option>'
                +' <option value="cr">Carrd</option>'
-               +' <option value="di">Disha</option>'
+/*               +' <option value="di">Disha</option>'*/
                +' <option value="fb">Facebook</option>'
                +' <option value="gh">Github</option>'
                +' <option value="gl">Glitch</option>'
@@ -41,6 +42,7 @@ class Relations {
                +' <option value="lt">Linktree</option>'
                +' <option value="ma">Mastodon</option>'
                +' <option value="ti">TikTok</option>'
+               +' <option value="th">Threads</option>'
                +' <option value="tw">Twitter</option>'
                +'</select>';
 
@@ -62,6 +64,7 @@ class Relations {
       var sel = row.querySelector('#c_rel_type option:checked').value;
       var url = '';
       switch (sel) {
+        case 'bs': url = 'https://bsky.app/profile/{user-id}.bsky.social'; break;
         case 'ca': url = 'https://cal.com/{username}'; break;
         case 'cr': url = 'https://{username}.carrd.co/'; break;
         case 'di': url = 'https://{username}.disha.page'; break;
@@ -74,6 +77,7 @@ class Relations {
         case 'lt': url = 'https://linktr.ee/'; break;
         case 'ma': url = 'https://mastodon.social/'; break;
         case 'ti': url = 'https://www.tiktok.com/@'; break;
+        case 'th': url = 'https://www.threads.net/@'; break;
         case 'tw': url = 'https://twitter.com/'; break;
         default:
           break;
@@ -132,7 +136,7 @@ class Certificate {
     if (idp === 'azure' || idp === 'aws_s3' || idp === 'ldp_tls' || idp === 'ldp_tls_solid')
       DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + this.YMD + '_' + this.HMS;
     else
-      DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + this.YMD + '_' + this.HMS;
+      DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'Public/YouID/IDcard_' + this.YMD + '_' + this.HMS;
     
     DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + this.YMD + '_' + this.HMS;
     this.gen_webid(DOM.qSel('#c_idp option:checked').value);
@@ -493,7 +497,7 @@ class Certificate {
           DOM.qShow('#gen-cert-dlg #r_webid');
         }
         else if (sel === 'opl_dav' || sel === 'opl_dav_https') {
-          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'Public/YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
@@ -503,7 +507,7 @@ class Certificate {
           DOM.qSel('#gen-cert-dlg #c_dav_path').value = up.getBasePath();
         }
         else if (sel === 'opl_ldp' || sel === 'opl_ldp_https') {
-          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'Public/YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
@@ -628,7 +632,7 @@ class Certificate {
           if (gen.idp === 'azure' || gen.idp === 'aws_s3')
             gen.cert_dir = 'IDcard_' + self.YMD + '_' + self.HMS;
           else
-            gen.cert_dir = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+            gen.cert_dir = 'Public/YouID/IDcard_' + self.YMD + '_' + self.HMS;
         }
 
         if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {

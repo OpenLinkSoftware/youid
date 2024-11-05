@@ -89,6 +89,7 @@ class Uploader {
 
   async loadCardFiles(use_opal_widget) {
     this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
+    this.files["p_bluesky_32.png"] = new CardFileBinary('p_bluesky_32.png', 'image/png');
     this.files["p_cal.com_32.png"] = new CardFileBinary('p_cal.com_32.png', 'image/png');
     this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
     this.files["p_disha_32.png"] = new CardFileBinary('p_disha_32.png', 'image/png');
@@ -101,6 +102,7 @@ class Uploader {
     this.files["p_mastodon_32.png"] = new CardFileBinary('p_mastodon_32.png', 'image/png');
     this.files["p_myopenlink_32.png"] = new CardFileBinary('p_myopenlink_32.png', 'image/png');
     this.files["p_tiktok_32.png"] = new CardFileBinary('p_tiktok_32.png', 'image/png');
+    this.files["p_threads_32.png"] = new CardFileBinary('p_threads_32.png', 'image/png');
     this.files["p_twitter_32.png"] = new CardFileBinary('p_twitter_32.png', 'image/png');
 
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
@@ -327,6 +329,7 @@ class Uploader {
         var p_image = '';
         var p_alt = ''
         switch(r_type) {
+          case 'bs': p_image = 'p_bluesky_32.png';    p_alt='Bluesky'; break;
           case 'ca': p_image = 'p_cal.com_32.png';    p_alt='Cal.com'; break;
           case 'cr': p_image = 'p_carrd_32.png';      p_alt='Carrd'; break;
           case 'di': p_image = 'p_disha_32.png';      p_alt='Disha'; break;
@@ -339,6 +342,7 @@ class Uploader {
           case 'lt': p_image = 'p_linktree_32.png'; p_alt='Linktree'; break;
           case 'ma': p_image = 'p_mastodon_32.png'; p_alt='Mastodon'; break;
           case 'ti': p_image = 'p_tiktok_32.png';   p_alt='TikTok'; break;
+          case 'th': p_image = 'p_threads_32.png';   p_alt='Threads'; break;
           case 'tw': p_image = 'p_twitter_32.png';  p_alt='Twitter'; break;
           default: p_image = 'p_none.png'; break;
         }
