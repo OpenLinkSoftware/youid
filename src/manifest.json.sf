@@ -2,7 +2,7 @@
   "name": "YouID",
   "short_name": "YouID",
   "author":"OpenLink Software",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "manifest_version": 2,
   "minimum_chrome_version": "18",
   "description": "YouID selector.",
