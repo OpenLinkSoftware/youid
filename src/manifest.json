@@ -2,21 +2,21 @@
   "name": "OpenLink YouID",
   "short_name": "opl_youid",
   "author":"OpenLink Software",
-  "version": "1.6.11",
-  "manifest_version": 2,
+  "version": "1.7.12",
+  "manifest_version": 3,
   "minimum_chrome_version": "18",
   "description": "YouID selector.",
   "icons": {
       "16":  "images/icon20.png",
       "48":  "images/icon48.png",
       "128": "images/icon128.png" },
-  "browser_action": {
+  "action": {
     "default_icon": "images/icon20.png",
     "default_title": "YouID",
     "default_popup": "popup.html"
   },
   "background": {
-    "page": "background.html"
+    "service_worker": "service_worker.js"
   },
   "content_scripts": [
     {
@@ -25,8 +25,8 @@
       "run_at": "document_start"
     },
     {
-      "matches": ["https://*/*"],
-      "js": ["browser.js", "oidc-webid-inject.js"],
+      "matches": ["https://openlinksoftware.github.io/*"],
+      "js": ["browser.js", "lib/solid-client-authn.bundle.js", "oidc-webid-inject.js"],
       "run_at": "document_start"
     },
     {
@@ -42,22 +42,23 @@
 
   "options_page": "options.html",
 
+  "host_permissions": [
+    "<all_urls>", "https://accounts.google.com/o/oauth2/token"
+  ],
   "permissions": [
     "storage", 
-    "webRequest", 
-    "webRequestBlocking",
-    "tabs", 
-    "http://*/",
-    "https://*/",
-    "*://*/*", 
-    "file:///*/*",
-    "https://accounts.google.com/o/oauth2/token"
+    "declarativeNetRequest",
+    "tabs"
   ],
 
   "web_accessible_resources": [
-    "oauth2/oauth2.html"
+    {
+      "resources": [ "oauth2/oauth2.html" ],
+      "matches": [ "*://*/*" ]
+    }
   ],
 
-  "content_security_policy": 
-    "script-src 'self' 'unsafe-eval' chrome-extension://lib; object-src 'self' chrome-extension://lib; style-src 'self' 'unsafe-inline' chrome-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' chrome-extension://lib ;"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' ; object-src 'self' ; style-src 'self' 'unsafe-inline' chrome-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' chrome-extension://lib ;"
+  }
 }

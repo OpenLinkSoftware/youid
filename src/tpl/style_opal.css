@@ -1,0 +1,408 @@
+/**
+.open-button {
+  background-color: rgb(0, 137, 194);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  vertical-align: bottom;
+  position: absolute; 
+  bottom: 20px; 
+  left: 520px;
+}
+**/
+
+.chat-popup * {
+    font-family: 'Open Sans', Helvetica,  Arial, sans-serif !important;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.open-button:hover {
+  transition: all .5s;
+  transform: scale(1.3);
+}
+
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 10px;
+  right: 15px;
+  border: 1px solid lightgrey;
+  border-radius: 10px;
+  z-index: 10;
+  box-shadow: -3px -4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.form-container {
+  min-width: 400px;
+/*  padding: 10px; */
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 10px;
+  background-color: rgb(80, 155, 219);
+}
+
+.form-container #message_input {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 0px 0;
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+  resize: none;
+  min-height: 70px;
+}
+
+.form-container textarea:focus {
+  outline: none;
+}
+
+.form-container textarea {
+    font-size: 10pt;
+}
+
+.form-container .send, .form-container .stop {
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  bottom: 30px;
+}
+
+.form-container .send {
+  background-color: rgb(0, 137, 194);
+  color: white;
+  right: 20px;
+}
+
+.form-container .stop {
+  background-color: red;
+  color: white;
+  right: 80px;
+}
+
+.send img, .stop img {
+    filter: invert();
+}
+
+.form-container {
+}
+
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+
+.chat-popup h1 {
+    font-size: 12pt;
+    color: white;
+    text-align: left;
+    margin-left: 10px;
+}
+
+.messages {
+    overflow: scroll;
+    overflow-x: hidden;
+    min-height: 400px;
+    max-height: 400px;
+    width: 400px;
+    border: 1px solid lightgrey;
+/*    border-radius: 10px;*/
+    display: block;
+    background-color: #fffefb;
+}
+
+.messages pre {
+    background-color: #fffefb;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0 0 0 0;
+    border: none;
+    cursor: pointer;
+}
+
+.share-btn {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    padding: 0 0 0 0;
+    border: none;
+    cursor: pointer;
+}
+
+.clipboard-btn {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    padding: 0 0 0 0;
+    border: none;
+    cursor: pointer;
+}
+
+.close-btn:hover, .share-btn:hower {
+    cursor: pointer;
+}
+
+.user-message, .agent-message {
+    font-size: 10pt;
+    padding: 5px;
+    border-radius: 5px;
+    width: fit-content;
+    margin: 5px;
+}
+
+.user-message {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    width: 95%;
+    padding: 1rem 0rem 1rem 2rem;
+}
+
+.user-message p {
+    margin: 0px;
+}
+.user-message p{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: end;
+  background-color: #f2f1f1;
+  padding: 1rem;
+  border-radius: 10px;
+  position: relative; /* Add this line */
+}
+
+.user-message p::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  right: 6px; /* Adjust as needed, controls the horizontal position of the tail */
+  top: 5px; /* Adjust as needed, controls the vertical position of the tail */
+  border: 15px solid transparent; /* Adjust size of the tail */
+  border-left-color: #f2f1f1; /* Color should match the bubble's background */
+  border-right: 0;
+  margin-top: -5px; /* Adjust to fine-tune the tail's vertical position */
+  margin-right: -15px; /*Adjust to fine-tune the tail's horizontal position */
+}
+
+.agent-message {
+  background-color: lightblue;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 95%;
+  margin-left: 0.8rem;
+  margin-bottom: 1.1rem;
+  border-radius: 5px;
+  padding: 10px;
+  position: relative; /* Add this line */
+}
+
+.agent-message::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -10px; /* Adjust as needed, controls the horizontal position of the tail */
+  top: 5px; /* Adjust as needed, controls the vertical position of the tail */
+  border: 15px solid transparent; /* Adjust size of the tail */
+  border-right-color: lightblue; /* Color should match the bubble's background */
+  border-left: 0;
+  margin-top: -5px; /* Adjust to fine-tune the tail's vertical position */
+  margin-left: 0; /* Adjust to fine-tune the tail's horizontal position */
+}
+
+
+
+.form-group {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.help {
+    text-align: center;
+    font-size: 18px;
+}
+
+.loggedin-btn {
+    display:none;
+}
+
+.loggedin-btn img {
+    width: 35px;
+    height: 35px;
+}
+
+.questions{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.questions .prompt {
+  width: 50%;
+  background-color: rgb(238, 238, 238);  
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0 1rem 0;
+  text-align: center;
+  color: black;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-width: 0px;
+}
+
+span.cursor::after {
+  content: "";
+  width: 20px;
+  border-radius: 50%;
+  height: 20px;
+  background: rgb(99, 145, 208);
+  display: inline-block;
+  animation: cursor-blink 1s steps(3) infinite;
+}
+
+#snackbar {
+  display: none;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: lightyellow;
+  color: gray;
+  text-align: center;
+  border-radius: 10px;
+  padding: 16px;
+  position: fixed;
+  z-index: 2;
+  left: 50%;
+  top: 65px;
+  font-size: 17px;
+}
+
+#snackbar.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+#clipboard-text { /* do not make distplay:none as can't copy */
+    height:0px;
+    opacity: 0;
+    position:absolute;
+    z-index: -9999;
+}
+
+.image-upload-template {
+    display: none;
+}
+
+.image-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.image-btn {
+    float: right;
+    clear:right;
+    position: relative;
+    margin-top:-55px;
+    margin-right: 70px;
+    border-radius: 50%;
+    background-color: white;
+    padding: 0 0 0 0;
+    border: none;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+}
+
+.user-img-remove {
+    float: right;
+    margin-left: -20px;
+    position: absolute;
+    display: inline-block;
+}
+
+.user-img-zoom-out {
+    margin-left: 5px;
+    position: absolute;
+    display: inline-block;
+}
+
+.user-img-zoom-in {
+    margin-left: 25px;
+    position: absolute;
+    display: inline-block;
+}
+
+
+.user-img-src {
+    height: 128px;
+    width: auto;
+}
+
+.input_wrapper {
+    position: relative;
+    padding-left: 10px;
+    padding-right:10px;
+}
+
+#assistant-id {
+  position: absolute;
+  padding: 0 10px 0 5px;
+  top: 10px;
+  left: 0px;
+  border-radius: 10px;
+  font-size: 90%;
+  background-color: #199ddb;
+  color: white;
+  display: none;
+}
+
+#suggestions .autocomplete-suggestion.selected {
+    background-color: #e0e0e0;
+}
+
+
+#suggestions {
+    position: absolute;
+    bottom: 50px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+}
+
+.autocomplete-suggestion {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.autocomplete-suggestion:hover {
+    background-color: #f0f0f0;
+}

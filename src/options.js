@@ -275,16 +275,12 @@ async function save_hdr_list()
 
 
 
-Browser.api.runtime.onMessage.addListener(async function(request, sender, sendResponse)
+Browser.api.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
   try {
-    if (request.cmd === "store_updated" && request.key === "oidc.session")
+    if (request.cmd === "store_updated" && request.key === "oidc_code")
     {
       v_cert.oidc_changed(); 
-    }
-    else
-    {
-      sendResponse({}); 
     }
   } catch(e) {
     console.log("OSDS: onMsg="+e);

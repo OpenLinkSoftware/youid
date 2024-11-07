@@ -19,6 +19,34 @@
  */
 class Relations {
   constructor() {
+    this.rels = [];
+    const add_el = (id, name, img, url, end, add) => {
+      const u = new URL(url);
+      this.rels.push({id, name, img, url, hostname: u.hostname, end:end??0, add:add??''});
+    } 
+
+    add_el('atom', 'Atom',     'p_atom_32.png',      'https://....atom')
+    add_el('bs',   'Bluesky',  'p_bluesky_32.png',   'https://bsky.app/profile/{user-id}.bsky.social')
+    add_el('ca',   'Cal.com',  'p_cal.com_32.png',   'https://cal.com/{username}')
+    add_el('cr',   'Carrd',    'p_carrd_32.png',     'https://{username}.carrd.co/', 1, 'carrd.co')
+    add_el('fb',   'Facebook', 'p_facebook_32.png',  'https://facebook.com/')
+    add_el('gh',   'Github',   'p_github_32.png',    'https://github.com/')
+    add_el('gl',   'Glitch',   'p_glitch_32.png',    'https://glitch.com/~{username}')
+    add_el('id',   'ID.MyOpenLink.NET', 'p_myopenlink_32.png', 'https://id.myopenlink.net/DAV/home/', 0, 'kingsley.idehen.net')
+    add_el('in',   'Instagram', 'p_insta_32.png',    'https://www.instagram.com/')
+    add_el('li',   'LinkedIn',  'p_linkedin_32.png', 'https://linkedin.com/in/')
+    add_el('lt',   'Linktree',  'p_linktree_32.png', 'https://linktr.ee/')
+    add_el('ma',   'Mastodon',  'p_mastodon_32.png', 'https://mastodon.social/@{user-id}')
+    add_el('opml', 'OPML',      'p_opml_32.png',     'https://...opml')
+    add_el('rss',  'RSS',       'p_rss_32.png',      'https://...rss')
+    add_el('ti',   'TikTok',    'p_tiktok_32.png',   'https://www.tiktok.com/@')
+    add_el('th',   'Threads',   'p_threads_32.png',  'https://www.threads.net/@')
+    add_el('tw',   'Twitter',   'p_twitter_32.png',  'https://twitter.com/', 0, 'x.com')
+//    add_el('xx', 'X', 'https://x.com/')
+  }
+
+  initEvents()
+  {
     DOM.qSel('#rel_add').onclick = (e) => {
       e.preventDefault();
       this.addItem();
@@ -27,31 +55,21 @@ class Relations {
 
   createRow()
   {
-    const sel = '<select class="form-control" id="c_rel_type">'
-               +' <option value="none">--</option>'
-               +' <option value="ca">Cal.com</option>'
-               +' <option value="cr">Carrd</option>'
-               +' <option value="di">Disha</option>'
-               +' <option value="fb">Facebook</option>'
-               +' <option value="gh">Github</option>'
-               +' <option value="gl">Glitch</option>'
-               +' <option value="id">ID.MyOpenLink.NET</option>'
-               +' <option value="in">Instagram</option>'
-               +' <option value="li">LinkedIn</option>'
-               +' <option value="lt">Linktree</option>'
-               +' <option value="ma">Mastodon</option>'
-               +' <option value="ti">TikTok</option>'
-               +' <option value="tw">Twitter</option>'
-               +'</select>';
+    let sel = '<select class="form-control" id="c_rel_type">'
+               +' <option value="none">Other</option>'
+    for(const v of this.rels)
+      sel += ` <option value="${v.id}">${v.name}</option>`;
+
+    sel += '</select>';
 
     return  '<tr>'
            +'<td> <button id="rel_del"> <input type="image" src="lib/css/img/minus.png" width="12" height="12"> </button> </td>' 
            +'<td>'+sel+'</td>'
-           +'<td><input id="rel_v" type="text" class="form-control" id="c_rel" value=""></td>';
+           +'<td><input id="rel_v" type="text" class="form-control" id="c_rel" value=""></td>'
            +'</tr>';
   }
 
-  addItem()
+  addItem(href, name)
   {
     const tbody = DOM.qSel('#tbl_rels tbody');
     const r = tbody.insertRow(-1);
@@ -60,39 +78,51 @@ class Relations {
       e.preventDefault();
       const row = e.target.closest('tr');
       var sel = row.querySelector('#c_rel_type option:checked').value;
-      var url = '';
-      switch (sel) {
-        case 'ca': url = 'https://cal.com/{username}'; break;
-        case 'cr': url = 'https://{username}.carrd.co/'; break;
-        case 'di': url = 'https://{username}.disha.page'; break;
-        case 'fb': url = 'https://facebook.com/'; break;
-        case 'gh': url = 'https://github.com/'; break;
-        case 'gl': url = 'https://glitch.com/~{username}'; break;
-        case 'id': url = 'https://id.myopenlink.net/DAV/home/'; break;
-        case 'in': url = 'https://www.instagram.com/'; break;
-        case 'li': url = 'https://linkedin.com/in/'; break;
-        case 'lt': url = 'https://linktr.ee/'; break;
-        case 'ma': url = 'https://mastodon.social/'; break;
-        case 'ti': url = 'https://www.tiktok.com/@'; break;
-        case 'tw': url = 'https://twitter.com/'; break;
-        default:
-          break;
+      for(const v of this.rels) {
+        if (v.id === sel)
+          row.querySelector('#rel_v').value = v.url;
       }
-      if (url)
-        row.querySelector('#rel_v').value = url;
     }
     r.querySelector('#rel_del').onclick = (e) => {
       e.preventDefault();
       const row = e.target.closest('tr');
       row.remove();
     }
+    if (href) {
+      try {
+        const u = new URL(href)
+        let sel = 'none'
+        for(const v of this.rels) {
+          if (name && v.name===name) {
+            sel = v.id;
+            break;
+          }
+          else if (v.end!=1) {
+            if (u.hostname===v.hostname || (v.add && u.hostname==v.add)) {
+              sel = v.id;
+              break;
+            }
+          } 
+          else {
+            if (u.hostname.endsWith(v.hostname) || (v.add && u.hostname.endsWith(v.add))) {
+              sel = v.id;
+              break;
+            }
+          }
+        }
+        r.querySelector(`#c_rel_type option[value="${sel}"]`).selected = true;
+        r.querySelector(`#c_rel_type`).dispatchEvent(new Event("change"));
+        r.querySelector(`#rel_v`).value = href;
+      } catch(_) {}
+    }
   }
 
-  emptyList()
+  emptyList(add)
   {
     const tbody = DOM.qSel('#tbl_rels tbody');
     tbody.innerHTML = '';
-    this.addItem();
+    if (add)
+      this.addItem();
   }
 
   getList()
@@ -104,10 +134,28 @@ class Relations {
       var v = el.querySelector('#rel_v').value;
       var type = el.querySelector('#c_rel_type option:checked').value;
       if (v)
-        list.push({v,type});
+        list.push({v, type});
     }
     return list;
   }
+
+  getRelForId(id)
+  {
+    for(const v of this.rels) 
+      if (v.id===id) {
+        return {name:v.name, img:v.img};
+      }
+    return {name:"Other", img:"p_none.png"}
+  }
+
+  getImagesList()
+  {
+    var lst = ['p_none.png'];
+    for(const v of this.rels)
+      lst.push(v.img);
+    return lst;
+  }
+
 }
 
 
@@ -118,7 +166,9 @@ class Certificate {
     this.gOidc = new OidcWeb();
     this.pdp = null;
     this.relations = new Relations();
-    this.relations.emptyList();
+    this.relations.initEvents();
+    this.relations.emptyList(true);
+    this.photo_url = null;
   }
 
   reset_gen_cert() 
@@ -132,7 +182,7 @@ class Certificate {
     if (idp === 'azure' || idp === 'aws_s3' || idp === 'ldp_tls' || idp === 'ldp_tls_solid')
       DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'IDcard_' + this.YMD + '_' + this.HMS;
     else
-      DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + this.YMD + '_' + this.HMS;
+      DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'Public/YouID/IDcard_' + this.YMD + '_' + this.HMS;
     
     DOM.qSel('#gen-cert-dlg #c_cert_name').value = 'cert_' + this.YMD + '_' + this.HMS;
     this.gen_webid(DOM.qSel('#c_idp option:checked').value);
@@ -199,6 +249,75 @@ class Certificate {
         }
   } 
 
+  sniff_HTML_profile(dom, subject)
+  {
+    let det = {};
+    if (subject) {
+      /* parse subject */
+      for(const v of subject.split('/')) {
+        if (v.startsWith('CN='))
+          det.cn = v.substring(3)
+        else if (v.startsWith('O='))
+          det.org = v.substring(2)
+        else if (v.startsWith('OU='))
+          det.orgUnit = v.substring(3)
+        else if (v.startsWith('C='))
+          det.country = v.substring(2)
+        else if (v.startsWith('ST='))
+          det.state = v.substring(3)
+        else if (v.startsWith('L='))
+          det.locality = v.substring(2)
+        else if (v.startsWith('E='))
+          det.email = v.substring(2)
+      }
+    }
+
+    if (dom) {
+      /* sniff relations */
+      const rels = dom.querySelectorAll("link[rel='me']");
+      if (rels.length > 1)
+        this.relations.emptyList();
+      for(const r of rels)
+         this.relations.addItem(r.href, r.attributes.name?.value);
+
+      /* Sniff card details */
+      const data = dom.querySelector("div.cardDetails");
+      if (data) {
+        for(const el of data.querySelectorAll('p')) {
+          if (el.textContent === 'Common Name')
+            det.cn = el.nextElementSibling.textContent;
+          else if (el.textContent === 'Organization')
+            det.org = el.nextElementSibling.textContent;
+          else if (el.textContent === 'Country')
+            det.country = el.nextElementSibling.textContent;
+          else if (el.textContent === 'State/Province')
+            det.state = el.nextElementSibling.textContent;
+          else if (el.textContent === 'Email Address')
+            det.email = el.nextElementSibling.textContent;
+        }
+        det.cn      = data.querySelector(".cardDetails #cn")?.textContent ?? det.cn;
+        det.org     = data.querySelector(".cardDetails #org")?.textContent ?? det.org;
+        det.country = data.querySelector(".cardDetails #country")?.textContent ?? det.country;
+        det.state   = data.querySelector(".cardDetails #state")?.textContent ?? det.state;
+        det.email   = data.querySelector(".cardDetails #email")?.textContent ?? det.email;
+      }
+    }
+
+    if (det.cn)
+      DOM.iSel('c_name').value = det.cn;
+    if (det.org)
+      DOM.iSel('c_org').value = det.org;
+    if (det.orgUnit)
+      DOM.iSel('c_org_unit').value = det.orgUnit;
+    if (det.country)
+      DOM.iSel('c_country').value = det.country;
+    if (det.state)
+      DOM.iSel('c_state').value = det.state;
+    if (det.locality)
+      DOM.iSel('c_city').value = det.locality;
+    if (det.email)
+      DOM.iSel('c_email').value = det.email;
+  }
 
   async click_gen_cert(cur_webid) 
   {
@@ -395,7 +514,7 @@ class Certificate {
           var loader = new YouID_Loader();
           var ret = await loader.verify_ID(uri, this.gOidc);
               
-          for(var val of ret) {
+          for(var val of ret.id_list) {
             if (val.success && !rc0)
               rc0 = val;
             if (val.success && val.id.startsWith(url)) {
@@ -410,9 +529,21 @@ class Certificate {
             rc = rc0;
 
           if (rc && rc.success) {
-             DOM.iSel('c_webid').value = rc.id ? rc.id : "";
+             let webid = rc.id ? rc.id : "";
+             if (webid)
+               try {
+                 let u = new URL(webid);
+                 const li = u.pathname.lastIndexOf('/');
+                 let pathname = u.pathname.substring(0, u.pathname.lastIndexOf('/'));
+                 u.pathname = pathname + "/index.html";
+                 u.hash = '#identity';
+                 webid = u.toString()
+               } catch(_) {}
+
+             DOM.iSel('c_webid').value = webid;
              DOM.iSel('c_name').value = rc.name ? rc.name: "";
              DOM.iSel('c_email').value = rc.email ? rc.email : "";
+             this.sniff_HTML_profile(ret.dom, rc.subject)
           }
 
         } catch(e) {
@@ -447,6 +578,14 @@ class Certificate {
             states_list.appendChild(el);
           }
         }
+      };
+
+    DOM.qSel('#gen-cert-dlg #c_use_widget')
+      .onchange = (e) => {
+        if (DOM.qSel('#gen-cert-dlg #c_use_widget').checked) 
+          DOM.qShow('#gen-cert-dlg #opal_params')
+        else
+          DOM.qHide('#gen-cert-dlg #opal_params')
       };
 
     DOM.qSel('#gen-cert-dlg #c_dav_uid')
@@ -485,7 +624,7 @@ class Certificate {
           DOM.qShow('#gen-cert-dlg #r_webid');
         }
         else if (sel === 'opl_dav' || sel === 'opl_dav_https') {
-          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'Public/YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
@@ -495,7 +634,7 @@ class Certificate {
           DOM.qSel('#gen-cert-dlg #c_dav_path').value = up.getBasePath();
         }
         else if (sel === 'opl_ldp' || sel === 'opl_ldp_https') {
-          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+          DOM.qSel('#gen-cert-dlg #c_cert_path').value = 'Public/YouID/IDcard_' + self.YMD + '_' + self.HMS;
 
           DOM.qShow('#gen-cert-dlg #r_cert_name');
           DOM.qShow('#gen-cert-dlg #r_cert_path');
@@ -547,9 +686,9 @@ class Certificate {
     DOM.qSel('#gen-cert-dlg #btn-solid-oidc-login')
       .onclick = async (e) => {
         e.preventDefault();
-        if (this.gOidc.webid) {
+        if (this.gOidc.getWebId()) {
           await this.gOidc.logout();
-          self.oidc_changed();
+          self.oidc_changed(true);
         } else {
           this.gOidc.login();
         }
@@ -572,6 +711,30 @@ class Certificate {
         this.gen_webid(DOM.qSel('#c_idp option:checked').value);
       };
 
+    DOM.qSel('#gen-cert-dlg #photo_img_close')
+      .onclick = () => {
+          DOM.iSel('photo_img').src = './tpl/photo_130x145.jpg';
+          DOM.iSel('photo_data').value = null;
+          this.photo_url = null;
+      };
+
+    DOM.qSel('#gen-cert-dlg #photo_data').onchange = async (e) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        const ftype = file.type; 
+        if (ftype.startsWith('image/')) {
+          var data = await loadDataUrlFile(file);
+          if (data) {
+            DOM.iSel('photo_img').src = data;
+            this.photo_url = data;
+          }
+        } else {
+          DOM.iSel('photo_data').value = null;
+          alert('Unsupported file type');
+        }
+      }
+    };
+
 
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
       .onclick = async (e) => {
@@ -580,6 +743,7 @@ class Certificate {
         gen.issued = DOM.qSel('#c_issued option:checked').value;
         gen.idp = DOM.qSel('#c_idp option:checked').value;
         gen.pdp = DOM.qSel('#c_pdp option:checked').value;
+        gen.use_opal_widget = DOM.qSel('#c_use_widget').checked;
 
         if (gen.pdp === 'pdp_btc') {
           gen.btc = {};
@@ -619,7 +783,7 @@ class Certificate {
           if (gen.idp === 'azure' || gen.idp === 'aws_s3')
             gen.cert_dir = 'IDcard_' + self.YMD + '_' + self.HMS;
           else
-            gen.cert_dir = 'YouID/IDcard_' + self.YMD + '_' + self.HMS;
+            gen.cert_dir = 'Public/YouID/IDcard_' + self.YMD + '_' + self.HMS;
         }
 
         if (gen.idp === 'opl_dav' || gen.idp === 'opl_dav_https') {
@@ -766,6 +930,7 @@ class Certificate {
           }
         }
 
+        gen.relations = this.relations;
         this.genCertificate(gen);
       };
 
@@ -775,21 +940,23 @@ class Certificate {
   }
 
 
-  async oidc_changed() 
+  async oidc_changed(logout) 
   {
     try {
-      await this.gOidc.checkSession();
+      if (!logout)
+        await this.gOidc.restoreConn();
 
-      var webid_href = DOM.qSel('#gen-cert-dlg #c_oidc_webid');
+      const webid = this.gOidc.getWebId();
+      const webid_href = DOM.iSel('webid_href');
 
-      if (this.gOidc.webid) {
-        webid_href.href = this.gOidc.webid;
-        webid_href.title = this.gOidc.webid;
+      if (webid) {
+        webid_href.href = webid;
+        webid_href.title = webid;
         webid_href.classList.remove('hidden');
 
-        DOM.qSel('#gen-cert-dlg #c_webid').value = this.gOidc.webid;
+        DOM.qSel('#gen-cert-dlg #c_webid').value = webid;
 
-        var url = new URL(this.gOidc.webid);
+        var url = new URL(webid);
         url.hash = '';
         var cert_path = url.pathname.substring(1);
         var i = cert_path.lastIndexOf('/');
@@ -799,10 +966,10 @@ class Certificate {
 
         try {
           var youid = new YouID_Loader();
-          var rc = await youid.verify_ID(this.gOidc.webid, this.gOidc);
+          var rc = await youid.verify_ID(webid, this.gOidc);
           if (rc) {
-            for(var webid in rc) {
-              var data = rc[webid];
+            for(var v_webid in rc.id_list) {
+              var data = rc[v_webid];
               if (data.success) {
                 DOM.iSel('c_name').value = data.name;
                 break;
@@ -818,10 +985,11 @@ class Certificate {
         webid_href.title = '';
         webid_href.classList.add('hidden');
         DOM.qSel('#gen-cert-dlg #c_cert_path').value = '';
+        DOM.qSel('#gen-cert-dlg #c_webid').value = '';
       }
 
       var oidc_login_btn = DOM.qSel('#gen-cert-dlg #btn-solid-oidc-login');
-      oidc_login_btn.innerText = this.gOidc.webid ? 'Logout' : 'Login';
+      oidc_login_btn.innerText = webid ? 'Logout' : 'Login';
 
     } catch (e) {
       console.log(e);
@@ -843,6 +1011,46 @@ class Certificate {
     var certCountry = DOM.qSel('#gen-cert-dlg #c_country option:checked').value;
     var certPwd = DOM.qSel('#gen-cert-dlg #c_pwd').value;
     var certPwd1 = DOM.qSel('#gen-cert-dlg #c_pwd1').value;
+
+    gen.photo_url = this.photo_url ? this.photo_url : 'photo_130x145.jpg';
+
+    if (gen.use_opal_widget) {
+      var w_opl_api_key = DOM.qSel('#gen-cert-dlg #c_opl_key').value;
+      var w_assistant = DOM.qSel('#gen-cert-dlg #c_assistant').value;
+
+      if (w_opl_api_key.length<1) {
+        alert("OPAL API KEY is empty")
+        return
+      }
+      if (w_assistant.length<1) {
+        alert("Assistant ID is empty")
+        return
+      }
+      gen.w_opl_api_key = w_opl_api_key;
+      gen.w_assistant = w_assistant;
+      gen.w_temperature = DOM.qSel('#gen-cert-dlg #c_temperature').value;
+      gen.w_top_p = DOM.qSel('#gen-cert-dlg #c_top_p').value;
+      gen.w_model = DOM.qSel('#gen-cert-dlg #c_model').value;
+      const funcs = DOM.qSel('#gen-cert-dlg #c_funcs').value;
+      if (funcs.length>1) {
+        const lst = funcs.split(',');
+        var f_list = [];
+        for(var v of lst)
+          f_list.push(`${v.startsWith("'")?"":"'"}${v}${v.endsWith("'")?"":"'"}`);
+        gen.w_funcs = f_list.join(",");
+      }
+      else
+        gen.w_funcs = '';
+    }
+
+    gen.em_microdata = DOM.qSel('#gen-cert-dlg #c_em_microdata').checked ? "1": "";
+    gen.em_ttl = DOM.qSel('#gen-cert-dlg #c_em_ttl').checked ? "1": "";
+    gen.em_jsonld = DOM.qSel('#gen-cert-dlg #c_em_jsonld').checked ? "1": "";
+    gen.em_indie_idp = DOM.qSel('#gen-cert-dlg #c_em_indieauth_idp').value;
+    if (gen.em_indie_idp) {
+      const idp = new URL(gen.em_indie_idp);
+      gen.em_indie_idp = idp.origin;
+    }
 
     if (certPwd.length < 1) {
       alert('Certificate password could not be empty');
@@ -1437,7 +1645,7 @@ class Certificate {
     try {
       const up = new Uploader_Manual(webid);
 
-      var rc = await up.loadCardFiles();
+      var rc = await up.loadCardFiles(gen.use_opal_widget);
       if (!rc) {
         alert('Could not load card template files');
         return -1;
@@ -1463,6 +1671,11 @@ class Certificate {
       rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', der, 'application/pkix-cert');
       if (!rc.ok) {
         alert('Could not upload file ' + gen.cert_name + '.crt');
+        return -1;
+      }
+      rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.pem', certData.pem, 'application/x-pem-file');
+      if (!rc.ok) {
+        alert('Could not upload file ' + gen.cert_name + '.pem');
         return -1;
       }
 
@@ -1506,9 +1719,26 @@ class Certificate {
       if (gen.idp === 'solid_oidc') {
         var url = new URL(webid);
         up = new Uploader_Solid_OIDC(this.gOidc, url.origin + '/');
+        let dir = new URL(webid);
+        dir.hash = '';
+        let pos = dir.pathname.lastIndexOf('/');
+        if (pos!=-1)
+          dir.pathname = dir.pathname.substring(0, pos);
+        dir = dir.href;
+
+        let rc = await up.loadCardFiles(gen.use_opal_widget);
+        if (!rc) {
+          alert('Could not load card template files');
+          return -1;
+        }
+        rc = await up.updateTemplate(certData, webid, dir, gen);
+        if (!rc) {
+          alert('Could not update card templates');
+          return -1;
+        }
 
         var query = this.genSolidInsertCert(webid, certData.cert);
-        var rc = await up.updateProfileCard(webid, query);
+        rc = await up.updateProfileCard(webid, query);
         if (!rc.ok) {
           alert('Could not update profile card');
           return -1;
@@ -1545,7 +1775,7 @@ class Certificate {
 
         var rc = await up.createProfileDir(gen.cert_dir);
         if (rc && rc.ok) {
-          rc = await up.loadCardFiles();
+          rc = await up.loadCardFiles(gen.use_opal_widget);
           if (!rc) {
             alert('Could not load card template files');
             return -1;
@@ -1570,6 +1800,11 @@ class Certificate {
           rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.crt', der, 'application/pkix-cert');
           if (!rc.ok) {
             alert('Could not upload file ' + gen.cert_name + '.crt');
+            return -1;
+          }
+          rc = await up.uploadFile(gen.cert_dir, gen.cert_name + '.pem', certData.pem, 'application/x-pem-file');
+          if (!rc.ok) {
+            alert('Could not upload file ' + gen.cert_name + '.pem');
             return -1;
           }
 
@@ -1620,7 +1855,7 @@ class Certificate {
     try {
       var rc = await (new YouID_Loader()).verify_ID(uri, this.gOidc);
       if (rc) {
-        for(var data of rc) {
+        for(var data of rc.id_list) {
           if (data.success && data.id.startsWith(uri)) {
             var s;
         
@@ -2044,30 +2279,30 @@ INSERT {
     //   cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1)
 
     var attrs = [];
-    if (certName && certName.length > 1) {
+    if (certName?.length > 1) {
       attrs.push({ name: 'commonName', value: certName+' CA' });
     }
 
-    if (certCountry && certCountry.length > 1) {
+    if (certCountry?.length > 1) {
       attrs.push({ name: 'countryName', value: certCountry });
     }
 
-    if (certState && certState.length > 1) {
+    if (typeof certState==='string' && certState.length > 1) {
       attrs.push({ shortName: 'ST', value: certState });
     }
-    if (certCity && certCity.length > 1) {
+    if (certCity?.length > 1) {
       attrs.push({ name: 'localityName', value: certCity });
     }
-    if (certOrgUnit && certOrgUnit.length > 1) {
+    if (certOrgUnit?.length > 1) {
       attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
     }
 
-    if (certOrg && certOrg.length > 1) {
+    if (certOrg?.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
       attrs.push({ name: 'organizationName', value: 'NetID' });
     }
-    if (certEmail && certEmail.length > 1) {
+    if (certEmail?.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 
@@ -2132,30 +2367,30 @@ INSERT {
     //   cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1)
 
     var attrs = [];
-    if (certName && certName.length > 1) {
+    if (certName?.length > 1) {
       attrs.push({ name: 'commonName', value: certName });
     }
 
-    if (certCountry && certCountry.length > 1) {
+    if (certCountry?.length > 1) {
       attrs.push({ name: 'countryName', value: certCountry });
     }
 
-    if (certState && certState.length > 1) {
+    if (certState?.length > 1) {
       attrs.push({ shortName: 'ST', value: certState });
     }
-    if (certCity && certCity.length > 1) {
+    if (certCity?.length > 1) {
       attrs.push({ name: 'localityName', value: certCity });
     }
-    if (certOrgUnit && certOrgUnit.length > 1) {
+    if (certOrgUnit?.length > 1) {
       attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
     }
 
-    if (certOrg && certOrg.length > 1) {
+    if (certOrg?.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
       attrs.push({ name: 'organizationName', value: 'NetID' });
     }
-    if (certEmail && certEmail.length > 1) {
+    if (certEmail?.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 
@@ -2244,30 +2479,30 @@ INSERT {
     csr.publicKey = keys.publicKey;
 
     var attrs = [];
-    if (certName && certName.length > 1) {
+    if (certName?.length > 1) {
       attrs.push({ name: 'commonName', value: certName });
     }
 
-    if (certCountry && certCountry.length > 1) {
+    if (certCountry?.length > 1) {
       attrs.push({ name: 'countryName', value: certCountry });
     }
 
-    if (certState && certState.length > 1) {
+    if (certState?.length > 1) {
       attrs.push({ shortName: 'ST', value: certState });
     }
-    if (certCity && certCity.length > 1) {
+    if (certCity?.length > 1) {
       attrs.push({ name: 'localityName', value: certCity });
     }
-    if (certOrgUnit && certOrgUnit.length > 1) {
+    if (certOrgUnit?.length > 1) {
       attrs.push({ name: 'organizationalUnitName', value: certOrgUnit });
     }
 
-    if (certOrg && certOrg.length > 1) {
+    if (certOrg?.length > 1) {
       attrs.push({ name: 'organizationName', value: certOrg });
     } else {
       attrs.push({ name: 'organizationName', value: 'NetID' });
     }
-    if (certEmail && certEmail.length > 1) {
+    if (certEmail?.length > 1) {
       attrs.push({ name: 'emailAddress', value: certEmail });
     }
 

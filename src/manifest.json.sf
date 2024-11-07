@@ -2,7 +2,7 @@
   "name": "YouID",
   "short_name": "YouID",
   "author":"OpenLink Software",
-  "version": "1.6.11",
+  "version": "1.7.12",
   "manifest_version": 2,
   "minimum_chrome_version": "18",
   "description": "YouID selector.",
@@ -25,17 +25,17 @@
       "run_at": "document_start"
     },
     {
-      "matches": ["https://*/*"],
-      "js": ["browser.js", "oidc-webid-inject.js"],
-      "run_at": "document_start"
-    },
-    {
       "matches": ["https://www.google.com/robots.txt*", 
                   "http://www.facebook.com/robots.txt*",
                   "https://login.live.com/oauth20_desktop.srf*", 
                   "http://id.myopenlink.net/OAuthCallback*",
                   "https://id.myopenlink.net/OAuthCallback*"],
       "js": ["oauth2/oauth2_inject.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://openlinksoftware.github.io/*"],
+      "js": ["browser.js", "lib/solid-client-authn.bundle.js", "oidc-webid-inject.js"],
       "run_at": "document_start"
     }
   ],

@@ -18,10 +18,6 @@
  *
  */
  
-const { OIDCWebClient } = OIDC;
-const oidc_session = 'oidc.session';
-const oidc_clients = 'oidc.clients.';
-
 class myStore {
   constructor()
   {
@@ -67,55 +63,61 @@ class myStore {
 }
 
 
-class OidcWeb {
 
-  constructor(data) {
-    this.webid = null;
+
+class OidcWeb {
+  constructor(data) 
+  {
+    this.storage = null;
     this.session = null;
     this.jstore = new myStore();
+    this.IdP = null;
 
     const options = Browser.is_safari ? { solid: true, store: this.jstore} : { solid: true } ;
 
-    this.authClient = new OIDCWebClient(options);
-    this.login_url = 'https://openlinksoftware.github.io/oidc-web/login.html#relogin';
+    this.authClient = solidClientAuthentication.default;
+    this.login_url = 'https://openlinksoftware.github.io/solid-client-authn-js/Auth/login1.html'
+                    +`?app=youid&mode=DPoP#relogin`;
   }
+
 
   async logout()
   {
-    if (this.webid) {
-      var idp = '';
-      if (this.session) {
-        idp = this.session.issuer;
-        var key = oidc_clients+idp;
-        var rec = await this.localStore_get(key);
-
-        if (rec && rec[key]) {
-          if (Browser.is_safari)
-            this.jstore.setItem(oidc_clients+idp, rec[key]);
-          else
-            localStorage.setItem(oidc_clients+idp, rec[key]);
-        }
-
+    try {
+      const session = this.authClient.getDefaultSession();
+      if (session && session.info && session.info.isLoggedIn) {
+        await this.localStore_remove('oidc_saved_tokens');
+        await this.localStore_remove('oidc_code');
         await this.authClient.logout();
       }
-      await this.localStore_remove(oidc_session);
-      await this.localStore_remove(oidc_clients+idp);
-      this.webid = null;
-      this.session = null;
-    }
+    } catch(_) {}
   }
 
+  login() 
+  {
+     const width = 700;
+     const height = 500;
 
-  login() {
-     const width = 650;
-     const height = 400;
+     const url = this.login_url;
 
-     if (Browser.is_ff) {
+     if (Browser.is_chrome_v3 || Browser.is_ff_v3) {
+       let args = {
+         url,
+         type: 'popup',
+         height,
+         width,
+         focused: true
+       }
+       if (Browser.is_ff_v3)
+         args['allowScriptsToClose'] = true;
+       Browser.api.windows.create(args);
+     } 
+     else if (Browser.is_ff) {
        const left = window.screenX + (window.innerWidth - width) / 2;
        const top = window.screenY + (window.innerHeight - height) / 2;
 
        Browser.api.windows.create({
-         url: this.login_url,
+         url,
          type: 'popup',
          height,
          width,
@@ -124,11 +126,10 @@ class OidcWeb {
          allowScriptsToClose : true,
          focused: true
        });
-
-     } else {
-       this.popupCenter({url: this.login_url, title:"Login", w:width, h:height});
      }
-
+     else {
+       this.popupCenter({url, title:"Login", w:width, h:height});
+     }
   }
 
   popupCenter({url, title, w, h})
@@ -137,8 +138,8 @@ class OidcWeb {
     var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;  
     var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;  
               
-    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;  
-    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;  
+    let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;  
+    let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;  
               
     var left = ((width / 2) - (w / 2)) + dualScreenLeft;  
     var top = ((height / 2) - (h / 2)) + dualScreenTop;  
@@ -150,36 +151,103 @@ class OidcWeb {
     }  
   }
 
+
+  extractIdp(url, data)
+  {
+    try {
+      const u = new URL(url);
+      const state = u.searchParams.get("state");
+      const session = JSON.parse(data['solidClientAuthenticationUser:'+state]);
+      if (session && session.sessionId) {
+        const session_data = JSON.parse(data['solidClientAuthenticationUser:'+session.sessionId]);
+        if (session_data && session_data.issuer) 
+          return session_data.issuer;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    return null;
+  }
+
+
+  async restoreConn()
+  {
+    this.IdP = null;
+    let oidc_saved_tokens = null;
+    let authData = null;
+    const storage = (window.localStorage) ? window.localStorage : window.sessionStorage
+
+    try {
+      oidc_saved_tokens = await this.localStore_get('oidc_saved_tokens');
+      try {
+        const oidc_code = await this.localStore_get('oidc_code');
+        if (oidc_code) {
+          authData = JSON.parse(atob(oidc_code));
+
+          for(var key in authData) {
+            if (key.startsWith('issuerConfig:') || key.startsWith('solidClientAuthenticationUser:') || key.startsWith('oidc.'))
+              storage.setItem(key, authData[key]);
+          }
+        }
+      } catch(e) { console.log(e) }
+
+      if (authData) {
+        this.IdP = this.extractIdp(authData.url, authData);
+
+        var options = {url:authData.url, restorePreviousSession: true};
+        if (oidc_saved_tokens)
+          options['tokens'] = JSON.parse(oidc_saved_tokens);
+
+        const ret = await this.authClient.handleIncomingRedirect(options);
+        if (ret && ret.tokens) {
+          await this.localStore_save('oidc_saved_tokens', JSON.stringify(ret.tokens));
+        }
+        this.authClient = solidClientAuthentication.default;
+        const session = this.authClient.getDefaultSession();
+        if (session.info && session.info.isLoggedIn && session.info.webId)
+          return session.info.webId;
+      }
+    } catch(e) { console.log(e); }
+
+    return null;
+  }
+
+
+  isSessionForIdp(idp)
+  {
+    const session = this.authClient.getDefaultSession();
+    return (session && session.info && session.info.isLoggedIn && this.IdP && this.IdP.startsWith(idp));
+  }
+  
+  getWebId()
+  {
+    const session = this.authClient.getDefaultSession();
+    return (session && session.info && session.info.isLoggedIn) ? session.info.webId : null;
+  }
+  
   async fetch(url, options)
   {
-    return this.authClient.authFetch(url, options);
+    return this.authClient.fetch(url, options);
   }
 
   async checkSession() 
   {
-    try {
-      var rec = await this.localStore_get(oidc_session);
+    this.authClient = solidClientAuthentication.default;
+    const session = this.authClient.getDefaultSession();
+    if (session.info && session.info.isLoggedIn && session.info.webId) {
+      const webid = session.info.webId
+      this.storage = (new URL(webid)).origin + '/';
+      var prof = await this.loadProfile(webid);
 
-      if (rec && rec[oidc_session]) {
-        var session = rec[oidc_session];
-        if (Browser.is_safari)
-          this.jstore.setItem(oidc_session, session);
-        else
-          localStorage.setItem(oidc_session, session);
-      } 
-      else {
-        if (Browser.is_safari)
-          this.jstore.removeItem(oidc_session);
-        else
-          localStorage.removeItem(oidc_session);
-      }
+      if (prof.storage)
+        this.storage = prof.storage;
+      if (!this.storage.endsWith('/'))
+        this.storage += '/';
 
-      this.session = await this.authClient.currentSession()
-      this.webid = (this.session.hasCredentials()) ? this.session.idClaims.sub : null;
-
-    } catch(e) {
-      console.log(e);
+      return webid;
     }
+    else
+      return null;
   }
 
   async localStore_save(key, val) 
@@ -200,11 +268,11 @@ class OidcWeb {
     if (Browser.is_chrome) {
       return new Promise(function (resolve, reject) {
         Browser.api.storage.local.get(key, (rec) => {
-          resolve(rec)
+          resolve(rec[key])
         });
       })
     } else {
-      return Browser.api.storage.local.get(key);
+      return (await Browser.api.storage.local.get(key))[key];
     }
   }
 
@@ -221,6 +289,138 @@ class OidcWeb {
     }
   }
 
-}
 
+  async putResource (url, data, contentType) 
+  {
+    const DEFAULT_CONTENT_TYPE = 'text/html; charset=utf-8'
+    let options = { method: 'PUT', body:data};
+
+    if (!url)
+      return {rc:0, err:'Cannot PUT resource - missing url'}
+
+    options.headers = options.headers || {}
+    options.headers['Content-Type'] = contentType || DEFAULT_CONTENT_TYPE
+
+    try {
+      let rc = await this.authClient.fetch(url, options);
+      if (!rc.ok) {
+        switch(rc.status) {
+          case 0:
+          case 405:
+            return {rc:0, err:'this location is not writable'};
+          case 401:
+          case 403:
+            return {rc:0, err:'you do not have permission to write here'};
+          case 406:
+            return {rc:0, err:'enter a name for your resource'};
+          default:
+            return {rc:0, err:rc.statusText};
+        }
+      }
+      else
+        return {rc:1};
+    } catch(e) {
+      return {rc:0, err:e.toString()}
+    }
+  }
+
+
+  async loadProfile(webId) 
+  {
+    var uri = new URL(webId);
+    const uri_hash = uri.hash;
+
+    uri.hash = uri.search = uri.query = '';
+    const base = uri.toString();
+
+    if (uri_hash === '#this')
+      webId = base.toString();
+
+    try {
+      var rc = await this.fetchProfile(webId);
+      if (!rc)
+          return null;
+
+      let mediaType = rc.content_type;
+      let bodyText = rc.profile;
+
+      if (mediaType.startsWith('text/html')) {
+          let parser = new DOMParser();
+          let doc = parser.parseFromString(bodyText, 'text/html');
+          let storage_link = doc.querySelector(`*[itemid="${webId}"] > link[itemprop="http://www.w3.org/ns/pim/space#storage"]`);
+          let inbox_link = doc.querySelector(`*[itemid="${webId}"] > link[itemprop="http://www.w3.org/ns/pim/space#inbox"]`);
+          let name_meta = doc.querySelector(`*[itemid="${webId}"] > meta[itemprop="http://schema.org/name"]`);
+          let storage_url = storage_link ? storage_link.href : inbox_link ? inbox_link.href : null;
+          if (storage_url) {
+              return {
+                  webId,
+                  storage: storage_url,
+                  is_solid_id: false,
+                  name: name_meta ? name_meta.content : null
+              }
+          }
+      }
+
+      const store = $rdf.graph()
+      $rdf.parse(bodyText, store, base, mediaType);
+      const LDP = $rdf.Namespace("http://www.w3.org/ns/ldp#");
+      const PIM = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+      const SOLID = $rdf.Namespace("http://www.w3.org/ns/solid/terms#");
+      const FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+      const s_webId = $rdf.sym(webId)
+
+      var storage = store.any(s_webId, PIM('storage'));
+      var inbox = store.any(s_webId, LDP('inbox'));
+      var name = store.any(s_webId, FOAF('name'));
+
+      var s_issuer = store.any(s_webId, SOLID('oidcIssuer'));
+      var s_account = store.any(s_webId, SOLID('account'));
+      var s_pubIndex = store.any(s_webId, SOLID('publicTypeIndex'));
+      var is_solid_id = (s_issuer || s_account || s_pubIndex) ? true : false;
+      let storage_url = storage ? storage.value : inbox ? inbox.value : null;
+      return {
+          storage: storage_url,
+          is_solid_id: is_solid_id,
+          name: name
+      };
+
+    } catch (e) {
+      console.error('Error', e)
+      return null;
+    }
+  }
+
+
+  async fetchProfile(url) 
+  {
+    var _uri = new URL(url);
+
+    const is_html =(_uri.pathname.endsWith('.htm') || _uri.pathname.endsWith('.html'))
+    let options = {}
+
+    if (!is_html)
+      options['headers'] =  { 'Accept': 'text/turtle;q=1.0,application/ld+json;q=0.5,text/plain;q=0.2,text/html;q=0.5,*/*;q=0.1'}
+    else
+      options['headers'] =  { 'Accept': 'text/html'}
+
+    var resp;
+    try {
+      resp = await fetchWithTimeout(url, options, 10000);
+      if (resp.ok) {
+          var body = await resp.text();
+          var contentType = resp.headers.get('content-type');
+          return { profile: body, content_type: contentType };
+      }
+      else {
+          console.log("Error " + resp.status + " - " + resp.statusText)
+      }
+    }
+    catch (e) {
+      console.error('Request failed', e)
+      return null;
+    }
+  }
+
+}
 

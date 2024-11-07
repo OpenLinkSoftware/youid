@@ -28,7 +28,10 @@
          oplcert:hasPublicKey <%{pubkey_url}#PublicKey> ;
          oplcert:fingerprint "%{fingerprint_hex}" ; 
          oplcert:fingerprint-digest "%{fingerprint_hex}"^^xsig:sha1, "%{fingerprint_256_hex}"^^xsig:sha256 .
-         
+
+!!{ca_cert_url}
+<%{cert_url}#cert> xhv:alternate <%{ca_cert_url}> .
+!!.
 
 !!{pdp_url}
 <%{pdp_url}> a <http://schema.org/Person> ; 
@@ -117,10 +120,10 @@ a foaf:profileDocument , oplcert:Certificate ;
 	<%{rdfa_prof_url}#identity> ,
 	<%{prof_url}#identity> .
 
-<%{card_ident_url}> schema:sameAs <%{jsonld_prof_url}#identity> ,
+<%{card_ident_url}> schema:sameAs <%{jsonld_prof_url}> ,
 !{relList} %{relList}
-	<%{rdfa_prof_url}#identity> ,
-	<%{prof_url}#identity> .
+	<%{rdfa_prof_url}> ,
+	<%{prof_url}> .
 
 <%{prof_url}#identity> xhv:alt <%{cert_url}#cert> .
 

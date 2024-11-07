@@ -1,28 +1,28 @@
 {
   "name": "OpenLink YouID",
-  "short_name": "opl_youid",
+  "short_name": "youid",
   "author":"OpenLink Software",
-  "version": "1.6.11",
-  "manifest_version": 2,
+  "version": "1.7.12",
+  "manifest_version": 3,
   "minimum_chrome_version": "18",
   "description": "YouID selector.",
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "youid@openlinksw.com",
-      "strict_min_version": "49.0"
-    }
-  },
+      "strict_min_version": "109.0"
+     }
+   },
   "icons": {
       "16":  "images/icon20.png",
       "48":  "images/icon48.png",
       "128": "images/icon128.png" },
-  "browser_action": {
+  "action": {
     "default_icon": "images/icon20.png",
     "default_title": "YouID",
     "default_popup": "popup.html"
   },
   "background": {
-    "page": "background.html"
+    "scripts": ["browser.js", "settings.js", "utils2.js", "background.js", "service_worker_ff.js"]
   },
   "content_scripts": [
     {
@@ -31,8 +31,8 @@
       "run_at": "document_start"
     },
     {
-      "matches": ["https://*/*"],
-      "js": ["browser.js", "oidc-webid-inject.js"],
+      "matches": ["https://openlinksoftware.github.io/*"],
+      "js": ["browser.js", "lib/solid-client-authn.bundle.js", "oidc-webid-inject.js"],
       "run_at": "document_start"
     },
     {
@@ -51,22 +51,23 @@
     "open_in_tab": true
   },
 
+  "host_permissions": [
+    "<all_urls>", "https://accounts.google.com/o/oauth2/token"
+  ],
   "permissions": [
     "storage", 
-    "webRequest", 
-    "webRequestBlocking",
-    "tabs", 
-    "http://*/",
-    "https://*/",
-    "*://*/*", 
-    "file:///*/*",
-    "https://accounts.google.com/o/oauth2/token"
+    "declarativeNetRequest",
+    "tabs"
   ],
 
   "web_accessible_resources": [
-    "oauth2/oauth2.html"
+    {
+      "resources": [ "oauth2/oauth2.html" ],
+      "matches": [ "*://*/*" ]
+    }
   ],
 
-  "content_security_policy": 
-    "script-src 'self' 'unsafe-eval' moz-extension://lib; object-src 'self' moz-extension://lib; style-src 'self' 'unsafe-inline' moz-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' moz-extension://lib ;"
+  "content_security_policy": { 
+    "extension_pages": "script-src 'self' ; object-src 'self' moz-extension://lib; style-src 'self' 'unsafe-inline' moz-extension://lib https://solid.openlinksw.com; media-src 'self' 'unsafe-inline' moz-extension://lib ;"
+   }
 }

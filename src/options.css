@@ -115,3 +115,20 @@ ul#tabs li a.selected {
     padding: 0.7em 0.5em 0.5em 0.5em;
 }
 
+#photo_img_close {
+    position: absolute; 
+    border: black; 
+    border-width: 1px; 
+    border-style: solid;
+    background: #606061;
+    color: #FFFFFF;
+    line-height: 20px;
+    width: 20px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-left: -10px;     
+}
+
+#photo_img_close:hover { background: #00d9ff }

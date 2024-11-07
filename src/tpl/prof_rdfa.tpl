@@ -50,6 +50,12 @@
     <div property="oplcert:fingerprint-digest" datatype="xsig:sha256" content="%{fingerprint_256_hex}"></div>
   </div>
 
+!!{ca_cert_url}
+  <div typeof="rdfs:Resource" about="%{cert_url}#cert">
+    <div rel="xhv:alternate" resource="%{ca_cert_url}"></div>
+  </div>
+!!.
+
 !!{pdp_url}
   <div typeof="http://schema.org/Person" about="%{pdp_url}">
     <div rel="http://schema.org/sameAs" resource="%{rdfa_prof_url}"></div>
@@ -152,9 +158,9 @@
 
   <div typeof="rdfs:Resource" about="%{card_ident_url}">
 !{relList_rdfa_schema} %{relList_rdfa_schema}
-    <div rel="schema:sameAs" resource="%{jsonld_prof_url}#identity"></div>
-    <div rel="schema:sameAs" resource="%{prof_url}#identity"></div>
-    <div rel="schema:sameAs" resource="%{rdfa_prof_url}#identity"></div>
+    <div rel="schema:sameAs" resource="%{jsonld_prof_url}"></div>
+    <div rel="schema:sameAs" resource="%{prof_url}"></div>
+    <div rel="schema:sameAs" resource="%{rdfa_prof_url}"></div>
   </div>
 
   <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">

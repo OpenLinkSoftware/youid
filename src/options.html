@@ -35,7 +35,6 @@
     <script type="text/javascript" src="lib/RDFa.js"></script>
     <script type="text/javascript" src="lib/purify.min.js"></script>
     <script type="text/javascript" src="lib/forge.bundle.js"></script>
-    <script type="text/javascript" src="lib/oidc-web.min.js"></script>
     <script type="text/javascript" src="lib/aws-sdk.js"></script>
     <script type="text/javascript" src="lib/azure-sdk.js"></script>
     <script type="text/javascript" src="lib/punycode.js"></script>
@@ -45,6 +44,8 @@
     <script type="text/javascript" src="lib/secp256k1.js"></script>
     <script type="text/javascript" src="lib/sha3.js"></script>
     <script type="text/javascript" src="lib/jszip.js"></script>
+    <script type="text/javascript" src="lib/solid-client-authn.bundle.js"></script>
+
 
     <script type="text/javascript" src="oauth2/oauth2.js"></script>
     <script type="text/javascript" src="oauth2/sha1.js"></script>
@@ -205,62 +206,158 @@
           <hr/>
           
           <div class="form-group row">
-            <label for="c_name" class="col-md-3 control-label">Name:</label>
-            <div class="col-md-6">
-              <input type="text" class="form-control" id="c_name" value="">
+            <div class="col-md-9"> 
+              <div class="form-group row">
+<!--
+                <div class="col-md-4"> colX0 </div>
+                <div class="col-md-8"> colX1 </div>
+-->
+                <div class="form-group row">
+                  <label for="c_name" class="col-md-4 control-label">Name:</label>
+                  <div class="col-md-8">
+                    <input type="text" class="form-control" id="c_name" value="">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="c_email" class="col-md-4 control-label">Email:</label>
+                  <div class="col-md-8">
+                    <input type="email" class="form-control" id="c_email" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="c_org" class="col-md-4 control-label">Organization:</label>
+                  <div class="col-md-8">
+                    <input type="text" class="form-control" id="c_org" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="c_org_unit" class="col-md-4 control-label">Org. Unit:</label>
+                  <div class="col-md-8">
+                    <input type="text" class="form-control" id="c_org_unit" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="c_country" class="col-md-4 control-label">Country:</label>
+                  <div class="col-md-8">
+                    <select class="form-control" id="c_country">
+                      <option value="" ></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="c_state" class="col-md-4 control-label">State:</label>
+                  <div class="col-md-8">
+                    <input list="c_states" class="form-control" id="c_state" />
+                    <datalist id="c_states">
+                    </datalist>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="c_city" class="col-md-4 control-label">Locality:</label>
+                  <div class="col-md-8">
+                    <input type="text" class="form-control" id="c_city" />
+                  </div>
+                </div>
+                    
+                <div class="form-group row">
+                  <label for="c_issued" class="col-md-4 control-label">Issued By:</label>
+                  <div class="col-md-8">
+                    <select name="issued" class="form-control" id="c_issued">
+                      <option value="self_signed" selected>Self-Signed</option>
+                      <option value="local_ca">Local CA</option>
+                    </select>
+                  </div>
+                </div>
+              
+              </div>
             </div>
-          </div>
-          <div class="form-group row">
-            <label for="c_email" class="col-md-3 control-label">Email:</label>
-            <div class="col-md-6">
-              <input type="email" class="form-control" id="c_email" />
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="c_org" class="col-md-3 control-label">Organization:</label>
-            <div class="col-md-6">
-              <input type="text" class="form-control" id="c_org" />
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="c_org_unit" class="col-md-3 control-label">Org. Unit:</label>
-            <div class="col-md-6">
-              <input type="text" class="form-control" id="c_org_unit" />
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="c_country" class="col-md-3 control-label">Country:</label>
-            <div class="col-md-6">
-              <select class="form-control" id="c_country">
-                <option value="" ></option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="c_state" class="col-md-3 control-label">State:</label>
-            <div class="col-md-6">
-              <input list="c_states" class="form-control" id="c_state" />
-              <datalist id="c_states">
-              </datalist>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="c_city" class="col-md-3 control-label">Locality:</label>
-            <div class="col-md-6">
-              <input type="text" class="form-control" id="c_city" />
+            <div class="col-md-3" style="display:flex; flex-flow:column; align-items:center;"> 
+             <span style="margin-top:50px"> Photo 130x145px </span>
+             <div>
+               <img src="./tpl/photo_130x145.jpg" id="photo_img" width="130" height="145" style="margin-top: 10px; border-width:1px; border-radius:2px; border-style:solid;" alt="User Photo">
+               <span id="photo_img_close">&times;</span>
+             </div>
+             <input id="photo_data" type="file" style="width: 200px; margin-top:10px" value="" title="Photo 130x145">
             </div>
           </div>
 
+        </form>
+
+        <form class="form-horizontal">
+          <hr/>
           <div class="form-group row">
-            <label for="c_issued" class="col-md-3 control-label">Issued By:</label>
+            <label for="c_use_widget" class="col-md-3 control-label">Add OPAL Widget:</label>
             <div class="col-md-6">
-              <select name="issued" class="form-control" id="c_issued">
-                <option value="self_signed" selected>Self-Signed</option>
-                <option value="local_ca">Local CA</option>
-              </select>
+              <input type="checkbox" class="form-control_" id="c_use_widget" style="vertical-align: bottom;" >
             </div>
           </div>
-        
+          <div id="opal_params" class="hidden">
+            <div class="form-group row">
+              <label for="c_opl_key" class="col-md-3 control-label">OPAL API Key:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_opl_key" placeholder="xxxxxxx..."/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_assistant" class="col-md-3 control-label">Assistant ID:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_assistant" value="asst_pcnONIrtgLYaIEdbUnTwz8jB" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_funcs" class="col-md-3 control-label">Functions:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_funcs" value="" placeholder="Demo.demo.execute_spasql_query,DB.DBA.vos_howto_search,...."/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_model" class="col-md-3 control-label">Model:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_model" value="gpt-4o" placeholder="gpt-4o"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_top_p" class="col-md-3 control-label">Top_p:</label>
+              <div class="col-md-6">
+                <input type="number" class="form-control" id="c_top_p" value="0.5" min="0.0" max="1.0" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_temperature" class="col-md-3 control-label">Temperature:</label>
+              <div class="col-md-6">
+                <input type="number" class="form-control" id="c_temperature" value="0.2" min="0.0" />
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <form class="form-horizontal">
+          <div class="form-group row">
+            <hr/>
+              <label class="col-md-3 control-label">Embeded data in card HTML:</label>
+              <div class="checkbox col-md-6">
+               <fieldset>
+                <label>
+                  <input type="checkbox" id="c_em_microdata" /> Microdata
+                </label>
+                <label style="margin-left:20px">
+                  <input type="checkbox" id="c_em_ttl" /> Turtle data
+                </label>
+                <label style="margin-left:20px">
+                  <input type="checkbox" id="c_em_jsonld" checked /> JSON-LD data
+                </label>
+               </fieldset>
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-md-3 control-label">IndieAuth Identity Provider:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_em_indieauth_idp" 
+                 placeholder="https://hostname"
+                 value="https://linkeddata.uriburner.com"
+               />
+              </div>
+          </div>
         </form>
 
         <form class="form-horizontal">

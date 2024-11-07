@@ -131,24 +131,20 @@ class YouID_Loader {
 
   this.load_cert_fp = `
   PREFIX oplcert: <http://www.openlinksw.com/schemas/cert#> 
+  PREFIX owl:  <http://www.w3.org/2002/07/owl#>
 
   SELECT * WHERE 
     { 
-         <#{webid}> oplcert:hasCertificate ?cert .
+       { 
+         {<#{webid}> oplcert:hasCertificate ?cert .} UNION
+         {<#{webid}> owl:sameAs ?webid_x .  ?webid_x oplcert:hasCertificate ?cert .}
+       }
          ?cert oplcert:fingerprint ?fp ;
+               oplcert:subject ?subject ;
                oplcert:fingerprint-digest ?fp_dg .
     }`;
-
-
   }
 
-/**
-       OPTIONAL { 
-         <#{webid}> oplcert:hasCertificate ?cert .
-         ?cert oplcert:fingerprint ?fp ;
-               oplcert:fingerprint-digest ?fp_dg .
-       }
-***/
 
   async parse_data(data, content_type, baseURI)
   {
@@ -229,19 +225,20 @@ class YouID_Loader {
       }
     }
 
-    var rc = [];
+    var rc = {id_list:[]};
+    var id_list = [];
     if (content_type.indexOf('text/plain') != -1) {
        
        var idata = sniff_text_data(data, baseURI); //idata = {ttl:[], ldjson, rdfxml:[]}
 
        for(var i=0; i<idata.ldjson.length; i++) {
-         rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
+         id_list = await get_data(id_list, idata.ldjson[i], 'application/ld+json', idata.baseURI);
        }
        for(var i=0; i<idata.ttl.length; i++) {
-         rc = await get_data(rc, idata.ttl[i], 'text/turtle', idata.baseURI);
+         id_list = await get_data(id_list, idata.ttl[i], 'text/turtle', idata.baseURI);
        }
        for(var i=0; i<idata.rdfxml.length; i++) {
-         rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
+         id_list = await get_data(id_list, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
        }
 
     } else if (content_type.indexOf('text/html') != -1) {
@@ -250,14 +247,16 @@ class YouID_Loader {
        var doc = parser.parseFromString(data, 'text/html');
        var idata = sniff_doc_data(doc, baseURI);
 
+       rc["dom"] = doc;
+
        for(var i=0; i<idata.ldjson.length; i++) {
-         rc = await get_data(rc, idata.ldjson[i], 'application/ld+json', idata.baseURI);
+         id_list = await get_data(id_list, idata.ldjson[i], 'application/ld+json', idata.baseURI);
        }
        for(var i=0; i<idata.ttl.length; i++) {
-         rc = await get_data(rc, idata.ttl[i], 'text/turtle', idata.baseURI);
+         id_list = await get_data(id_list, idata.ttl[i], 'text/turtle', idata.baseURI);
        }
        for(var i=0; i<idata.rdfxml.length; i++) {
-         rc = await get_data(rc, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
+         id_list = await get_data(id_list, idata.rdfxml[i], 'application/rdf+xml', idata.baseURI);
        }
 
     } else {
@@ -270,10 +269,11 @@ class YouID_Loader {
       var ret = await this.exec_verify_query(store, {data, content_type, baseURI});
       for(var webid in ret) {
         var data = ret[webid];
-        rc.push(data); 
+        id_list.push(data); 
       }
     }
 
+    rc.id_list = id_list;
     return rc;
   }
 
@@ -317,6 +317,10 @@ class YouID_Loader {
       var ret = await this.loadCertKeys(store, webid);
       if (!ret.error && ret.keys)
         youid.keys = ret.keys;
+
+      var ret = await this.loadCert_Fp(store, webid);
+      if (!ret.error && ret.subject)
+        youid.subject = ret.subject;
 
       if (r.schema_name)
         schema_name = r.schema_name.value;
@@ -703,6 +707,7 @@ class YouID_Loader {
     } catch(err) {
       return { "error": err};
     }
+
     if (rc.err) {
       return { "error": rc.err};
     } 
@@ -715,6 +720,8 @@ class YouID_Loader {
         var v = {cert: r.cert.value, fp_dg:[]};
         if (r.fp)
           v["fp"] = r.fp.value;
+        if (r.subject)
+          v["subject"] = r.subject.value;
 
         if (!certs[v.cert])
           certs[v.cert] = v;
@@ -722,7 +729,7 @@ class YouID_Loader {
         if(r.fp_dg)
           certs[v.cert].fp_dg.push(r.fp_dg.value);
       }
-      var ret = Object.values(pkeys)
+      var ret = Object.values(certs)
 
       return ret.length > 0 ? ret[0] : null;
    }
@@ -749,6 +756,21 @@ function loadBinaryFile(file)
        reject('Error: '+ e.type);
     };
     reader.readAsBinaryString(file);
+  });
+}
+
+
+function loadDataUrlFile(file)
+{
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      resolve(e.target.result);
+    };
+    reader.onerror = function(e) {
+       reject('Error: '+ e.type);
+    };
+    reader.readAsDataURL(file);
   });
 }
 
@@ -1076,6 +1098,7 @@ function sniff_text_data(txt, uri)
         }
 
         //try get Turtle Nano in CurlyBraces { ... }
+        /**
         var j = 0;
         var inCurly = 0;
         var str = "";
@@ -1101,6 +1124,7 @@ function sniff_text_data(txt, uri)
                 str += ch;
             }
         }
+        **/
 
         //try get JSON-LD Nano
         while (true) {

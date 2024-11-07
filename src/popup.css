@@ -82,15 +82,15 @@ body {
 
 body.youid {
     width: 660px;
-    height: 600px;
+    height: 590px;
 }
 
 
 div.content_scroll {
     margin: 5px;
-    overflow: auto;
+/*    overflow: auto;*/
     width: 650px;
-    height: 575px; 
+    height: calc(100vh - 30px);
     border: none;
 }
 
@@ -101,6 +101,7 @@ div.content_scroll {
     bottom: 1px;
     color: gray;
     font-size: 10px;
+    height: 20px; 
 }
 
 .copyright_left {
@@ -109,6 +110,7 @@ div.content_scroll {
     bottom: 1px;
     color: gray;
     font-size: 10px;
+    height: 20px; 
 }
 
 

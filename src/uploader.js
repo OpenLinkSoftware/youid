@@ -87,21 +87,10 @@ class Uploader {
     return { ok: false };
   }
 
-  async loadCardFiles() {
-    this.files["p_none.png"] = new CardFileBinary('p_none.png', 'image/png');
-    this.files["p_cal.com_32.png"] = new CardFileBinary('p_cal.com_32.png', 'image/png');
-    this.files["p_carrd_32.png"] = new CardFileBinary('p_carrd_32.png', 'image/png');
-    this.files["p_disha_32.png"] = new CardFileBinary('p_disha_32.png', 'image/png');
-    this.files["p_facebook_32.png"] = new CardFileBinary('p_facebook_32.png', 'image/png');
-    this.files["p_github_32.png"] = new CardFileBinary('p_github_32.png', 'image/png');
-    this.files["p_glitch_32.png"] = new CardFileBinary('p_glitch_32.png', 'image/png');
-    this.files["p_insta_32.png"] = new CardFileBinary('p_insta_32.png', 'image/png');
-    this.files["p_linkedin_32.png"] = new CardFileBinary('p_linkedin_32.png', 'image/png');
-    this.files["p_linktree_32.png"] = new CardFileBinary('p_linktree_32.png', 'image/png');
-    this.files["p_mastodon_32.png"] = new CardFileBinary('p_mastodon_32.png', 'image/png');
-    this.files["p_myopenlink_32.png"] = new CardFileBinary('p_myopenlink_32.png', 'image/png');
-    this.files["p_tiktok_32.png"] = new CardFileBinary('p_tiktok_32.png', 'image/png');
-    this.files["p_twitter_32.png"] = new CardFileBinary('p_twitter_32.png', 'image/png');
+  async loadCardFiles(use_opal_widget) {
+    const rels = new Relations();
+    for(const v of rels.getImagesList())
+      this.files[v] = new CardFileBinary(v, 'image/png');
 
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
     this.files["qrcode.js"] = new CardFileBinary('qrcode.js', 'text/javascript');
@@ -112,6 +101,13 @@ class Uploader {
     this.files["photo_130x145.jpg"] = new CardFileBinary('photo_130x145.jpg', 'image/jpeg');
     this.files["youid_logo-35px.png"] = new CardFileBinary('youid_logo-35px.png', 'image/png');
     this.files["style.css"] = new CardFileBinary('style.css', 'text/css');
+
+    if (use_opal_widget) {
+      this.files["style_opal.css"] = new CardFileBinary('style_opal.css', 'text/css');
+      this.files["chatbot-32px.png"] = new CardFileBinary('chatbot-32px.png', 'image/png');
+      this.files["auth.js"] = new CardFileBinary('auth.js', 'text/javascript');
+      this.files["opalx.js"] = new CardFileBinary('opalx.js', 'text/javascript');
+    }
 
     var v = new CardFileBase64('photo_130x145.jpg', 'image/jpeg');
     v.export = false;
@@ -246,6 +242,30 @@ class Uploader {
       return rval;
     }
 
+    tpl_data['photo_url'] = gen.photo_url;
+
+    if (gen.use_opal_widget) {
+      tpl_data['use_opal_widget'] = '1'
+      tpl_data['w_opl_api_key'] = gen.w_opl_api_key;
+      tpl_data['w_assistant'] = gen.w_assistant;
+      tpl_data['w_temperature'] = gen.w_temperature
+      tpl_data['w_top_p'] = gen.w_top_p
+      if (gen.w_model.length>1)
+        tpl_data['w_model'] = gen.w_model
+      if (gen.w_funcs.length>1)
+        tpl_data['w_funcs'] = gen.w_funcs
+    }
+
+    if (gen.em_indie_idp)
+      tpl_data['em_indie_idp'] = gen.em_indie_idp;
+    if (gen.em_microdata)
+      tpl_data['em_microdata'] = gen.em_microdata;
+    if (gen.em_jsonld)
+      tpl_data['em_jsonld'] = gen.em_jsonld;
+    if (gen.em_ttl)
+      tpl_data['em_ttl'] = gen.em_ttl;
+
+
     if (certData.ca_fname && certData.ca_fname.length > 0) {
       var ca_cert_url = dir_url + certData.ca_fname+'#this';
       tpl_data['ca_cert_url'] = ca_cert_url;
@@ -289,40 +309,28 @@ class Uploader {
       for(var i=0; i < gen.relList.length; i++) {
         const r_url = gen.relList[i].v;
         const r_type = gen.relList[i].type;
+        const r_rel = gen.relations.getRelForId(r_type);
+
         var nl = (i==gen.relList.length-1) ? '' : '\n';
-        s_ttl += `	<${r_url}#identity> ,${nl}`;
+
+        s_ttl += `	<${r_url}> ,${nl}`;
 
         s_json += '        {\n'
-                 +`          "@id": "${r_url}#identity"\n`
+                 +`          "@id": "${r_url}"\n`
                  +`        },${nl}`;
 
         s_rdfa += `    <div rel="owl:sameAs" resource="${r_url}#identity"></div>${nl}`;
-        s_rdfa_schema += `    <div rel="schema:sameAs" resource="${r_url}#identity"></div>${nl}`;
+        s_rdfa_schema += `    <div rel="schema:sameAs" resource="${r_url}"></div>${nl}`;
         s_micro += `    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="${r_url}#identity" />${nl}`;
-        s_micro_schema += `    <link itemprop="http://schema.org/sameAs" href="${r_url}#identity" />${nl}`;
-        s_rdf += `        <owl:sameAs rdf:resource="${r_url}"/>\n`;
+        s_micro_schema += `    <link itemprop="http://schema.org/sameAs" href="${r_url}" />${nl}`;
+        s_rdf += `        <owl:sameAs rdf:resource="${r_url}#identity"/>\n`;
         s_rdf_schema += `        <schema:sameAs rdf:resource="${r_url}"/>\n`;
 
-        s_header += `<link rel="me" href="${r_url}" />${nl}`;
+        s_header += `<link rel="me" name="${r_rel.name}" href="${r_url}" />${nl}`;
 
-        var p_image = '';
-        var p_alt = ''
-        switch(r_type) {
-          case 'ca': p_image = 'p_cal.com_32.png';    p_alt='Cal.com'; break;
-          case 'cr': p_image = 'p_carrd_32.png';      p_alt='Carrd'; break;
-          case 'di': p_image = 'p_disha_32.png';      p_alt='Disha'; break;
-          case 'fb': p_image = 'p_facebook_32.png';   p_alt='Facebook'; break;
-          case 'gh': p_image = 'p_github_32.png';     p_alt='Github'; break;
-          case 'gl': p_image = 'p_glitch_32.png';     p_alt='Glitch'; break;
-          case 'id': p_image = 'p_myopenlink_32.png'; p_alt='ID.MyOpenLink.NET'; break;
-          case 'in': p_image = 'p_insta_32.png';      p_alt='Instagram'; break;
-          case 'li': p_image = 'p_linkedin_32.png'; p_alt='LinkedIn'; break;
-          case 'lt': p_image = 'p_linktree_32.png'; p_alt='Linktree'; break;
-          case 'ma': p_image = 'p_mastodon_32.png'; p_alt='Mastodon'; break;
-          case 'ti': p_image = 'p_tiktok_32.png';   p_alt='TikTok'; break;
-          case 'tw': p_image = 'p_twitter_32.png';  p_alt='Twitter'; break;
-          default: p_image = 'p_none.png'; break;
-        }
+        var p_image = r_rel.img??'';
+        var p_alt = r_rel.name??''
+
         s_html += `		  <a href="${r_url}" target="_blank"><img src="${p_image}" alt="${p_alt}" class="rel_item"></a>\n`;
 
       }
@@ -365,7 +373,7 @@ class Uploader {
     var email = v ? v.value : '';
     tpl_data['subj_email'] = email;
     tpl_data['subj_email_mailto'] = 'mailto:' + email;
-    tpl_data['subj_email_mailto_href'] = '<a href="mailto:' + email + '">' + email + '<a/>';
+    tpl_data['subj_email_mailto_href'] = '<a href="mailto:' + email + '">' + email + '</a>';
 
     tpl_data['date_before'] = cert.validity.notBefore.toISOString();
     tpl_data['date_after'] = cert.validity.notAfter.toISOString();
@@ -379,7 +387,8 @@ class Uploader {
       tpl_data['pdp_url_head'] = `<link rel="related" href="${pdp_html}" title="Related Document"  type="text/html" />`;
     }
 
-    tpl_data['pubkey_pem_url'] = dir_url + gen.cert_name + '.crt';
+    tpl_data['pubkey_der_url'] = dir_url + gen.cert_name + '.crt';
+    tpl_data['pubkey_pem_url'] = dir_url + gen.cert_name + '.pem';
     tpl_data['vcard_url'] = dir_url + this.files["vcard.vcf"].fname;
     tpl_data['prof_url'] = dir_url + this.files["profile.ttl"].fname;
     tpl_data['pubkey_url'] = dir_url + this.files["public_key.ttl"].fname;

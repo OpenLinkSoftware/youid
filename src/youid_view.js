@@ -574,7 +574,7 @@ class YouId_View {
       var loader = new YouID_Loader();
       var rc = await loader.verify_ID(uri, this.gOidc)
 
-      for(var val of rc) {
+      for(var val of rc.id_list) {
         var found = -1;
         for(var i=0; i < lst.length; i++) {
           if (val.id === lst[i].id) {
