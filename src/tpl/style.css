@@ -37,7 +37,12 @@ h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center;
 /* Card Content */
 
 /* User Photo */
-.cardPic {  }
+.cardPic {  
+  max-width: 130px;
+  max-height: 145px;
+  width: auto;
+  height: auto;
+}
 
 /* Card Details Section */
 .cardDetails { float: left; width: 285px; }

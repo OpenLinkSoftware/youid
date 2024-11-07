@@ -62,8 +62,8 @@
           <div class="cardBody">
 
             <div>
-              <div class="xcard cardPic">
-                <img src="%{photo_url}" width="130" height="145" alt="User Photo">
+              <div class="xcard">
+                <img src="%{photo_url}" class="cardPic" alt="User Photo">
               </div><!-- end cardPic -->
 !!{relList_html}
               <div class="rel_block">
