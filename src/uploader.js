@@ -242,6 +242,8 @@ class Uploader {
       return rval;
     }
 
+    tpl_data['photo_url'] = gen.photo_url;
+
     if (gen.use_opal_widget) {
       tpl_data['use_opal_widget'] = '1'
       tpl_data['w_opl_api_key'] = gen.w_opl_api_key;

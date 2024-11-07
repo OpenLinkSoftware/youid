@@ -44,8 +44,9 @@
 <title> Web-Scale Verifiable Digital Identity Card for %{subj_name}</title>
 
 <link href="style.css" rel="stylesheet" type="text/css">
+!!{use_opal_widget}
 <link href="style_opal.css" rel="stylesheet" type="text/css">
-
+!!.
 
 <script type="text/javascript" src="./qrcode.js"></script>
 
@@ -62,14 +63,14 @@
 
             <div>
               <div class="xcard cardPic">
-                <img src="photo_130x145.jpg" width="130" height="145" alt="User Photo">
+                <img src="%{photo_url}" width="130" height="145" alt="User Photo">
               </div><!-- end cardPic -->
 !!{relList_html}
               <div class="rel_block">
 %{relList_html}
               </div>
-            </div>
 !!.
+            </div>
             <div class="cardDetails">
                       <p class="xcard fieldName">Common Name</p>
                       <p class="xcard fieldContent"><a href="%{webid}">%{subj_name}</a></p>

@@ -760,6 +760,21 @@ function loadBinaryFile(file)
 }
 
 
+function loadDataUrlFile(file)
+{
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      resolve(e.target.result);
+    };
+    reader.onerror = function(e) {
+       reject('Error: '+ e.type);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+
 SPARQL = function () {
   this.store = null;
 }

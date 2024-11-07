@@ -168,6 +168,7 @@ class Certificate {
     this.relations = new Relations();
     this.relations.initEvents();
     this.relations.emptyList(true);
+    this.photo_url = null;
   }
 
   reset_gen_cert() 
@@ -710,6 +711,30 @@ class Certificate {
         this.gen_webid(DOM.qSel('#c_idp option:checked').value);
       };
 
+    DOM.qSel('#gen-cert-dlg #photo_img_close')
+      .onclick = () => {
+          DOM.iSel('photo_img').src = './tpl/photo_130x145.jpg';
+          DOM.iSel('photo_data').value = null;
+          this.photo_url = null;
+      };
+
+    DOM.qSel('#gen-cert-dlg #photo_data').onchange = async (e) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        const ftype = file.type; 
+        if (ftype.startsWith('image/')) {
+          var data = await loadDataUrlFile(file);
+          if (data) {
+            DOM.iSel('photo_img').src = data;
+            this.photo_url = data;
+          }
+        } else {
+          DOM.iSel('photo_data').value = null;
+          alert('Unsupported file type');
+        }
+      }
+    };
+
 
     DOM.qSel('#gen-cert-dlg #btn-gen-cert')
       .onclick = async (e) => {
@@ -987,6 +1012,7 @@ class Certificate {
     var certPwd = DOM.qSel('#gen-cert-dlg #c_pwd').value;
     var certPwd1 = DOM.qSel('#gen-cert-dlg #c_pwd1').value;
 
+    gen.photo_url = this.photo_url ? this.photo_url : 'photo_130x145.jpg';
 
     if (gen.use_opal_widget) {
       var w_opl_api_key = DOM.qSel('#gen-cert-dlg #c_opl_key').value;
