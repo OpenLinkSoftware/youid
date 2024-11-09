@@ -16,6 +16,7 @@
 
 :root{
   --scale : 1;
+  --background-color-header : #1D70B7; /*rgb(80, 155, 219)*/
 }
 
 .chat-popup * {
@@ -58,7 +59,7 @@
   padding-top: 10px;
   padding-bottom: 10px;
   border-radius: 10px;
-  background-color: rgb(80, 155, 219);
+  background-color: var(--background-color-header);
 }
 
 .form-container #message_input {
@@ -202,7 +203,7 @@
 }
 
 .agent-message {
-  background-color: rgb(80, 155, 219);
+  background-color: lightblue;
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -222,7 +223,7 @@
   left: -10px; /* Adjust as needed, controls the horizontal position of the tail */
   top: 5px; /* Adjust as needed, controls the vertical position of the tail */
   border: 15px solid transparent; /* Adjust size of the tail */
-  border-right-color: rgb(80, 155, 219); /* Color should match the bubble's background */
+  border-right-color: lightblue; /* Color should match the bubble's background */
   border-left: 0;
   margin-top: -5px; /* Adjust to fine-tune the tail's vertical position */
   margin-left: 0; /* Adjust to fine-tune the tail's horizontal position */
