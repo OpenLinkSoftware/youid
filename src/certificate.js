@@ -249,7 +249,7 @@ class Certificate {
         }
   } 
 
-  sniff_HTML_profile(dom, subject)
+  sniff_HTML_profile(dom, subject, pim)
   {
     let det = {};
     if (subject) {
@@ -279,6 +279,8 @@ class Certificate {
         this.relations.emptyList();
       for(const r of rels)
          this.relations.addItem(r.href, r.attributes.name?.value);
+
+      det.pim = dom.querySelector("link[rel='http://www.w3.org/ns/pim/space#storage']")?.href ?? pim;
 
       /* Sniff card details */
       const data = dom.querySelector("div.cardDetails");
@@ -317,6 +319,8 @@ class Certificate {
       DOM.iSel('c_city').value = det.locality;
     if (det.email)
       DOM.iSel('c_email').value = det.email;
+    if (det.pim)
+      DOM.iSel('c_pim_storage').value = det.pim;
   }
 
   async click_gen_cert(cur_webid) 
@@ -543,8 +547,9 @@ class Certificate {
              DOM.iSel('c_webid').value = webid;
              DOM.iSel('c_name').value = rc.name ? rc.name: "";
              DOM.iSel('c_email').value = rc.email ? rc.email : "";
-             DOM.iSel('c_pim_storage').value = rc.pim ? rc.pim : (rc.inbox ? rc.inbox : "");
-             this.sniff_HTML_profile(ret.dom, rc.subject)
+             const pim = rc.pim ? rc.pim : (rc.inbox ? rc.inbox : "");
+             DOM.iSel('c_pim_storage').value = pim;
+             this.sniff_HTML_profile(ret.dom, rc.subject, pim);
           }
 
         } catch(e) {

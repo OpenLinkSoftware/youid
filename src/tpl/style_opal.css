@@ -104,6 +104,8 @@
 
 .send img, .stop img {
     filter: invert();
+     width: calc(var(--scale)*20px);
+    height: calc(var(--scale)*20px);
 }
 
 .form-container {
