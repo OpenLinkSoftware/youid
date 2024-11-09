@@ -743,8 +743,6 @@ class YouID_Loader {
 
 
 
-
-
 function loadBinaryFile(file)
 {
   return new Promise(function(resolve, reject) {

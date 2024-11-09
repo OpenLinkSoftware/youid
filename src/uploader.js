@@ -243,6 +243,8 @@ class Uploader {
     }
 
     tpl_data['photo_url'] = gen.photo_url;
+    if (gen.pim_storage && gen.pim_storage.length>1)
+      tpl_data['pim_storage'] = gen.pim_storage;
 
     if (gen.use_opal_widget) {
       tpl_data['use_opal_widget'] = '1'

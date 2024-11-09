@@ -543,6 +543,7 @@ class Certificate {
              DOM.iSel('c_webid').value = webid;
              DOM.iSel('c_name').value = rc.name ? rc.name: "";
              DOM.iSel('c_email').value = rc.email ? rc.email : "";
+             DOM.iSel('c_pim_storage').value = rc.pim ? rc.pim : (rc.inbox ? rc.inbox : "");
              this.sniff_HTML_profile(ret.dom, rc.subject)
           }
 
@@ -1013,6 +1014,7 @@ class Certificate {
     var certPwd1 = DOM.qSel('#gen-cert-dlg #c_pwd1').value;
 
     gen.photo_url = this.photo_url ? this.photo_url : 'photo_130x145.jpg';
+    gen.pim_storage = DOM.qSel('#gen-cert-dlg #c_pim_storage').value;
 
     if (gen.use_opal_widget) {
       var w_opl_api_key = DOM.qSel('#gen-cert-dlg #c_opl_key').value;

@@ -35,6 +35,10 @@
 <!-- IndieAuth Relations End -->
 !!.
 
+!!{pim_storage}
+<link rel="http://www.w3.org/ns/pim/space#storage" href="%{pim_storage}" title="Default (Preferred) Storage Location (Address)" />
+!!.
+
 <link rel="alternate" href="%{rdfa_prof_url}" title="Identity Card (Turtle Format)"  type="text/html" />
 <link rel="alternate" href="%{jsonld_prof_url}" title="Identity Card (JSON-LD Format)" type="application/json+ld" />
 <link rel="alternate" href="vcard.vcf" title="Identity Card (vCard Format)" type="text/vcard" />
