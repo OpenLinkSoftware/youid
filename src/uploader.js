@@ -278,7 +278,7 @@ class Uploader {
         let card = new URL(this.manual_card_url);
         let card_ident = new URL(this.manual_card_url);
         if (card_ident.hash.length <= 1)
-          card_ident.hash = "identity";
+          card_ident.hash = "netid";
 
         card.hash = '';
 
@@ -286,14 +286,14 @@ class Uploader {
         certData.card_ident = card_ident.toString();
       } catch(e) {
         certData.card = dir_url + this.files["index.html"].fname;
-        certData.card_ident = certData.card + '#identity';
+        certData.card_ident = certData.card + '#netid';
       }
       tpl_data['card_url'] = certData.card;
       tpl_data['card_ident_url'] = certData.card_ident;
     }
     else {
       certData.card = tpl_data['card_url'] = dir_url + this.files["index.html"].fname;
-      certData.card_ident = tpl_data['card_ident_url'] = certData.card + '#identity';
+      certData.card_ident = tpl_data['card_ident_url'] = certData.card + '#netid';
     }
 
     if (gen.relList && gen.relList.length > 0) {

@@ -536,7 +536,7 @@ class Certificate {
                  const li = u.pathname.lastIndexOf('/');
                  let pathname = u.pathname.substring(0, u.pathname.lastIndexOf('/'));
                  u.pathname = pathname + "/index.html";
-                 u.hash = '#identity';
+                 u.hash = '#netid';
                  webid = u.toString()
                } catch(_) {}
 

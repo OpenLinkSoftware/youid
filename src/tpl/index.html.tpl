@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 !!{use_opal_widget}
 <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
@@ -217,7 +218,14 @@
 <textarea id="clipboard-text"></textarea>
 <div class="chat-popup" id="opal-form">
   <div class="form-container">
-    <h1>Talk to Me</h1>
+    <div class="form-header">
+      <h1>Talk to Me</h1>
+      <div class="form-header-btn">
+        <span type="button" class="clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
+        <span type="button" class="share-btn"><img src="svg/paperclip.svg"/></span>
+        <span type="button" class="close-btn"><img src="svg/x-circle.svg"/></span>
+      </div>
+    </div>
     <div class="messages">
       <div class="questions">
         <button type="button" class="prompt">What is OpenLink YouID?</button>
@@ -235,9 +243,6 @@
     <button type="button" id="image-upload" class="image-btn"><img src="svg/paperclip.svg"/></span></button>
     <button type="button" class="send"><img src="svg/send.svg"/></button>
     <button type="button" class="stop d-none"><img src="svg/dash-circle.svg"/></button>
-    <span type="button" class="clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
-    <span type="button" class="share-btn"><img src="svg/paperclip.svg"/></span>
-    <span type="button" class="close-btn"><img src="svg/x-circle.svg"/></span>
   </div>
 </div>
 
