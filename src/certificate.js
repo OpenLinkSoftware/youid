@@ -169,6 +169,8 @@ class Certificate {
     this.relations.initEvents();
     this.relations.emptyList(true);
     this.photo_url = null;
+    this.models_loaded = false;
+    this.modules_loaded = false;
   }
 
   reset_gen_cert() 
@@ -360,7 +362,58 @@ class Certificate {
       DOM.iSel('ca-pem-download').onclick = (e) => { downloadFile(e); }
     }
 
-
+    $('#gen-cert-dlg #c_module').on('show.bs.select', async () => {
+        if (this.modules_loaded)
+          return;
+        const url = "https://linkeddata.uriburner.com/chat/api/listFineTune";
+        const options = {
+            method: 'GET',
+            headers: {"Content-Type": "application/json"}
+        };
+        let lst = [];
+        $('#gen-cert-dlg #c_module').empty().selectpicker('refresh')
+        try {
+          let rc = await fetch(url, options)
+          if (rc.ok) {
+            const resp = await rc.json();
+            for (let v of resp) {
+               let mid = v.chat_id;
+               if (mid.startsWith('system-'))
+                 mid = mid.substring(7);
+               lst.push(`<option value=${mid}>${v.title}</option>`);
+            }
+            DOM.qSel('#gen-cert-dlg #c_module').innerHTML = lst.join('\n');
+            this.modules_loaded=true;
+            $('#gen-cert-dlg #c_module').selectpicker('refresh')
+          }
+        } catch(_) {}
+    });
+    
+    $('#gen-cert-dlg #c_model').on('show.bs.select', async () => {
+        if (this.models_loaded)
+          return;
+        const url = "https://linkeddata.uriburner.com/chat/api/getModels";
+        const options = {
+            method: 'GET',
+            headers: {"Content-Type": "application/json"}
+        };
+        let lst = [];
+        $('#gen-cert-dlg #c_model').empty().selectpicker('refresh')
+        try {
+          let rc = await fetch(url, options)
+          if (rc.ok) {
+            const resp = await rc.json();
+            for (let v of resp) {
+               //lst.push(`<option value=${v.id} ${v.id==='gpt-4o'?'selected':''}>${v.name}</option>`);
+               lst.push(`<option value=${v.id}>${v.name}</option>`);
+            }
+            DOM.qSel('#gen-cert-dlg #c_model').innerHTML = lst.join('\n');
+            this.models_loaded=true;
+            $('#gen-cert-dlg #c_model').selectpicker('refresh').val('gpt-4o-mini').selectpicker('refresh')
+          }
+        } catch(_) {}
+    });
+    
     DOM.qSel('#gen-cert-dlg #c_profile')
       .onchange = (e) => {
         var idp = DOM.qSel('#c_idp option:checked').value;
@@ -586,12 +639,31 @@ class Certificate {
         }
       };
 
+    DOM.qSel('#gen-cert-dlg #c_widget')
+      .onchange = (e) => {
+        var sel = DOM.qSel('#c_widget option:checked').value;
+        switch (sel){
+          case 'w_opal':
+            DOM.qHide('#gen-cert-dlg #opalx_assistant');
+            DOM.qShow('#gen-cert-dlg #opal_module');
+            break;
+          case 'w_opalx':
+            DOM.qShow('#gen-cert-dlg #opalx_assistant');
+            DOM.qHide('#gen-cert-dlg #opal_module');
+            break;
+        }
+      };
+
     DOM.qSel('#gen-cert-dlg #c_use_widget')
       .onchange = (e) => {
-        if (DOM.qSel('#gen-cert-dlg #c_use_widget').checked) 
+        if (DOM.qSel('#gen-cert-dlg #c_use_widget').checked) {
           DOM.qShow('#gen-cert-dlg #opal_params')
-        else
+          DOM.qShow('#gen-cert-dlg #c_widget')
+        }
+        else {
           DOM.qHide('#gen-cert-dlg #opal_params')
+          DOM.qHide('#gen-cert-dlg #c_widget')
+        }
       };
 
     DOM.qSel('#gen-cert-dlg #c_dav_uid')
@@ -750,6 +822,7 @@ class Certificate {
         gen.idp = DOM.qSel('#c_idp option:checked').value;
         gen.pdp = DOM.qSel('#c_pdp option:checked').value;
         gen.use_opal_widget = DOM.qSel('#c_use_widget').checked;
+        gen.widget = DOM.qSel('#c_widget option:checked').value;
 
         if (gen.pdp === 'pdp_btc') {
           gen.btc = {};
@@ -1023,18 +1096,22 @@ class Certificate {
 
     if (gen.use_opal_widget) {
       var w_opl_api_key = DOM.qSel('#gen-cert-dlg #c_opl_key').value;
+      var w_mode = DOM.qSel('#c_widget option:checked').value;
       var w_assistant = DOM.qSel('#gen-cert-dlg #c_assistant').value;
+      var w_module = DOM.qSel('#gen-cert-dlg #c_module').value;
 
       if (w_opl_api_key.length<1) {
         alert("OPAL API KEY is empty")
         return
       }
-      if (w_assistant.length<1) {
+      if (w_mode==="w_opalx" && w_assistant.length<1) {
         alert("Assistant ID is empty")
         return
       }
       gen.w_opl_api_key = w_opl_api_key;
+      gen.w_mode = w_mode;
       gen.w_assistant = w_assistant;
+      gen.w_module = w_module;
       gen.w_temperature = DOM.qSel('#gen-cert-dlg #c_temperature').value;
       gen.w_top_p = DOM.qSel('#gen-cert-dlg #c_top_p').value;
       gen.w_model = DOM.qSel('#gen-cert-dlg #c_model').value;
@@ -1652,7 +1729,7 @@ class Certificate {
     try {
       const up = new Uploader_Manual(webid);
 
-      var rc = await up.loadCardFiles(gen.use_opal_widget);
+      var rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode);
       if (!rc) {
         alert('Could not load card template files');
         return -1;
@@ -1733,7 +1810,7 @@ class Certificate {
           dir.pathname = dir.pathname.substring(0, pos);
         dir = dir.href;
 
-        let rc = await up.loadCardFiles(gen.use_opal_widget);
+        let rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode);
         if (!rc) {
           alert('Could not load card template files');
           return -1;
@@ -1782,7 +1859,7 @@ class Certificate {
 
         var rc = await up.createProfileDir(gen.cert_dir);
         if (rc && rc.ok) {
-          rc = await up.loadCardFiles(gen.use_opal_widget);
+          rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode);
           if (!rc) {
             alert('Could not load card template files');
             return -1;

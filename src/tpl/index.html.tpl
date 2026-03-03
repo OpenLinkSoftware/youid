@@ -191,8 +191,8 @@
 </script>
 
 
-!!{use_opal_widget}
-<!-- OPAL -->
+!!{use_opalx}
+<!-- OPALX -->
 <div class="form-group mt-3">
     <a class="loggedin-btn" data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a>
 </div>
@@ -232,14 +232,21 @@
       </div>
     </div>
     <div class="input_wrapper">
+      <div style="flex:1">
         <label id="assistant-id"></label>
         <textarea placeholder="Type message.." id="message_input" required></textarea>
         <div id="suggestions"></div>
+      </div>
+      <div class="input_btns">
+        <input type="file" style="display:none;" multiple id="img-upload"/>
+        <button type="button" id="image-upload" class="image-btn"><img src="svg/paperclip.svg"/></span></button>
+        <button type="button" class="send"><img src="svg/send.svg"/></button>
+        <button type="button" class="stop d-none"><img src="svg/dash-circle.svg"/></button>
+      </div>
     </div>
-    <input type="file" style="display:none;" multiple id="img-upload"/>
-    <button type="button" id="image-upload" class="image-btn"><img src="svg/paperclip.svg"/></span></button>
-    <button type="button" class="send"><img src="svg/send.svg"/></button>
-    <button type="button" class="stop d-none"><img src="svg/dash-circle.svg"/></button>
+  </div>
+  <div style="display:flex; flex-direction:row-reverse;">
+    <img class="resizer" src="data:image/gif;base64,R0lGODlhCgAKAJEAAAAAAP///6CgpP///yH5BAEAAAMALAAAAAAKAAoAAAIRnI+JosbN3hryRDqvxfp2zhUAOw==" alt="Resize" width="15" height="15"/>
   </div>
 </div>
 
@@ -247,6 +254,7 @@
 <!-- these two have to be included in order Opal() to work, the rest about jQuery/Bootstrap/design is deveoper choice -->
 <script src="auth.js"></script>
 <script src="opalx.js"></script>
+<script src="win.js"></script>
 <script>
 var md = window.markdownit({
                                html:true,
@@ -263,6 +271,10 @@ async function showNotice (text) {
     $('#snackbar').show();
     setTimeout(function () {  $('#snackbar').hide(); }, tm);
 }
+
+clipboard.on('success', (e) => {
+  showNotice('Chat content copied.')
+})
 
 $(function () {
 
@@ -332,6 +344,8 @@ $(function () {
         $('.open-button').show();
     });
 
+    $('.share-btn').on('click', function () { opal.share(); });
+
     $('#message_input').keypress(function (e) { // enter or shift + enter 
         if (!e.shiftKey && e.which === 13) {
             let text = $('#message_input').val().trim();
@@ -360,7 +374,6 @@ $(function () {
             // however bind() the onOpen can't be detected synchronously, so we need to wait on timeout
             await waitConnect();
             $('.stop').on ('click', function () { opal.stop(); });
-            $('.share-btn').on ('click', function () { opal.share('clipboard-link'); });
         }
         if (text.length) {
             $messages.append ($(`<div class="user-message"><p>${text}</p></div>`));
@@ -546,10 +559,251 @@ $(function () {
           $(this).attr('src', new URL(src, imgBase).href);
     });
     $('.prompt').on ('click', sendPredefinedPrompt);
+
+    const opal_win = document.querySelector('#opal-form');
+    dragElement(opal_win, document.querySelector('div.form-header'))
+    makeResizable(opal_win, document.querySelector('#opal-form .resizer'), 405, 585)
 });
 </script>
 
 !!.
+
+!!{use_opal}
+<!-- OPAL -->
+<div class="form-group mt-3">
+    <a class="loggedin-btn" data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a>
+</div>
+
+
+<div id="snackbar">
+    <div id="msg"></div>
+</div>
+
+
+<textarea id="clipboard-text"></textarea>
+<div class="chat-popup" id="opal-form">
+  <div class="form-container">
+    <div class="form-header">
+      <h1>Talk with OPAL</h1>
+      <div class="form-header-btn">
+        <span type="button" class="clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
+        <span type="button" class="share-btn"><img src="svg/paperclip.svg"/></span>
+        <span type="button" class="close-btn"><img src="svg/x-circle.svg"/></span>
+      </div>
+    </div>
+    <div class="messages">
+      <div class="questions">
+        <button type="button" class="prompt">What is OpenLink YouID?</button>
+        <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
+        <button type="button" class="prompt">How do I use OpenLink YouID?</button>
+        <button type="button" class="prompt">Where can I obtain OpenLink YouID?</button>
+      </div>
+    </div>
+    <div class="connect" style="display: none;">
+      <span class="connect">Connecting...</span>
+    </div>
+    <div class="input_wrapper">
+      <div style="flex:1">
+        <textarea placeholder="Type message.." id="message_input" required></textarea>
+      </div>
+      <div class="input_btns">
+        <button type="button" class="send"><img src="svg/send.svg"/></button>
+        <button type="button" class="stop d-none"><img src="svg/dash-circle.svg"/></button>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:row-reverse;">
+    <img class="resizer" src="data:image/gif;base64,R0lGODlhCgAKAJEAAAAAAP///6CgpP///yH5BAEAAAMALAAAAAAKAAoAAAIRnI+JosbN3hryRDqvxfp2zhUAOw==" alt="Resize" width="15" height="15"/>
+  </div>
+</div>
+
+
+<!-- these two have to be included in order Opal() to work, the rest about jQuery/Bootstrap/design is deveoper choice -->
+<script src="auth.js"></script>
+<script src="opal.js"></script>
+<script src="win.js"></script>
+<script>
+var md = window.markdownit({
+                               html:true,
+                               breaks:true,
+                               linkify:true,
+                               langPrefix:'language-',
+    });
+
+var clipboard = new ClipboardJS('.clipboard-btn');
+
+async function showNotice (text) {
+    const tm = 3000;
+    $('#msg').html(text);
+    $('#snackbar').show();
+    setTimeout(function () {  $('#snackbar').hide(); }, tm);
+}
+
+clipboard.on('success', (e) => {
+  showNotice('Chat content copied.')
+})
+
+$(function () {
+
+    const baseUrl = "https://linkeddata.uriburner.com";
+    // OIDC client variable
+    var authClient = new AuthClient('%{w_opl_api_key}');
+    var session = authClient.getDefaultSession();
+    // OPAL interface, params: OIDC client var, backend host&port, callbacks for incoming message and error callback 
+    // if callbacks not given behaviour is not defined
+    var opal = new Opal(authClient, "linkeddata.uriburner.com", receiveMessage, errorHandler, {
+!{w_model}        model: '%{w_model}', // next three are to calibrate model, look at OpenAI docs.
+!{w_funcs}        functions: [%{w_funcs}], // backend registered functions, can be added unless not given otherwise via module
+        top_p: %{w_top_p},
+        temperature: %{w_temperature},
+        module: '%{w_module}' // fine-tune module to init session, e.g. data-twingler-config, chat-help et.c see docs.
+    });
+    var $currentMessage = undefined; // keep DOM element of the receiving message as it coming on chunks
+    var currentText = undefined;
+    var $messages = $('.messages'); // the messages list, shortcut
+
+    function receiveMessage(role, chunk) { // this is a handler see above Opal() to draw incoming messages
+        if (role === 'function' || role === 'tool' || role === 'function_response') {
+            // in this demo we do not print functions & response from them
+            return;
+        }
+       if (role === 'notice') {
+           showNotice (chunk);
+           return;
+       }
+       if (chunk === '[DONE]' || chunk === '[LENGTH]') { // standart markers of backend when stops sending data 
+          $currentMessage = undefined;
+           currentText = undefined;
+           $messages.find('.cursor').remove();
+           $('.stop').toggleClass('d-none', true);
+           $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
+           // optionally we can enable the predefined prompts here
+           $('.prompt').on ('click', sendPredefinedPrompt);
+       } else if (!$currentMessage) { // this is first chunk of the answer
+           currentText = chunk;
+           $currentMessage = $('<div class="agent-message"></div>');
+           $currentMessage.html(md.render(currentText));
+           $messages.append($currentMessage);
+           $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
+           $('<span class="cursor"></span>').insertAfter($currentMessage);
+           $('.stop').toggleClass('d-none', false);
+           $('#clipboard-text').val($('#clipboard-text').val() + '\nassistant: ' + chunk);
+       } else { // next chunk
+           currentText = currentText + chunk;
+           currentText = currentText.replace(/【[0-9:]+†[\w+\.-]+】/g, '');
+           $currentMessage.html(md.render(currentText));
+           $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
+           $('#clipboard-text').val($('#clipboard-text').val()+chunk);
+       }
+    }
+
+    function errorHandler (error) { // error handler, called by Opal() if something f goes wrong
+        let $message = $('<div class="agent-message">'+error+'</div>');
+        $messages.append($message);
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+    function connect()
+    {
+      const tm_sleep = 250;
+      const cnt = 10000 / tm_sleep;
+      return new Promise(async (resolve) => {
+        if (opal.getChatId())
+          resolve(1);
+        $('div.connect').show();
+        try {
+          if (!opal.isConnecting())
+            await opal.connect();
+
+          for(var i=0; i < cnt; i++) {
+            if (opal.getChatId()) {
+              resolve(1);
+              break;
+            }
+            await sleep(tm_sleep);
+          }
+          resolve(0)
+        } catch(_) {
+        } finally {
+          $('div.connect').hide();
+        }
+      })
+    }
+
+    $('.open-button').on('click', async function(e) {  // to open chat popup 
+        connect();
+        $('.open-button').hide();
+        $('#opal-form').fadeIn();
+    });
+    $('.close-btn').on('click', function(e) { // self evident
+        $('#opal-form').hide();
+        $('.open-button').show();
+    });
+
+    $('.share-btn').on('click', function(e) {
+        opal.share();
+     });
+
+    $('#message_input').keypress(function (e) { // enter or shift + enter 
+        if (!e.shiftKey && e.which === 13) {
+            let text = $('#message_input').val().trim();
+            e.preventDefault();
+            sendPrompt(text);
+        }
+    });
+
+    $('.send').on('click', function(e) { // see above, doing same thing
+        let $messages = $('.chat-popup .messages');
+        let text = $('#message_input').val().trim();
+        sendPrompt(text);
+     });
+
+     // wrapper to draw message and call OPAL widget
+     async function sendPrompt (text) {
+        if (text.length) {
+            if (!opal.getChatId())
+                await connect();
+            $messages.append ($(`<div class="user-message"><pre>${text}</pre></div>`));
+            $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
+            $('.prompt').off();
+            await opal.send (text);
+            $('.questions').hide();
+            $('#message_input').val('');
+            $('#clipboard-text').val($('#clipboard-text').val() + '\nuser: ' + text);
+        }
+     }
+
+    // wrapper to handle predefined prompts
+    async function sendPredefinedPrompt(e) {
+        let text = e.target.innerHTML;
+        if ($('.open-button:visible').length > 0) {
+            $('.open-button').hide();
+            $('#opal-form').fadeIn();
+        }
+        // disable the predefined promps, can enable once this one complete
+        sendPrompt (text);
+    }
+
+    /* replace images with location from OPAL installation */
+    var imgBase = baseUrl + '/chat/';
+    $('img').each(function() {
+        let src = $(this).attr('src');
+        if (0 === src.indexOf('svg/'))
+          $(this).attr('src', new URL(src, imgBase).href);
+    });
+    $('.prompt').on ('click', sendPredefinedPrompt);
+
+    const opal_win = document.querySelector('#opal-form');
+    dragElement(opal_win, document.querySelector('div.form-header'))
+    makeResizable(opal_win, document.querySelector('#opal-form .resizer'), 405, 585)
+});
+</script>
+
+!!.
+
 
 </body>
 </html>

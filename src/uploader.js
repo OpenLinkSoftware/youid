@@ -87,7 +87,7 @@ class Uploader {
     return { ok: false };
   }
 
-  async loadCardFiles(use_opal_widget) {
+  async loadCardFiles(use_opal_widget, w_mode) {
     const rels = new Relations();
     for(const v of rels.getImagesList())
       this.files[v] = new CardFileBinary(v, 'image/png');
@@ -106,7 +106,11 @@ class Uploader {
       this.files["style_opal.css"] = new CardFileBinary('style_opal.css', 'text/css');
       this.files["chatbot-32px.png"] = new CardFileBinary('chatbot-32px.png', 'image/png');
       this.files["auth.js"] = new CardFileBinary('auth.js', 'text/javascript');
-      this.files["opalx.js"] = new CardFileBinary('opalx.js', 'text/javascript');
+      this.files["win.js"] = new CardFileBinary('win.js', 'text/javascript');
+      if (w_mode==="w_opalx")
+        this.files["opalx.js"] = new CardFileBinary('opalx.js', 'text/javascript');
+      else
+        this.files["opal.js"] = new CardFileBinary('opal.js', 'text/javascript');
     }
 
     var v = new CardFileBase64('photo_130x145.jpg', 'image/jpeg');
@@ -248,7 +252,13 @@ class Uploader {
 
     if (gen.use_opal_widget) {
       tpl_data['use_opal_widget'] = '1'
+      if (gen.w_mode==="w_opalx")
+         tpl_data['use_opalx'] = '1'
+      else
+         tpl_data['use_opal'] = '1'
       tpl_data['w_opl_api_key'] = gen.w_opl_api_key;
+      tpl_data['w_mode'] = gen.w_mode;
+      tpl_data['w_module'] = gen.w_module;
       tpl_data['w_assistant'] = gen.w_assistant;
       tpl_data['w_temperature'] = gen.w_temperature
       tpl_data['w_top_p'] = gen.w_top_p

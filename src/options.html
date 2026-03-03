@@ -24,10 +24,12 @@
     <title>YouID</title>
     <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
     <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="lib/css/bootstrap-select.css" rel="stylesheet" />
 
     <script type="text/javascript" src="lib/qrcode.js"></script>
     <script type="text/javascript" src="lib/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="lib/bootstrap.js"></script>
+    <script type="text/javascript" src="lib/bootstrap-select.js"></script>
     <script type="text/javascript" src="lib/multimodal.js"></script>
     <script type="text/javascript" src="lib/rdfstore_min.js"></script>
     <script type="text/javascript" src="lib/rdflib.js"></script>
@@ -285,23 +287,35 @@
 
         <form class="form-horizontal">
           <hr/>
-          <div class="form-group row">
-            <label for="c_use_widget" class="col-md-3 control-label">Add OPAL Widget:</label>
-            <div class="col-md-6">
-              <input type="checkbox" class="form-control_" id="c_use_widget" style="vertical-align: bottom;" >
+          <div class="form-group row" style="display:flex">
+            <label for="c_use_widget" class="col-md-3 control-label">OPAL Binding:</label>
+            <div class="col-md-2" style="display:flex;">
+              <input type="checkbox" class="form-control_" id="c_use_widget" style="margin-right:20px">
+              <select name="widget" class="form-control hidden" id="c_widget" style="width:10em">
+                <option value="w_opal" selected>Completions</option>
+                <option value="w_opalx">Assistants</option>
+              </select>
             </div>
           </div>
+          
           <div id="opal_params" class="hidden">
             <div class="form-group row">
-              <label for="c_opl_key" class="col-md-3 control-label">OPAL API Key:</label>
+              <label for="c_opl_key" class="col-md-3 control-label">API Key:</label>
               <div class="col-md-6">
                 <input type="text" class="form-control" id="c_opl_key" placeholder="xxxxxxx..."/>
               </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row hidden" id="opalx_assistant">
               <label for="c_assistant" class="col-md-3 control-label">Assistant ID:</label>
               <div class="col-md-6">
                 <input type="text" class="form-control" id="c_assistant" value="asst_pcnONIrtgLYaIEdbUnTwz8jB" />
+              </div>
+            </div>
+            <div class="form-group row" id="opal_module">
+              <label for="c_module" class="col-md-3 control-label">AI Agent:</label>
+              <div class="col-md-6">
+                <select class="form-control selectpicker" id="c_module" title="..." data-live-search="true">
+                </select>
               </div>
             </div>
             <div class="form-group row">
@@ -313,7 +327,9 @@
             <div class="form-group row">
               <label for="c_model" class="col-md-3 control-label">Model:</label>
               <div class="col-md-6">
-                <input type="text" class="form-control" id="c_model" value="gpt-4o" placeholder="gpt-4o"/>
+                <select class="form-control selectpicker" id="c_model" title="Loading..." data-live-search="true">
+                  <option value="gpt-4o-mini" selected >gpt-4o-mini</option>
+                </select>
               </div>
             </div>
             <div class="form-group row">
