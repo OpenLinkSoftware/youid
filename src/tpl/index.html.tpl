@@ -407,6 +407,15 @@ $(function () {
 
      // wrapper to draw message and call OPAL widget
      async function sendPrompt (text) {
+        if (text.length) {
+            if (!session.info.isLoggedIn) {
+                localStorage.setItem('prompt0', text);
+                $messages.append ($(`<div class="user-message"><pre style="color:red">You need to Login</pre></div>`));
+                await sleep(300);
+                $('#loginID').click();
+                return;
+            }
+        }
         if (text.length && !opal.thread_id) {
             opal.connect(); // open a WebSocket and init session
             // however bind() the onOpen can't be detected synchronously, so we need to wait on timeout
@@ -635,6 +644,8 @@ $(function () {
         $('#logoutID').toggleClass('d-none', !loggedIn);
         const is_login = localStorage.getItem('login');
         localStorage.removeItem('login');
+        const prompt = localStorage.getItem('prompt0');
+        localStorage.removeItem('prompt0');
 	
         if (info?.webId != null) {
             $('.loggedin-btn').show();
@@ -646,8 +657,11 @@ $(function () {
             await opal.connect();
             // end of connecting Opal
             // $('.prompt').on ('click', sendPredefinedPrompt);
-            if (is_login)
+            if (is_login) {
               $('.open-button').click()
+              if (prompt)
+                sendPrompt(prompt);
+            }
         }
     }).catch ((e) => {
         errorHandler (e.toString());
@@ -725,17 +739,20 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const hrefIndex = tokens[idx].attrIndex('href');
   const href = hrefIndex >= 0 ? tokens[idx].attrs[hrefIndex][1] : '';
 
-  if (href && href.startsWith('#')) {
+  if (href && href.startsWith('#'))
     return self.renderToken(tokens, idx, options);
-  }
 
   const targetIndex = tokens[idx].attrIndex('target');
-  if (targetIndex < 0) tokens[idx].attrPush(['target', '_blank']);
-  else tokens[idx].attrs[targetIndex][1] = '_blank';
+  if (targetIndex < 0) 
+    tokens[idx].attrPush(['target', '_blank']);
+  else 
+    tokens[idx].attrs[targetIndex][1] = '_blank';
 
   const relIndex = tokens[idx].attrIndex('rel');
-  if (relIndex < 0) tokens[idx].attrPush(['rel', 'noopener noreferrer']);
-  else tokens[idx].attrs[relIndex][1] = 'noopener noreferrer';
+  if (relIndex < 0) 
+    tokens[idx].attrPush(['rel', 'noopener noreferrer']);
+  else 
+    tokens[idx].attrs[relIndex][1] = 'noopener noreferrer';
 
   return self.renderToken(tokens, idx, options);
 };
@@ -890,6 +907,13 @@ $(function () {
      // wrapper to draw message and call OPAL widget
      async function sendPrompt (text) {
         if (text.length) {
+            if (!session.info.isLoggedIn) {
+                localStorage.setItem('prompt0', text);
+                $messages.append ($(`<div class="user-message"><pre style="color:red">You need to Login</pre></div>`));
+                await sleep(300);
+                $('#loginID').click();
+                return;
+            }
             if (!opal.getChatId())
                 await connect();
             $messages.append ($(`<div class="user-message"><pre>${text}</pre></div>`));
@@ -959,6 +983,8 @@ $(function () {
         $('#logoutID').toggleClass('d-none', !loggedIn);
         const is_login = localStorage.getItem('login');
         localStorage.removeItem('login');
+        const prompt = localStorage.getItem('prompt0');
+        localStorage.removeItem('prompt0');
 
         if (info?.webId != null) {
             $('.loggedin-btn').show();
@@ -970,8 +996,11 @@ $(function () {
             await opal.connect();
             // end of connecting Opal
             // $('.prompt').on ('click', sendPredefinedPrompt);
-            if (is_login)
+            if (is_login) {
               $('.open-button').click()
+              if (prompt)
+                sendPrompt(prompt);
+            }
         }
     }).catch ((e) => {
         errorHandler (e.toString());

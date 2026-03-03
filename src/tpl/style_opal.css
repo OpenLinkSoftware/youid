@@ -431,10 +431,6 @@ span.cursor::after {
 }
 
 
-div#opal-form {
-  user-select: none;
-}
-
 div#opal-form:after {
   content: "";
   position: absolute;
