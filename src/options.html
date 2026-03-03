@@ -90,6 +90,7 @@
           <li><a href="#delegate" title="Associate your NetID with a Credentials Authentication Delegate">Delegation</a></li>
           <li><a href="#accounts" title="Settings for IdP accounts">Storage Provider Settings</a></li>
           <li><a href="#headers">Header&nbsp;Settings</a></li>
+          <li><a href="#general">General&nbsp;Settings</a></li>
           <li><a href="#about"  >About</a></li>
         </ul>
       </div>
@@ -733,6 +734,33 @@
              </table>
            </tr>
           </table>
+        </div>
+
+        <div id="general_items">
+            <h3>General Settings</h3>
+            
+            <div class="card">
+              <div class="card-header">Display Preferences</div>
+              <div style="padding: 20px;">
+                <div class="form-group row">
+                  <label for="view_mode" class="col-md-3 control-label">View Mode:</label>
+                  <div class="col-md-9">
+                    <select id="view_mode" class="form-control" style="max-width: 300px;">
+                      <option value="sidebar">Sidebar (Recommended)</option>
+                      <option value="popup">Popup</option>
+                    </select>
+                    <p class="text-muted mt-10" style="font-size: 13px;">
+                      <strong>Sidebar:</strong> Opens YouID in a side panel for better visibility and easier access.<br>
+                      <strong>Popup:</strong> Opens YouID in a traditional popup window.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-20">
+              <strong>Note:</strong> After changing the view mode, you may need to reload the extension or restart your browser for the changes to take full effect.
+            </div>
         </div>
 
         <div id="about_items">

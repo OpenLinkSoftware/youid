@@ -54,3 +54,23 @@ async function load_popup()
     await v_youid.load_youid_list();
 }
 
+
+// Handler for Open Sidebar button
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarBtn = document.getElementById('open-sidebar-btn');
+  if (sidebarBtn) {
+    sidebarBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      try {
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tabs[0]) {
+          await chrome.sidePanel.open({ windowId: tabs[0].windowId });
+          window.close();
+        }
+      } catch(ex) {
+        console.log("Error opening sidebar:", ex);
+        alert("Sidebar requires Chrome 114+. Please update your browser or use popup mode.");
+      }
+    });
+  }
+});

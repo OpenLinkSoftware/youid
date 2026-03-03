@@ -77,6 +77,37 @@ try {
 
   //=====================================
 
+  async function configureViewMode() {
+    const setting = new Settings();
+    try {
+      let viewMode = await setting.getValue("ext.youid.view_mode");
+      if (!viewMode) {
+        viewMode = "sidebar"; // Default to sidebar
+        await setting.setValue("ext.youid.view_mode", viewMode);
+      }
+      
+      if (viewMode === "sidebar") {
+        // Configure for sidebar mode
+        await Browser.api.sidePanel.setOptions({
+          path: "sidebar.html",
+          enabled: true
+        });
+        await Browser.api.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+        await Browser.api.action.setPopup({ popup: "" }); // Clear popup
+      } else {
+        // Configure for popup mode
+        await Browser.api.sidePanel.setOptions({
+          enabled: false
+        });
+        await Browser.api.action.setPopup({ popup: "popup.html" });
+      }
+    } catch(ex) {
+      console.log("Error configuring view mode:", ex);
+      // Fallback to popup
+      await Browser.api.action.setPopup({ popup: "popup.html" });
+    }
+  }
+
   async function setUID() 
   {
     const setting = new Settings();
@@ -113,10 +144,27 @@ try {
     if(details.reason !== "install" && details.reason !== "update") return;
     try {
       await setUID();
+      await configureViewMode();
     } catch(ex) {
       console.log(ex);
     }
   });
+
+  // Handle settings updates
+  Browser.api.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.cmd === 'settings_updated') {
+      configureViewMode().then(() => {
+        sendResponse({ success: true });
+      }).catch((ex) => {
+        console.log("Error updating view mode:", ex);
+        sendResponse({ success: false });
+      });
+      return true; // Keep channel open for async response
+    }
+  });
+
+  // Initial configuration on service worker startup
+  configureViewMode();
 
 } catch(ex) {
   console.log(ex);

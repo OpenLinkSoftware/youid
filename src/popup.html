@@ -48,6 +48,19 @@
     </head>
     
     <body class="youid">
+<!-- Modern Header -->
+<div class="youid-header">
+  <div class="header-content" style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/icon48.png" alt="YouID Icon" style="width: 28px; height: 28px;">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 600;">OpenLink YouID</h1>
+    </div>
+    <button id="open-sidebar-btn" type="button" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;" title="Open in Sidebar">
+      Open Sidebar ↗
+    </button>
+  </div>
+</div>
+
 <!-- Modal -->
 <div class="modal" id="alert-dlg" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -195,7 +208,7 @@
           <button id="btn-delegate" type="button" class="btn btn-primary" title="Associate your NetID with a Credentials Authentication Delegate">Add Delegate</button>
         </div>
         <br>
-        <div style="height:calc(100vh - 90px); overflow:auto;">
+        <div class="netid-scroll-container">
         <table id="youid_tbl" class="footable">
           <tbody class="youid_list" ></tbody>
         </table>
