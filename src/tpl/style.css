@@ -63,7 +63,7 @@ div.cardBottom {
 
 div.cardBody {
   display:grid; 
-  grid-template-columns:130px 1fr 102px; 
+  grid-template-columns:130px 1fr auto; 
   grid-column-gap: 20px; 
   padding: 23px;
   background: #fff;

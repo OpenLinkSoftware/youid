@@ -171,6 +171,7 @@ class Certificate {
     this.photo_url = null;
     this.models_loaded = false;
     this.modules_loaded = false;
+    this.funcs_loaded = false;
   }
 
   reset_gen_cert() 
@@ -362,15 +363,35 @@ class Certificate {
       DOM.iSel('ca-pem-download').onclick = (e) => { downloadFile(e); }
     }
 
+    DOM.qSel('#gen-cert-dlg #c_opl_endpoint')
+      .onchange = (e) => {
+        this.models_loaded = false;
+        this.modules_loaded = false;
+        this.funcs_loaded = false;
+      }
+
+    DOM.qSel('#gen-cert-dlg #c_opl_auth')
+      .onchange = (e) => {
+        const sel = DOM.qSel('#c_opl_auth option:checked').value;
+        if (sel === 'w_oauth')
+          DOM.qHide('#opal_key');
+        else
+          DOM.qShow('#opal_key');
+      }
+
+
     $('#gen-cert-dlg #c_module').on('show.bs.select', async () => {
         if (this.modules_loaded)
           return;
-        const url = "https://linkeddata.uriburner.com/chat/api/listFineTune";
+        const base= DOM.qSel("#c_opl_endpoint").value;
+        const url = new URL("/chat/api/listFineTune", base).toString();
         const options = {
             method: 'GET',
             headers: {"Content-Type": "application/json"}
         };
         let lst = [];
+        lst.push(`<option value="" model=gpt-4o-mini></option>`);
+
         $('#gen-cert-dlg #c_module').empty().selectpicker('refresh')
         try {
           let rc = await fetch(url, options)
@@ -380,7 +401,7 @@ class Certificate {
                let mid = v.chat_id;
                if (mid.startsWith('system-'))
                  mid = mid.substring(7);
-               lst.push(`<option value=${mid}>${v.title}</option>`);
+               lst.push(`<option value=${mid} model=${v.model}>${v.title}</option>`);
             }
             DOM.qSel('#gen-cert-dlg #c_module').innerHTML = lst.join('\n');
             this.modules_loaded=true;
@@ -389,10 +410,20 @@ class Certificate {
         } catch(_) {}
     });
     
+    $('#gen-cert-dlg #c_module').on('changed.bs.select', () => {
+        const val = DOM.qSel('#gen-cert-dlg #c_module').value;
+        DOM.qSel('#gen-cert-dlg #c_funcs').disabled = val ? true: false;
+        $('#gen-cert-dlg #c_funcs').selectpicker('refresh')
+        if (val)
+          $('#gen-cert-dlg #c_funcs').selectpicker('deselectAll')
+          
+    });
+    
     $('#gen-cert-dlg #c_model').on('show.bs.select', async () => {
         if (this.models_loaded)
           return;
-        const url = "https://linkeddata.uriburner.com/chat/api/getModels";
+        const base= DOM.qSel("#c_opl_endpoint").value;
+        const url = new URL("/chat/api/getModels", base).toString();
         const options = {
             method: 'GET',
             headers: {"Content-Type": "application/json"}
@@ -413,7 +444,33 @@ class Certificate {
           }
         } catch(_) {}
     });
-    
+
+    $('#gen-cert-dlg #c_funcs').on('show.bs.select', async () => {
+        if (this.funcs_loaded)
+          return;
+        const base= DOM.qSel("#c_opl_endpoint").value;
+        const url = new URL("/chat/api/listFunctions", base).toString();
+        const options = {
+            method: 'GET',
+            headers: {"Content-Type": "application/json"}
+        };
+        let lst = [];
+        $('#gen-cert-dlg #c_funcs').empty().selectpicker('refresh')
+        try {
+          let rc = await fetch(url, options)
+          if (rc.ok) {
+            const resp = await rc.json();
+            for (let v of resp) {
+               lst.push(`<option value=${v.function}>${v.title}</option>`);
+            }
+            DOM.qSel('#gen-cert-dlg #c_funcs').innerHTML = lst.join('\n');
+            this.funcs_loaded=true;
+            $('#gen-cert-dlg #c_funcs').selectpicker('refresh')
+          }
+        } catch(_) {}
+    });
+
+
     DOM.qSel('#gen-cert-dlg #c_profile')
       .onchange = (e) => {
         var idp = DOM.qSel('#c_idp option:checked').value;
@@ -824,6 +881,7 @@ class Certificate {
         gen.use_opal_widget = DOM.qSel('#c_use_widget').checked;
         gen.widget = DOM.qSel('#c_widget option:checked').value;
 
+
         if (gen.pdp === 'pdp_btc') {
           gen.btc = {};
           gen.btc.pkey = DOM.qSel('#gen-cert-dlg #c_btc_pkey').value;
@@ -1096,11 +1154,17 @@ class Certificate {
 
     if (gen.use_opal_widget) {
       var w_opl_api_key = DOM.qSel('#gen-cert-dlg #c_opl_key').value;
+      var w_opl_endpoint = DOM.qSel('#gen-cert-dlg #c_opl_endpoint').value;
       var w_mode = DOM.qSel('#c_widget option:checked').value;
       var w_assistant = DOM.qSel('#gen-cert-dlg #c_assistant').value;
       var w_module = DOM.qSel('#gen-cert-dlg #c_module').value;
-
-      if (w_opl_api_key.length<1) {
+      var w_auth_mode = DOM.qSel('#c_opl_auth option:checked').value;
+      
+      if (w_opl_endpoint.length<1) {
+        alert("OPAL Endpoint URL is empty")
+        return
+      }
+      if (w_auth_mode==="w_bearer" && w_opl_api_key.length<1) {
         alert("OPAL API KEY is empty")
         return
       }
@@ -1108,6 +1172,8 @@ class Certificate {
         alert("Assistant ID is empty")
         return
       }
+ 
+      gen.w_opl_endpoint = w_opl_endpoint;
       gen.w_opl_api_key = w_opl_api_key;
       gen.w_mode = w_mode;
       gen.w_assistant = w_assistant;
@@ -1115,16 +1181,18 @@ class Certificate {
       gen.w_temperature = DOM.qSel('#gen-cert-dlg #c_temperature').value;
       gen.w_top_p = DOM.qSel('#gen-cert-dlg #c_top_p').value;
       gen.w_model = DOM.qSel('#gen-cert-dlg #c_model').value;
-      const funcs = DOM.qSel('#gen-cert-dlg #c_funcs').value;
-      if (funcs.length>1) {
-        const lst = funcs.split(',');
-        var f_list = [];
-        for(var v of lst)
-          f_list.push(`${v.startsWith("'")?"":"'"}${v}${v.endsWith("'")?"":"'"}`);
-        gen.w_funcs = f_list.join(",");
-      }
-      else
-        gen.w_funcs = '';
+      gen.w_auth_mode = DOM.qSel('#c_opl_auth option:checked').value;
+      gen.w_prompt1 = DOM.qSel('#gen-cert-dlg #c_prompt1').value;
+      gen.w_prompt2 = DOM.qSel('#gen-cert-dlg #c_prompt2').value;
+      gen.w_prompt3 = DOM.qSel('#gen-cert-dlg #c_prompt3').value;
+      gen.w_prompt4 = DOM.qSel('#gen-cert-dlg #c_prompt4').value;
+
+      const funcs = $('#gen-cert-dlg #c_funcs').val();
+
+      let lst = []
+      for(let v of funcs)
+        lst.push(`'${v}'`)
+      gen.w_funcs = lst.join(",");
     }
 
     gen.em_microdata = DOM.qSel('#gen-cert-dlg #c_em_microdata').checked ? "1": "";
@@ -1729,7 +1797,7 @@ class Certificate {
     try {
       const up = new Uploader_Manual(webid);
 
-      var rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode);
+      var rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode, gen.w_auth_mode);
       if (!rc) {
         alert('Could not load card template files');
         return -1;
@@ -1810,7 +1878,7 @@ class Certificate {
           dir.pathname = dir.pathname.substring(0, pos);
         dir = dir.href;
 
-        let rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode);
+        let rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode, gen.w_auth_mode);
         if (!rc) {
           alert('Could not load card template files');
           return -1;
@@ -1859,7 +1927,7 @@ class Certificate {
 
         var rc = await up.createProfileDir(gen.cert_dir);
         if (rc && rc.ok) {
-          rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode);
+          rc = await up.loadCardFiles(gen.use_opal_widget, gen.w_mode, gen.w_auth_mode);
           if (!rc) {
             alert('Could not load card template files');
             return -1;

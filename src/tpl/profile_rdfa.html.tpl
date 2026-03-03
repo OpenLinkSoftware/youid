@@ -157,15 +157,15 @@
 
   function create_qrcode(text) 
   {
-    var errorCorrectionLevel = 'Q';
-    var typeNumber = 8;
+    var errorCorrectionLevel = 'M';
+    var typeNumber = 12;
     qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
 
-    var qr = qrcode(typeNumber || 4, errorCorrectionLevel || 'M');
+    var qr = qrcode(typeNumber, errorCorrectionLevel);
     qr.addData(text, 'Byte');
     qr.make();
 
-    return qr.createImgTag(null, 2, 'QR code');
+    return qr.createImgTag(2, 2, 'QR code');
   }
 
 
@@ -183,9 +183,6 @@
 
 !!{use_opalx}
 <!-- OPALX -->
-<div class="form-group mt-3">
-    <a class="loggedin-btn" data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a>
-</div>
 
 
 <div id="snackbar">
@@ -206,19 +203,25 @@
 <div class="chat-popup" id="opal-form">
   <div class="form-container">
     <div class="form-header">
-      <h1>Talk to Me</h1>
+      <div class="form-header-title">
+        <h1>Talk with OPAL</h1>
+        <span id="info" style="margin-left:10px; color:yellow; display:none">Connecting</span>
+      </div>
       <div class="form-header-btn">
-        <span type="button" class="clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
-        <span type="button" class="share-btn"><img src="svg/paperclip.svg"/></span>
-        <span type="button" class="close-btn"><img src="svg/x-circle.svg"/></span>
+        <span type="button" title="Copy" class="header-btn clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
+        <span type="button" title="Share" class="header-btn share-btn"><img src="svg/paperclip.svg"/></span>
+!{use_oauth}        <span class="header-btn loggedin-btn"> <a data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a></span>
+!{use_oauth}        <button type="button" title="Logout" id="logoutID" class="d-none btn log-btn"><img src="logout.svg"/></button>
+!{use_oauth}        <button type="button" title="Login" id="loginID" class="d-none btn log-btn"><img src="login.svg"/></button>
+        <span type="button" title="Close" class="header-btn close-btn"><img src="svg/x-circle.svg"/></span>
       </div>
     </div>
     <div class="messages">
       <div class="questions">
-        <button type="button" class="prompt">What is OpenLink YouID?</button>
-        <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
-        <button type="button" class="prompt">How do I use OpenLink YouID?</button>
-        <button type="button" class="prompt">Where can I obtain OpenLink YouID?</button>
+!{w_prompt1}        <button type="button" class="prompt">%{w_prompt1}</button>
+!{w_prompt2}        <button type="button" class="prompt">%{w_prompt2}</button>
+!{w_prompt3}        <button type="button" class="prompt">%{w_prompt3}</button>
+!{w_prompt4}        <button type="button" class="prompt">%{w_prompt4}</button>
       </div>
     </div>
     <div class="input_wrapper">
@@ -246,12 +249,33 @@
 <script src="opalx.js"></script>
 <script src="win.js"></script>
 <script>
-var md = window.markdownit({
+const md = window.markdownit({
                                html:true,
                                breaks:true,
                                linkify:true,
                                langPrefix:'language-',
+                               quotes: '“”‘’',
     });
+
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const hrefIndex = tokens[idx].attrIndex('href');
+  const href = hrefIndex >= 0 ? tokens[idx].attrs[hrefIndex][1] : '';
+
+  if (href && href.startsWith('#')) {
+    return self.renderToken(tokens, idx, options);
+  }
+
+  const targetIndex = tokens[idx].attrIndex('target');
+  if (targetIndex < 0) tokens[idx].attrPush(['target', '_blank']);
+  else tokens[idx].attrs[targetIndex][1] = '_blank';
+
+  const relIndex = tokens[idx].attrIndex('rel');
+  if (relIndex < 0) tokens[idx].attrPush(['rel', 'noopener noreferrer']);
+  else tokens[idx].attrs[relIndex][1] = 'noopener noreferrer';
+
+  return self.renderToken(tokens, idx, options);
+};
+
 
 var clipboard = new ClipboardJS('.clipboard-btn');
 
@@ -299,6 +323,7 @@ $(function () {
            currentText = undefined;
            $messages.find('.cursor').remove();
            $('.stop').toggleClass('d-none', true);
+           $('.send').toggleClass('d-none', false);
            $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
            // optionally we can enable the predefined prompts here
            $('.prompt').on ('click', sendPredefinedPrompt);
@@ -310,6 +335,7 @@ $(function () {
            $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
            $('<span class="cursor"></span>').insertAfter($currentMessage);
            $('.stop').toggleClass('d-none', false);
+           $('.send').toggleClass('d-none', true);
            $('#clipboard-text').val($('#clipboard-text').val() + '\nassistant: ' + chunk);
        } else { // next chunk
            currentText = currentText + chunk;
@@ -344,6 +370,9 @@ $(function () {
         }
     });
 
+    $('.stop').on('click', function(e) {
+        opal.stop();
+     });
     $('.send').on('click', function(e) { // see above, doing same thing
         let $messages = $('.chat-popup .messages');
         let text = $('#message_input').val().trim();
@@ -560,9 +589,6 @@ $(function () {
 
 !!{use_opal}
 <!-- OPAL -->
-<div class="form-group mt-3">
-    <a class="loggedin-btn" data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a>
-</div>
 
 
 <div id="snackbar">
@@ -574,19 +600,25 @@ $(function () {
 <div class="chat-popup" id="opal-form">
   <div class="form-container">
     <div class="form-header">
-      <h1>Talk with OPAL</h1>
+      <div class="form-header-title">
+        <h1>Talk with OPAL</h1>
+        <span id="info" style="margin-left:10px; color:yellow; display:none">Connecting</span>
+      </div>
       <div class="form-header-btn">
-        <span type="button" class="clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
-        <span type="button" class="share-btn"><img src="svg/paperclip.svg"/></span>
-        <span type="button" class="close-btn"><img src="svg/x-circle.svg"/></span>
+        <span type="button" title="Copy" class="header-btn clipboard-btn" data-clipboard-target="#clipboard-text"><img src="svg/clipboard.svg"/></span>
+        <span type="button" title="Share" class="header-btn share-btn"><img src="svg/paperclip.svg"/></span>
+!{use_oauth}        <span class="header-btn loggedin-btn"> <a data-placement="bottom" target="_blank" href="" title=""><img id="uid-icon" src="svg/person-fill-check.svg"></a></span>
+!{use_oauth}        <button type="button" title="Logout" id="logoutID" class="d-none btn log-btn"><img src="logout.svg"/></button>
+!{use_oauth}        <button type="button" title="Login" id="loginID" class="d-none btn log-btn"><img src="login.svg"/></button>
+        <span type="button" title="Close" class="header-btn close-btn"><img src="svg/x-circle.svg"/></span>
       </div>
     </div>
     <div class="messages">
       <div class="questions">
-        <button type="button" class="prompt">What is OpenLink YouID?</button>
-        <button type="button" class="prompt">Why is OpenLink YouID Important?</button>
-        <button type="button" class="prompt">How do I use OpenLink YouID?</button>
-        <button type="button" class="prompt">Where can I obtain OpenLink YouID?</button>
+!{w_prompt1}        <button type="button" class="prompt">%{w_prompt1}</button>
+!{w_prompt2}        <button type="button" class="prompt">%{w_prompt2}</button>
+!{w_prompt3}        <button type="button" class="prompt">%{w_prompt3}</button>
+!{w_prompt4}        <button type="button" class="prompt">%{w_prompt4}</button>
       </div>
     </div>
     <div class="connect" style="display: none;">
@@ -613,12 +645,32 @@ $(function () {
 <script src="opal.js"></script>
 <script src="win.js"></script>
 <script>
-var md = window.markdownit({
+const md = window.markdownit({
                                html:true,
                                breaks:true,
                                linkify:true,
                                langPrefix:'language-',
+                               quotes: '“”‘’',
     });
+
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const hrefIndex = tokens[idx].attrIndex('href');
+  const href = hrefIndex >= 0 ? tokens[idx].attrs[hrefIndex][1] : '';
+
+  if (href && href.startsWith('#')) {
+    return self.renderToken(tokens, idx, options);
+  }
+
+  const targetIndex = tokens[idx].attrIndex('target');
+  if (targetIndex < 0) tokens[idx].attrPush(['target', '_blank']);
+  else tokens[idx].attrs[targetIndex][1] = '_blank';
+
+  const relIndex = tokens[idx].attrIndex('rel');
+  if (relIndex < 0) tokens[idx].attrPush(['rel', 'noopener noreferrer']);
+  else tokens[idx].attrs[relIndex][1] = 'noopener noreferrer';
+
+  return self.renderToken(tokens, idx, options);
+};
 
 var clipboard = new ClipboardJS('.clipboard-btn');
 
@@ -666,6 +718,7 @@ $(function () {
            currentText = undefined;
            $messages.find('.cursor').remove();
            $('.stop').toggleClass('d-none', true);
+           $('.send').toggleClass('d-none', false);
            $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
            // optionally we can enable the predefined prompts here
            $('.prompt').on ('click', sendPredefinedPrompt);
@@ -677,6 +730,7 @@ $(function () {
            $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 0);
            $('<span class="cursor"></span>').insertAfter($currentMessage);
            $('.stop').toggleClass('d-none', false);
+           $('.send').toggleClass('d-none', true);
            $('#clipboard-text').val($('#clipboard-text').val() + '\nassistant: ' + chunk);
        } else { // next chunk
            currentText = currentText + chunk;
@@ -745,6 +799,9 @@ $(function () {
         }
     });
 
+    $('.stop').on('click', function(e) {
+        opal.stop();
+     });
     $('.send').on('click', function(e) { // see above, doing same thing
         let $messages = $('.chat-popup .messages');
         let text = $('#message_input').val().trim();

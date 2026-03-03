@@ -300,6 +300,21 @@
           
           <div id="opal_params" class="hidden">
             <div class="form-group row">
+              <label for="c_opl_endpoint" class="col-md-3 control-label">Service Endpoint URL:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_opl_endpoint" placeholder="http://cname" value="https://linkeddata.uriburner.com"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_opl_key" class="col-md-3 control-label">Authentication method:</label>
+              <div class="col-md-6">
+                <select name="widget" class="form-control" id="c_opl_auth" style="width:10em">
+                  <option value="w_bearer" selected>Bearer Token</option>
+                  <option value="w_oauth">OAuth 2.1</option>
+                </select>
+              </div>
+            </div>
+            <div  id="opal_key" class="form-group row">
               <label for="c_opl_key" class="col-md-3 control-label">API Key:</label>
               <div class="col-md-6">
                 <input type="text" class="form-control" id="c_opl_key" placeholder="xxxxxxx..."/>
@@ -314,14 +329,15 @@
             <div class="form-group row" id="opal_module">
               <label for="c_module" class="col-md-3 control-label">AI Agent:</label>
               <div class="col-md-6">
-                <select class="form-control selectpicker" id="c_module" title="..." data-live-search="true">
+                <select class="form-control selectpicker show-tick" id="c_module" title="..." data-live-search="true">
                 </select>
               </div>
             </div>
             <div class="form-group row">
               <label for="c_funcs" class="col-md-3 control-label">Functions:</label>
               <div class="col-md-6">
-                <input type="text" class="form-control" id="c_funcs" value="" placeholder="Demo.demo.execute_spasql_query,DB.DBA.vos_howto_search,...."/>
+                <select class="form-control selectpicker show-tick" multiple id="c_funcs" title="..." data-live-search="true">
+                </select>
               </div>
             </div>
             <div class="form-group row">
@@ -344,6 +360,36 @@
                 <input type="number" class="form-control" id="c_temperature" value="0.2" min="0.0" />
               </div>
             </div>
+
+            <div class="form-group row">
+              <label for="c_prompt1" class="col-md-3 control-label">Question 1:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt1" value="What is OpenLink YouID?" /> -->
+                <input type="text" class="form-control" id="c_prompt1" value="Who are you?" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_prompt2" class="col-md-3 control-label">Question 2:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt2" value="Why is OpenLink YouID Important?" /> -->
+                <input type="text" class="form-control" id="c_prompt2" value="What are your compatibilities?" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_prompt3" class="col-md-3 control-label">Question 3:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt3" value="How do I use OpenLink YouID?" /> -->
+                <input type="text" class="form-control" id="c_prompt3" value="How can you help me?" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_prompt4" class="col-md-3 control-label">Question 4:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt4" value="Where can I obtain OpenLink YouID?" /> -->
+                <input type="text" class="form-control" id="c_prompt4" value="" />
+              </div>
+            </div>
+
           </div>
         </form>
 

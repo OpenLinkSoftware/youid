@@ -98,7 +98,13 @@ class Opal {
     }
 
     onOpen (event) {
-        this.authenticate().then(() => this.chatInfo()).catch ((error) => this.errorCallback(error));
+        this.authenticate()
+          .then(() => this.chatInfo())
+          .then((rc) => {
+            if (!rc.ok)
+              throw rc.error
+          })
+          .catch ((error) => this.errorCallback(error));
     }
 
     onClose (event) {
@@ -135,16 +141,24 @@ class Opal {
         let params = new URLSearchParams(url.search);
         params.append('session_id', this.session.info.sessionId);
         url.search = params.toString();
-        this.authClient.fetch (url.toString(), { headers: { 'X-OPAL-Version': this.version, }, }).then((resp) => {
-            if (resp.status != 200) {
-                this.connecting = false;
-                throw Error ('Can not get chat log Id');
-            }
-            return resp.json();
-        }).then((data) => {
-            this.connecting = false;
+        let rc =  {ok:false, error:null}
+        try {
+          const resp = await this.authClient.fetch (url.toString(), { headers: { 'X-OPAL-Version': this.version, }, })
+          if (resp.ok && resp.status == 200) {
+            const data = await resp.json();
             this.chat_id = data?.chat_id;
-        });
+            this.functions = data?.funcs
+            rc.ok = true;
+          } 
+          else {
+            rc.error = 'Can not get chat log Id';
+          }
+        } catch(ex) {
+          rc.error = ex.toString();
+        } finally {
+          this.connecting = false;
+        }
+        return rc;
     }
 
     getPromptId () {
@@ -163,21 +177,18 @@ class Opal {
             this.errorCallback (error_message);
             return;
         }
-        let chat_id = this.chat_id;
-        let alt = null;
-        // the first prompt sends together config and prompt
-        if (this.module && !this.messages_sent) {
-            chat_id = 'system-'+this.module;
-            alt = text;
-            text = null;
-            this.chat_id = null;
+        if (this.messages_sent == 1) {
+          const rc = await this.chatInfo();
+          if (!rc.ok) {
+            this.errorCallback ('You are logged out');
+            return;
+          }
         }
+
         let request = {
             type: 'user',
-            question: text,
-            chat_id: chat_id,
             model: this.model,
-            call: this.functions,
+            call: this.functions && this.functions.length > 0 ? this.functions : null,
             apiKey: this.apiKey,
             temperature: this.temperature,
             top_p: this.top_p,
@@ -185,8 +196,18 @@ class Opal {
             images: images,
             image_resolution: options?.image_resolution != undefined ? options.image_resolution : null,
             max_tokens: options?.max_tokens != undefined ? options.max_tokens : null,
-            alt_question: alt,
         };
+
+        // the first prompt sends together config and prompt
+        if (this.module && !this.messages_sent) {
+            request['chat_id'] = 'system-'+this.module;
+            request['alt_question'] = text;
+            this.chat_id = null;
+        } 
+        else {
+            request['chat_id'] = this.chat_id;
+            request['question'] = text;
+        }
         this.ws.send(JSON.stringify(request));
         this.messages_sent++;
     }
@@ -199,14 +220,18 @@ class Opal {
         }
         params.append('session_id', this.session.info.sessionId);
         url.search = params.toString();
-        this.authClient.fetch (url.toString(), { headers: { 'X-OPAL-Version': this.version, }, }).then((resp) => {
-            if (resp.ok) {
-                return resp.json();
-            }
+        try {
+          const resp = await this.authClient.fetch (url.toString(), {headers: { 'X-OPAL-Version': this.version}})
+          if (resp.ok && resp.status == 200) {
+             const v = await resp.text();
+             return true;
+          } 
+          else {
             this.errorCallback('Can not stop prompt generation');
-        }).then((data) => {
-            return true;
-        }).catch ((error) => this.errorCallback(error));
+          }
+        } catch(ex) {
+          this.errorCallback(ex.toString())
+        }
     }
 
     setAudioFormat(mime) {
@@ -278,12 +303,12 @@ class Opal {
                 })
             }),
             });
-            navigator.clipboard.write([clipboardItem]).then(() => { this.messageCallback('notice', 'Permalink to the chat copied.'); },
+            navigator.clipboard.write([clipboardItem]).then(() => { this.messageCallback('notice', 'Permalink copied.'); },
                                                             () => { this.errorCallback('Permalink copy failed.'); },);
         }
         else if (navigator.clipboard.writeText != 'undefined') {
             this.getPermaLink().then ((text) => {
-                navigator.clipboard.writeText(text).then(() => { this.messageCallback('notice', 'Permalink to the chat copied.'); },
+                navigator.clipboard.writeText(text).then(() => { this.messageCallback('notice', 'Permalink copied.'); },
                                                          () => { this.errorCallback('Permalink copy failed.'); },);
             });
         } else {

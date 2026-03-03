@@ -87,11 +87,13 @@ class Uploader {
     return { ok: false };
   }
 
-  async loadCardFiles(use_opal_widget, w_mode) {
+  async loadCardFiles(use_opal_widget, w_mode, w_auth_mode) {
     const rels = new Relations();
     for(const v of rels.getImagesList())
       this.files[v] = new CardFileBinary(v, 'image/png');
 
+    this.files["login.svg"] = new CardFileBinary('login.svg', 'image/svg+xml');
+    this.files["logout.svg"] = new CardFileBinary('logout.svg', 'image/svg+xml');
     this.files["addrbook.png"] = new CardFileBinary('addrbook.png', 'image/png');
     this.files["qrcode.js"] = new CardFileBinary('qrcode.js', 'text/javascript');
     this.files["lock.png"] = new CardFileBinary('lock.png', 'image/png');
@@ -105,8 +107,13 @@ class Uploader {
     if (use_opal_widget) {
       this.files["style_opal.css"] = new CardFileBinary('style_opal.css', 'text/css');
       this.files["chatbot-32px.png"] = new CardFileBinary('chatbot-32px.png', 'image/png');
-      this.files["auth.js"] = new CardFileBinary('auth.js', 'text/javascript');
       this.files["win.js"] = new CardFileBinary('win.js', 'text/javascript');
+
+      if (w_auth_mode==="w_oauth")
+        this.files["solid-client-authn.bundle.js"] = new CardFileBinary('solid-client-authn.bundle.js', 'text/javascript');
+      else
+        this.files["auth.js"] = new CardFileBinary('auth.js', 'text/javascript');
+
       if (w_mode==="w_opalx")
         this.files["opalx.js"] = new CardFileBinary('opalx.js', 'text/javascript');
       else
@@ -256,6 +263,12 @@ class Uploader {
          tpl_data['use_opalx'] = '1'
       else
          tpl_data['use_opal'] = '1'
+      if (gen.w_auth_mode==="w_oauth")
+         tpl_data['use_oauth'] = '1'
+      else
+         tpl_data['use_bearer'] = '1'
+
+      tpl_data['w_opl_endpoint'] = gen.w_opl_endpoint;
       tpl_data['w_opl_api_key'] = gen.w_opl_api_key;
       tpl_data['w_mode'] = gen.w_mode;
       tpl_data['w_module'] = gen.w_module;
@@ -266,6 +279,11 @@ class Uploader {
         tpl_data['w_model'] = gen.w_model
       if (gen.w_funcs.length>1)
         tpl_data['w_funcs'] = gen.w_funcs
+
+      tpl_data['w_prompt1'] = gen.w_prompt1;
+      tpl_data['w_prompt2'] = gen.w_prompt2;
+      tpl_data['w_prompt3'] = gen.w_prompt3;
+      tpl_data['w_prompt4'] = gen.w_prompt4;
     }
 
     if (gen.em_indie_idp)

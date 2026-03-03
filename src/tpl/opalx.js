@@ -189,14 +189,18 @@ class OpalX {
         params.append('run_id', this.run_id);
         params.append('ctl', 1);
         url.search = params.toString();
-        this.authClient.fetch (url.toString(), { headers: { 'X-OPAL-Version': this.version, }, }).then((resp) => {
-            if (resp.ok) {
-                return resp.text();
-            }
+        try {
+          const resp = await this.authClient.fetch (url.toString(), {headers: { 'X-OPAL-Version': this.version}})
+          if (resp.ok && resp.status == 200) {
+             const v = await resp.text();
+             return true;
+          } 
+          else {
             this.errorCallback('Can not stop prompt generation');
-        }).then((data) => {
-            return true;
-        }).catch ((error) => this.errorCallback(error));
+          }
+        } catch(ex) {
+          this.errorCallback(ex.toString())
+        }
     }
 
     setAudioFormat(mime) {
@@ -342,12 +346,12 @@ class OpalX {
                 })
             }),
             });
-            navigator.clipboard.write([clipboardItem]).then(() => { this.messageCallback('notice', 'Permalink to the chat copied.'); },
+            navigator.clipboard.write([clipboardItem]).then(() => { this.messageCallback('notice', 'Permalink copied.'); },
                                                             () => { this.errorCallback('Permalink copy failed.'); },);
         }
         else if (navigator.clipboard.writeText != 'undefined') {
             this.getPermaLink().then ((text) => {
-                navigator.clipboard.writeText(text).then(() => { this.messageCallback('notice', 'Permalink to the chat copied.'); },
+                navigator.clipboard.writeText(text).then(() => { this.messageCallback('notice', 'Permalink copied.'); },
                                                          () => { this.errorCallback('Permalink copy failed.'); },);
             });
         } else {
