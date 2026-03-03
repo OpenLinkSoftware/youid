@@ -2,9 +2,9 @@
   "name": "OpenLink YouID",
   "short_name": "youid",
   "author":"OpenLink Software",
-  "version": "1.7.20",
+  "version": "1.8.0",
   "manifest_version": 3,
-  "minimum_chrome_version": "18",
+  "minimum_chrome_version": "88",
   "description": "YouID selector.",
   "browser_specific_settings": {
     "gecko": {
