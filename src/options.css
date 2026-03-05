@@ -225,6 +225,21 @@ label {
     font-size: 14px;
 }
 
+.dettable {
+     table-layout: fixed;
+}
+
+.dtext {
+    font-size: 13px;
+    word-wrap: break-word;
+    color: var(--text-secondary);
+}
+
+.dtext_col1 {
+    width: 90px;
+    font-weight: 600;
+}
+
 /* Tables */
 table {
     width: 100%;
