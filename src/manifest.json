@@ -2,9 +2,9 @@
   "name": "OpenLink YouID",
   "short_name": "opl_youid",
   "author":"OpenLink Software",
-  "version": "1.7.12",
+  "version": "1.9.3",
   "manifest_version": 3,
-  "minimum_chrome_version": "18",
+  "minimum_chrome_version": "114",
   "description": "YouID selector.",
   "icons": {
       "16":  "images/icon20.png",
@@ -48,7 +48,8 @@
   "permissions": [
     "storage", 
     "declarativeNetRequest",
-    "tabs"
+    "tabs",
+    "sidePanel"
   ],
 
   "web_accessible_resources": [

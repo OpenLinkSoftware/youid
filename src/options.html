@@ -24,10 +24,12 @@
     <title>YouID</title>
     <link type="text/css" href="lib/css/footable-0.1.css" rel="stylesheet" />
     <link type="text/css" href="lib/css/bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="lib/css/bootstrap-select.css" rel="stylesheet" />
 
     <script type="text/javascript" src="lib/qrcode.js"></script>
     <script type="text/javascript" src="lib/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="lib/bootstrap.js"></script>
+    <script type="text/javascript" src="lib/bootstrap-select.js"></script>
     <script type="text/javascript" src="lib/multimodal.js"></script>
     <script type="text/javascript" src="lib/rdfstore_min.js"></script>
     <script type="text/javascript" src="lib/rdflib.js"></script>
@@ -88,6 +90,7 @@
           <li><a href="#delegate" title="Associate your NetID with a Credentials Authentication Delegate">Delegation</a></li>
           <li><a href="#accounts" title="Settings for IdP accounts">Storage Provider Settings</a></li>
           <li><a href="#headers">Header&nbsp;Settings</a></li>
+          <li><a href="#general">General&nbsp;Settings</a></li>
           <li><a href="#about"  >About</a></li>
         </ul>
       </div>
@@ -274,7 +277,7 @@
             <div class="col-md-3" style="display:flex; flex-flow:column; align-items:center;"> 
              <span style="margin-top:50px"> Photo 130x145px </span>
              <div>
-               <img src="./tpl/photo_130x145.jpg" id="photo_img" width="130" height="145" style="margin-top: 10px; border-width:1px; border-radius:2px; border-style:solid;" alt="User Photo">
+               <img src="./tpl/photo_130x145.jpg" id="photo_img" alt="User Photo">
                <span id="photo_img_close">&times;</span>
              </div>
              <input id="photo_data" type="file" style="width: 200px; margin-top:10px" value="" title="Photo 130x145">
@@ -285,35 +288,65 @@
 
         <form class="form-horizontal">
           <hr/>
-          <div class="form-group row">
-            <label for="c_use_widget" class="col-md-3 control-label">Add OPAL Widget:</label>
-            <div class="col-md-6">
-              <input type="checkbox" class="form-control_" id="c_use_widget" style="vertical-align: bottom;" >
+          <div class="form-group row" style="display:flex">
+            <label for="c_use_widget" class="col-md-3 control-label">OPAL Binding:</label>
+            <div class="col-md-2" style="display:flex;">
+              <input type="checkbox" class="form-control_" id="c_use_widget" style="margin-right:20px">
+              <select name="widget" class="form-control hidden" id="c_widget" style="width:10em">
+                <option value="w_opal" selected>Completions</option>
+                <option value="w_opalx">Assistants</option>
+              </select>
             </div>
           </div>
+          
           <div id="opal_params" class="hidden">
             <div class="form-group row">
-              <label for="c_opl_key" class="col-md-3 control-label">OPAL API Key:</label>
+              <label for="c_opl_endpoint" class="col-md-3 control-label">Service Endpoint URL:</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="c_opl_endpoint" placeholder="http://cname" value="https://linkeddata.uriburner.com"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_opl_key" class="col-md-3 control-label">Authentication method:</label>
+              <div class="col-md-6">
+                <select name="widget" class="form-control" id="c_opl_auth" style="width:10em">
+                  <option value="w_bearer" selected>Bearer Token</option>
+                  <option value="w_oauth">OAuth 2.1</option>
+                </select>
+              </div>
+            </div>
+            <div  id="opal_key" class="form-group row">
+              <label for="c_opl_key" class="col-md-3 control-label">API Key:</label>
               <div class="col-md-6">
                 <input type="text" class="form-control" id="c_opl_key" placeholder="xxxxxxx..."/>
               </div>
             </div>
-            <div class="form-group row">
+            <div class="form-group row hidden" id="opalx_assistant">
               <label for="c_assistant" class="col-md-3 control-label">Assistant ID:</label>
               <div class="col-md-6">
                 <input type="text" class="form-control" id="c_assistant" value="asst_pcnONIrtgLYaIEdbUnTwz8jB" />
               </div>
             </div>
+            <div class="form-group row" id="opal_module">
+              <label for="c_module" class="col-md-3 control-label">AI Agent:</label>
+              <div class="col-md-6">
+                <select class="form-control selectpicker show-tick" id="c_module" title="..." data-live-search="true">
+                </select>
+              </div>
+            </div>
             <div class="form-group row">
               <label for="c_funcs" class="col-md-3 control-label">Functions:</label>
               <div class="col-md-6">
-                <input type="text" class="form-control" id="c_funcs" value="" placeholder="Demo.demo.execute_spasql_query,DB.DBA.vos_howto_search,...."/>
+                <select class="form-control selectpicker show-tick" multiple id="c_funcs" title="..." data-live-search="true">
+                </select>
               </div>
             </div>
             <div class="form-group row">
               <label for="c_model" class="col-md-3 control-label">Model:</label>
               <div class="col-md-6">
-                <input type="text" class="form-control" id="c_model" value="gpt-4o" placeholder="gpt-4o"/>
+                <select class="form-control selectpicker" id="c_model" title="Loading..." data-live-search="true">
+                  <option value="gpt-4o-mini" selected >gpt-4o-mini</option>
+                </select>
               </div>
             </div>
             <div class="form-group row">
@@ -328,6 +361,36 @@
                 <input type="number" class="form-control" id="c_temperature" value="0.2" min="0.0" />
               </div>
             </div>
+
+            <div class="form-group row">
+              <label for="c_prompt1" class="col-md-3 control-label">Question 1:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt1" value="What is OpenLink YouID?" /> -->
+                <input type="text" class="form-control" id="c_prompt1" value="Who are you?" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_prompt2" class="col-md-3 control-label">Question 2:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt2" value="Why is OpenLink YouID Important?" /> -->
+                <input type="text" class="form-control" id="c_prompt2" value="What are your compatibilities?" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_prompt3" class="col-md-3 control-label">Question 3:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt3" value="How do I use OpenLink YouID?" /> -->
+                <input type="text" class="form-control" id="c_prompt3" value="How can you help me?" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="c_prompt4" class="col-md-3 control-label">Question 4:</label>
+              <div class="col-md-6">
+<!--                <input type="text" class="form-control" id="c_prompt4" value="Where can I obtain OpenLink YouID?" /> -->
+                <input type="text" class="form-control" id="c_prompt4" value="" />
+              </div>
+            </div>
+
           </div>
         </form>
 
@@ -462,6 +525,13 @@
             <label for="c_webid" class="col-md-3 control-label">NetID:</label>
             <div class="col-md-9">
               <input type="text" class="form-control" id="c_webid" value="">
+            </div>
+          </div>
+
+          <div class="form-group row" id="r_pim_storage">
+            <label for="c_pim_storage" class="col-md-3 control-label">pim:storage:</label>
+            <div class="col-md-9">
+              <input type="url" class="form-control" id="c_pim_storage" value="" placeholder="https://{cname}/{path}/{folder}/">
             </div>
           </div>
 
@@ -664,6 +734,33 @@
              </table>
            </tr>
           </table>
+        </div>
+
+        <div id="general_items">
+            <h3>General Settings</h3>
+            
+            <div class="card">
+              <div class="card-header">Display Preferences</div>
+              <div style="padding: 20px;">
+                <div class="form-group row">
+                  <label for="view_mode" class="col-md-3 control-label">View Mode:</label>
+                  <div class="col-md-9">
+                    <select id="view_mode" class="form-control" style="max-width: 300px;">
+                      <option value="sidebar">Sidebar (Recommended)</option>
+                      <option value="popup">Popup</option>
+                    </select>
+                    <p class="text-muted mt-10" style="font-size: 13px;">
+                      <strong>Sidebar:</strong> Opens YouID in a side panel for better visibility and easier access.<br>
+                      <strong>Popup:</strong> Opens YouID in a traditional popup window.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-20">
+              <strong>Note:</strong> After changing the view mode, you may need to reload the extension or restart your browser for the changes to take full effect.
+            </div>
         </div>
 
         <div id="about_items">

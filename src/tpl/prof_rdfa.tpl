@@ -9,7 +9,8 @@
     xhv: http://www.w3.org/1999/xhtml/vocab#
     xsd: http://www.w3.org/2001/XMLSchema#
    xsig: http://www.w3.org/2000/09/xmldsig#
-    schema: http://schema.org/"
+    schema: http://schema.org/
+    pim: http://www.w3.org/ns/pim/space#"
   >
 
   <div typeof="rdfs:Resource" about="%{rdfa_prof_url}#identity">
@@ -116,6 +117,7 @@
     <div property="http://schema.org/name" content="%{subj_name}"></div>
 !{pdp_url}    <div rel="http://schema.org/sameAs" resource="%{pdp_url}"></div>
 !{pdp_url}    <div rel="owl:sameAs" resource="%{pdp_url}#this"></div>
+!{pim_storage}    <div rel="pim:storage" resource="%{pim_storage}"></div>
   </div>
 
   <div typeof="http://schema.org/Person" about="%{prof_url}#identity">

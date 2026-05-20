@@ -8,6 +8,7 @@
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 @prefix schema: <http://schema.org/> .
 @prefix xsig: <http://www.w3.org/2000/09/xmldsig#>  . 
+@prefix pim: <http://www.w3.org/ns/pim/space#> .
 
 <%{card_ident_url}>    cert:key <%{pubkey_url}#PublicKey> . 
 <%{prof_url}#identity>    cert:key <%{pubkey_url}#PublicKey> . 
@@ -84,6 +85,7 @@
         ] ;
 !{pdp_url}     owl:sameAs    <%{pdp_url}#this> ;
 !{pdp_url}     <http://schema.org/sameAs> <%{pdp_url}> ;
+!{pim_storage}     pim:storage  <%{pim_storage}> ;
      <http://schema.org/name>   "%{subj_name}" .
 
 <%{prof_url}> 

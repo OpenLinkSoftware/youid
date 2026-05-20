@@ -75,6 +75,11 @@ async function init()
           selectTab('#headers');
           return false;
 	}
+	DOM.qSel('#tabs a[href="#general"').onclick = (e) => {
+	  e.preventDefault();
+          selectTab('#general');
+          return false;
+	}
 	DOM.qSel('#tabs a[href="#about"').onclick = (e) => {
 	  e.preventDefault();
           selectTab('#about');
@@ -135,6 +140,7 @@ function selectTab(tab)
   updateTab('#delegate', selectedTab);
   updateTab('#accounts', selectedTab);
   updateTab('#headers', selectedTab);
+  updateTab('#general', selectedTab);
   updateTab('#about', selectedTab);
 }
 
@@ -179,6 +185,13 @@ async function loadPref()
       v = gPref.getDef_Fingerprint();
     
     DOM.qSel('#announce #message-text').value = v;
+
+    // Load view mode preference
+    var viewMode = await gPref.getValue('ext.youid.view_mode');
+    if (!viewMode) {
+      viewMode = 'sidebar'; // Default to sidebar
+    }
+    DOM.iSel('view_mode').value = viewMode;
 }
 
 
@@ -197,7 +210,13 @@ async function savePref()
 
    await gPref.setValue('ext.youid.pref.ann_message', DOM.qSel('#announce #message-text').value);
 
+   // Save view mode preference
+   await gPref.setValue('ext.youid.view_mode', DOM.iSel('view_mode').value);
+
    Browser.api.runtime.sendMessage({ cmd: 'settings_updated'});
+   
+   // Show notification that settings were saved
+   alert('Settings saved successfully!\n\nNote: You may need to click the YouID icon again to see the new view mode.');
 }
 
 

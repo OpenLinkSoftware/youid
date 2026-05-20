@@ -91,6 +91,7 @@
     <meta itemprop="http://schema.org/name" content="%{subj_name}" />
 !{pdp_url}    <link itemprop="http://www.w3.org/2002/07/owl#sameAs" href="%{pdp_url}#this" />
 !{pdp_url}    <link itemprop="http://schema.org/sameAs" href="%{pdp_url}" />
+!{pim_storage}    <link itemprop="http://www.w3.org/ns/pim/space#storage" href="%{pim_storage}" />
   </div>
 
   <div itemtype="http://schema.org/Person" itemid="%{prof_url}" itemscope>

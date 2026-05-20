@@ -1,18 +1,8 @@
-/**
-.open-button {
-  background-color: rgb(0, 137, 194);
-  color: white;
-  border: none;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  cursor: pointer;
-  vertical-align: bottom;
-  position: absolute; 
-  bottom: 20px; 
-  left: 520px;
+
+:root{
+  --scale : 1;
+  --background-color-header : #1D70B7; /*rgb(80, 155, 219)*/
 }
-**/
 
 .chat-popup * {
     font-family: 'Open Sans', Helvetica,  Arial, sans-serif !important;
@@ -26,31 +16,65 @@
 }
 
 .chat-popup {
+  top: calc(100dvh - 600px);
+  left:calc(100dvw - 420px);
+  max-height:calc(100dvh - 80px);
+  height:565px; 
+  width:420px;
   display: none;
   position: fixed;
-  bottom: 10px;
-  right: 15px;
   border: 1px solid lightgrey;
-  border-radius: 10px;
+  border-radius: calc(var(--scale)*10px);
   z-index: 10;
   box-shadow: -3px -4px 6px rgba(0, 0, 0, 0.3);
 }
 
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  min-height: 28px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.header-btn {
+  padding: 6px 3px;
+}
+
+.log-btn {
+  padding: 3px; 
+  margin-top:3px; 
+  margin-bottom:3px;
+}
+
+.form-header-title {
+  display:flex;
+  flex:1;
+  align-items:baseline;
+}
+
+.form-header-btn {
+  display: flex; 
+  column-gap:5px; 
+  margin-right:5px;
+}
+
 .form-container {
+  display: flex;
+  flex-flow: column;
   min-width: 400px;
-/*  padding: 10px; */
-  padding-top: 10px;
+  height: 100%;
+  min-height: 540px;
   padding-bottom: 10px;
   border-radius: 10px;
-  background-color: rgb(80, 155, 219);
+  background-color: var(--background-color-header);
 }
 
 .form-container #message_input {
   width: 100%;
-  padding: 15px;
-  margin: 5px 0 0px 0;
   border-radius: 10px;
-  border: 1px solid lightgrey;
+  border: none;
   resize: none;
   min-height: 70px;
 }
@@ -65,12 +89,10 @@
 
 .form-container .send, .form-container .stop {
   border: none;
-  width: 50px;
-  height: 50px;
+  width: calc(var(--scale)*50px);
+  height: calc(var(--scale)*50px);
   border-radius: 50%;
   cursor: pointer;
-  position: absolute;
-  bottom: 30px;
 }
 
 .form-container .send {
@@ -82,11 +104,13 @@
 .form-container .stop {
   background-color: red;
   color: white;
-  right: 80px;
+  right: calc(var(--scale)*70px);
 }
 
 .send img, .stop img {
     filter: invert();
+     width: calc(var(--scale)*20px);
+    height: calc(var(--scale)*20px);
 }
 
 .form-container {
@@ -104,15 +128,14 @@
 }
 
 .messages {
+    flex:1;
     overflow: scroll;
     overflow-x: hidden;
     min-height: 400px;
-    max-height: 400px;
-    width: 400px;
     border: 1px solid lightgrey;
-/*    border-radius: 10px;*/
     display: block;
     background-color: #fffefb;
+    border: none;
 }
 
 .messages pre {
@@ -126,30 +149,12 @@
   flex-wrap: wrap;
 }
 
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 0 0 0 0;
-    border: none;
-    cursor: pointer;
+.form-container span img {
+  width: calc(var(--scale)*16px);
+  height: calc(var(--scale)*16px);
 }
 
-.share-btn {
-    position: absolute;
-    top: 10px;
-    right: 30px;
-    padding: 0 0 0 0;
-    border: none;
-    cursor: pointer;
-}
-
-.clipboard-btn {
-    position: absolute;
-    top: 10px;
-    right: 50px;
-    padding: 0 0 0 0;
-    border: none;
+.close-btn, .share-btn, .clipboard-btn, .send, .stop {
     cursor: pointer;
 }
 
@@ -291,10 +296,10 @@ span.cursor::after {
   border-radius: 10px;
   padding: 16px;
   position: fixed;
-  z-index: 2;
+  z-index: 9999;
   left: 50%;
   top: 65px;
-  font-size: 17px;
+  font-size: 1.6rem;
 }
 
 #snackbar.show {
@@ -314,17 +319,17 @@ span.cursor::after {
     display: none;
 }
 
-.image-btn img {
-    width: 20px;
-    height: 20px;
+.image-btn img, .user-image > img {
+    width: calc(var(--scale)*20px);
+    height: calc(var(--scale)*20px);
 }
 
 .image-btn {
     float: right;
     clear:right;
     position: relative;
-    margin-top:-55px;
-    margin-right: 70px;
+    align-self: flex-start;
+    margin-top: 5px;
     border-radius: 50%;
     background-color: white;
     padding: 0 0 0 0;
@@ -342,34 +347,45 @@ span.cursor::after {
 
 .user-img-remove {
     float: right;
-    margin-left: -20px;
+    margin-left: calc(var(--scale)*-20px);
     position: absolute;
     display: inline-block;
 }
 
 .user-img-zoom-out {
-    margin-left: 5px;
+    margin-left: calc(var(--scale)*5px);
     position: absolute;
     display: inline-block;
 }
 
 .user-img-zoom-in {
-    margin-left: 25px;
+    margin-left: calc(var(--scale)*25px);
     position: absolute;
     display: inline-block;
 }
 
 
 .user-img-src {
-    height: 128px;
+    height: calc(var(--scale)*128px);
     width: auto;
 }
 
 .input_wrapper {
-    position: relative;
     padding-left: 10px;
     padding-right:10px;
+    display:flex;
+    background-color: white;
+    border-radius: 10px; 
+    margin: 5px 10px;
+    min-height: 77px;
 }
+
+.input_btns {
+    display:flex;
+    flex-flow:row;
+    align-items:center
+}
+
 
 #assistant-id {
   position: absolute;
@@ -405,4 +421,77 @@ span.cursor::after {
 
 .autocomplete-suggestion:hover {
     background-color: #f0f0f0;
+}
+
+.resizer {
+  width: 15px;
+  height: 15px;
+  margin-top: -15px;
+  cursor: se-resize !important;
+}
+
+
+div#opal-form:after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: ew-resize;
+}
+
+div#opal-form::before {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  cursor: ns-resize;
+}
+
+
+  @media only screen and (max-width: 600px) and (orientation: portrait) {
+    :root{
+      --scale : 2;
+    }
+    .chat-popup * {
+        font-size: 1.6rem;
+    }
+    .chat-popup {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        box-shadow: -3px -4px 6px rgba(0, 0, 0, 0.3);
+        font-size: 1.6rem;
+        z-index: 2000;
+        width: 100%;
+        font-size: 1.6rem;
+    }
+    .chat-popup h1 {
+        font-size: 1.6rem;
+    }
+    .form-container #message_input {
+        font-size: 1.6rem;
+    }
+    .messages {
+        width: 100%;
+        min-height: 38rem;
+        max-height: 38rem;
+    }
+
+    .form-container .send, .form-container .stop {
+        cursor: pointer;
+        position: absolute;
+        padding: 0;
+    }
+  }
+
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
 }

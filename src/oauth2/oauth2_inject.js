@@ -33,4 +33,4 @@ params += '&from=' + encodeURIComponent(url);
 // access again
 //var redirect = chrome.extension.getURL('oauth2/oauth2.html');
 //window.location = redirect + params;
-chrome.runtime.sendMessage({cmd:'oauth_callback', params});
+Browser.api.runtime.sendMessage({cmd:'oauth_callback', params});

@@ -18,7 +18,7 @@
  *
  */
 
-class OpalX {
+class Opal {
     constructor (authClient = null, host = null, cb = null, ecb = null, data = {}) {
         let pageUrl = new URL(window.location);
         let thisHost = host ? host : pageUrl.host;
@@ -26,24 +26,21 @@ class OpalX {
         this.messages_sent = 0;
         this.authClient = authClient ? authClient : solidClientAuthentication?.default;
         this.session = this.authClient ? this.authClient.getDefaultSession() : undefined;
-        this.wsUrl = new URL('wss://' + thisHost + '/ws/assistant');
+        this.wsUrl = new URL('wss://' + thisHost + '/ws/chat');
         this.apiBaseUrl = 'https://' + thisHost + '/chat/api/';
         this.model = data?.model ? data.model : 'gpt-4';
         this.top_p = data?.top_p ? data.top_p : 0.5;
         this.temperature = data?.temperature ? data.temperature : 0.2;
         this.apiKey = data?.apiKey ? data.apiKey : null;
+        this.module = data?.module;
         this.supportedAudioType = data?.audio_media_type ? data?.audio_media_type : null;
         this.ws = undefined;
-        this.assistants = [];
-        this.files = [];
-        this.images = [];
-        this.thread_id = undefined;
-        this.run_id = undefined;
-        this.assistant_id = data?.assistant;
+        this.chat_id = undefined;
         this.promtInProgress = false;
         this.functions = data?.functions ? data.functions : [];
         this.messageCallback = typeof cb === 'function' ? cb : stubCallback;
         this.errorCallback = typeof ecb === 'function' ? ecb : stubError;
+        this.connecting = false;
     }
 
     stubCallback (kind, data) {
@@ -63,9 +60,11 @@ class OpalX {
             if (resp.ok) {
                 return resp.json();
             }
+            this.connecting = false;
             throw Error ('Can not authenticate');
         }).then((data) => {
             if (data.apiKeyRequired) {
+                this.connecting = false;
                 this.errorCallback('Your login is not authorized to ask OPAL');
             }
         });
@@ -75,6 +74,10 @@ class OpalX {
         if (!this.session?.info?.isLoggedIn) {
             throw Error ('Not logged-in');
         }
+        if (this.connecting) {
+            throw Error ('Connecting in progress');
+        }
+        this.connecting = true;
         let params = new URLSearchParams();
         params.append ('sessionId',this.session.info.sessionId);
         this.wsUrl.search = params.toString();
@@ -84,32 +87,42 @@ class OpalX {
         this.ws.onclose = this.onClose.bind(this);
         this.ws.onmessage = this.onMessage.bind(this);
         this.ws.onerror = this.onError.bind(this);
-        this.loadAssistants();
+    }
+
+    getChatId () {
+        return this.chat_id;
+    }
+
+    isConnecting () {
+        return this.connecting;
     }
 
     onOpen (event) {
-        this.authenticate().then(() => this.getThread()).catch ((error) => this.errorCallback(error));
+        this.authenticate()
+          .then(() => this.chatInfo())
+          .then((rc) => {
+            if (!rc.ok)
+              throw rc.error
+          })
+          .catch ((error) => this.errorCallback(error));
     }
 
     onClose (event) {
         this.ws = undefined;
-        this.thread_id = undefined;
+        this.chat_id = undefined;
         this.promtInProgress = false;
+        this.connecting = false;
     }
 
     onMessage (event) {
         try {
             let obj = JSON.parse(event.data);
-            if ('info' === obj.kind) {
-                this.run_id = obj.data.run_id;
-            }
             this.promtInProgress = true;
             this.messageCallback(obj.kind, obj.data);
-            if ('function' === typeof(obj.data.trim) && (obj.data.trim() === '[DONE]' || obj.data.trim() === '[LENGTH]')) {
+            if (obj.data.trim() === '[DONE]' || obj.data.trim() === '[LENGTH]') {
                 this.promtInProgress = false;
-                this.run_id = undefined;
-                if (!this.thread_id) {
-                    this.getThread();
+                if (!this.chat_id) {
+                    this.chatInfo();
                 }
             }
         } catch (e) {
@@ -123,71 +136,89 @@ class OpalX {
         this.errorCallback('Connection error')
     }
 
-    async getThread() {
-        let url = new URL('threads', this.apiBaseUrl);
+    async chatInfo() {
+        let url = new URL('getTopic', this.apiBaseUrl);
         let params = new URLSearchParams(url.search);
         params.append('session_id', this.session.info.sessionId);
-        params.append('apiKey', this.apiKey ? this.apiKey : '');
         url.search = params.toString();
-        this.authClient.fetch (url.toString(), { method: 'POST', headers: { 'X-OPAL-Version': this.version, }, }).then((resp) => {
-            if (resp.status != 200) {
-                throw Error ('Can not get thread');
-            }
-            return resp.text();
-        }).then((thread_id) => {
-            this.thread_id = thread_id;
-        });
+        let rc =  {ok:false, error:null}
+        try {
+          const resp = await this.authClient.fetch (url.toString(), { headers: { 'X-OPAL-Version': this.version, }, })
+          if (resp.ok && resp.status == 200) {
+            const data = await resp.json();
+            this.chat_id = data?.chat_id;
+            this.functions = data?.funcs
+            rc.ok = true;
+          } 
+          else {
+            rc.error = 'Can not get chat log Id';
+          }
+        } catch(ex) {
+          rc.error = ex.toString();
+        } finally {
+          this.connecting = false;
+        }
+        return rc;
     }
 
     getPromptId () {
         return Math.random().toString(36).replace('0.','usr-');
     }
 
-    async send(text, options = null) {
+    async send(text, images = null, options = null) {
         let prompt_id = this.getPromptId();
         text = text ? text.trim() : null;
         if (!text || !text.length) {
             return;
         }
-        if (!this.thread_id) {
+        if (!this.chat_id) {
             let error_message = this.session?.info && !this.session?.info.isLoggedIn ? 'You are not logged in' :
                 'The chat session is not established';
             this.errorCallback (error_message);
             return;
         }
-        let thread_id = this.thread_id;
-        let assistant_id = this.assistant_id;
+        if (this.messages_sent == 1) {
+          const rc = await this.chatInfo();
+          if (!rc.ok) {
+            this.errorCallback ('You are logged out');
+            return;
+          }
+        }
+
         let request = {
             type: 'user',
-            prompt: text,
-            thread_id: thread_id,
-            assistant_id: assistant_id,
             model: this.model,
-            functions: this.functions,
+            call: this.functions && this.functions.length > 0 ? this.functions : null,
             apiKey: this.apiKey,
             temperature: this.temperature,
             top_p: this.top_p,
             prompt_id: prompt_id,
-            files: this.files,
-            images: this.images,
+            images: images,
             image_resolution: options?.image_resolution != undefined ? options.image_resolution : null,
             max_tokens: options?.max_tokens != undefined ? options.max_tokens : null,
         };
+
+        // the first prompt sends together config and prompt
+        if (this.module && !this.messages_sent) {
+            request['chat_id'] = 'system-'+this.module;
+            request['alt_question'] = text;
+            this.chat_id = null;
+        } 
+        else {
+            request['chat_id'] = this.chat_id;
+            request['question'] = text;
+        }
         this.ws.send(JSON.stringify(request));
         this.messages_sent++;
-        this.images = [];
-        this.files = [];
     }
 
     async stop() {
-        let url = new URL('threads', this.apiBaseUrl);
+        let url = new URL('chatControl', this.apiBaseUrl);
         let params = new URLSearchParams(url.search);
         if (!this.session?.info?.isLoggedIn) {
              this.errorCallback('Not logged-in');
         }
-        params.append('thread_id', this.thread_id);
-        params.append('run_id', this.run_id);
-        params.append('ctl', 1);
+        params.append('session_id', this.session.info.sessionId);
         url.search = params.toString();
         try {
           const resp = await this.authClient.fetch (url.toString(), {headers: { 'X-OPAL-Version': this.version}})
@@ -239,20 +270,19 @@ class OpalX {
     }
 
     async getPermaLink() {
-        let url = new URL('storeThread', this.apiBaseUrl);
+        let url = new URL('getPLink', this.apiBaseUrl);
         let params = new URLSearchParams(url.search);
-        if (!this.thread_id) {
+        if (!this.chat_id) {
             throw Error ('No active chat session.');
         }
-        params.append('thread_id', this.thread_id);
-        params.append('apiKey', this.apiKey ? this.apiKey : '');
+        params.append('chat_id', this.chat_id);
         url.search = params.toString();
         try {
             let resp = await this.authClient.fetch (url.toString(), { headers: { 'X-OPAL-Version': this.version, }, });
             if (resp.ok) {
                 let share_id = await resp.text();
-                let linkUrl = new URL('/assist/', this.apiBaseUrl);
-                linkUrl.search = 'share_id=' + share_id;
+                let linkUrl = new URL('/chat/', this.apiBaseUrl);
+                linkUrl.search = 'chat_id=' + share_id;
                 return linkUrl.toString();
             } else {
                 this.errorCallback ('Can not get Permalink ' + resp.statusText);
@@ -260,79 +290,6 @@ class OpalX {
         } catch (e) {
             this.errorCallback ('Can not get Permalink ' + e);
         }
-    }
-
-    async addFile(name, type, blob, purpose = 'assistants') {
-        let url = new URL('files', this.apiBaseUrl);
-        let params = new URLSearchParams(url.search);
-        const formData  = new FormData();
-        params.append('thread_id', this.thread_id);
-        params.append('apiKey', this.apiKey ? this.apiKey : '');
-        formData.append('name', name);
-        formData.append('format', type);
-        formData.append('purpose', purpose);
-        formData.append('data', blob);
-        url.search = params.toString();
-        const file_id = await this.authClient.fetch(url.toString(), { method:'POST', body: formData }).
-            then((resp)=>{
-                if (!resp.ok) {
-                    throw new Error(resp.statusText);
-                }
-                return resp.text();
-            }).
-            catch((e)=>{ 
-                this.errorCallback ('Can not upload file ' + e);
-            });
-        if ('assistants' === purpose) {
-            this.files.push(file_id);
-        } else if ('vision' === purpose) {
-            this.images.push(file_id);
-        }
-        return file_id;
-    }
-
-    async deleteFile(file_id) {
-        let url = new URL('files', this.apiBaseUrl);
-        let params = new URLSearchParams(url.search);
-        params.append('thread_id', this.thread_id);
-        params.append('file_id', file_id);
-        params.append('apiKey', this.apiKey ? this.apiKey : '');
-        url.search = params.toString();
-        await this.authClient.fetch(url.toString(), { method:'DELETE' }).then((resp) => {
-            if (resp.status != 204) {
-                throw new Error (resp.statusText);
-            }
-            this.files = this.files.filter(item => item !== file_id);
-            this.images = this.images.filter(item => item !== file_id);
-        }).catch((e) => {
-            this.errorCallback('Delete failed: ' + e);
-        });
-    }
-
-
-    async loadAssistants() {
-        try {
-            const url = new URL('assistants', this.apiBaseUrl);
-            await fetch (url.toString()).then (resp => {
-                if (resp.ok) {
-                    return resp.json();
-                } else {
-                    throw new Error(resp.statusText);
-                }
-            }).then(items => {
-                this.assistants = items;
-            });
-        } catch (e) {
-            this.errorCallback('Can not get Assistants:' + e);
-        }
-    }
-
-    getAssistants() {
-        return this.assistants;
-    }
-
-    setAssistant(assistant_id) {
-        this.assistant_id = assistant_id;
     }
 
     async share (mode) {
@@ -361,7 +318,7 @@ class OpalX {
 
     async close() {
         this.ws.close();
-        this.thread_id = undefined;
+        this.chat_id = undefined;
     }
 }
 

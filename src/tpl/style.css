@@ -37,7 +37,12 @@ h1 { font-family: 'Museo500Regular', serif; font-size: 17px; text-align: center;
 /* Card Content */
 
 /* User Photo */
-.cardPic {  }
+.cardPic {  
+  max-width: 130px;
+  max-height: 145px;
+  width: auto;
+  height: auto;
+}
 
 /* Card Details Section */
 .cardDetails { float: left; width: 285px; }
@@ -58,7 +63,7 @@ div.cardBottom {
 
 div.cardBody {
   display:grid; 
-  grid-template-columns:130px 1fr 102px; 
+  grid-template-columns:130px 1fr auto; 
   grid-column-gap: 20px; 
   padding: 23px;
   background: #fff;
@@ -112,3 +117,10 @@ div.agent {margin-left: 30px; display:flex; flex-flow:column;}
   cursor: pointer;
 }
 
+@media only screen and (max-width: 600px) and (orientation: portrait) {
+.cardWrapper { 
+   width: 100vw; 
+}
+
+
+}

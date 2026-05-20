@@ -9,7 +9,8 @@
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "xsig": "http://www.w3.org/2000/09/xmldsig#",
     "owl": "http://www.w3.org/2002/07/owl#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "pim": "http://www.w3.org/ns/pim/space#"
   },
   "@graph": [
     {
@@ -205,6 +206,7 @@
       },
 !{pdp_url}      "owl:sameAs": { "@id": "%{pdp_url}#this" },
 !{pdp_url}      "schema:sameAs": { "@id": "%{pdp_url}" },
+!{pim_storage}      "pim:storage": { "@id": "%{pim_storage}" },
       "schema:name": "%{subj_name}"
     },
 
